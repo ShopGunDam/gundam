@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HỒ SƠ PHI CÔNG | GUNPLA STORE</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;900&family=Open+Sans:wght@300;400;500;600;700&family=Roboto:wght@400;500;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Boxicons -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Account Specific Styles */
+        .account-section {
+            padding: 120px 0 80px;
+            min-height: 100vh;
+            background: radial-gradient(circle at top right, rgba(58, 134, 255, 0.05), transparent),
+                        radial-gradient(circle at bottom left, rgba(58, 134, 255, 0.05), transparent);
+        }
+
+        .account-container {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 30px;
+            align-items: start;
+        }
+
+        /* Profile Side Card */
+        .profile-card {
+            background: rgba(10, 15, 25, 0.8);
+            border: 1px solid rgba(58, 134, 255, 0.3);
+            border-radius: 12px;
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .profile-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--primary-color);
+            box-shadow: 0 0 15px var(--primary-color);
+        }
+
+        .avatar-wrapper {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            padding: 5px;
+            border: 2px dashed var(--primary-color);
+            position: relative;
+            animation: rotate-border 10s linear infinite;
+        }
+
+        @keyframes rotate-border {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .avatar-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: #1a2230;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: var(--primary-color);
+        }
+        
+        .avatar-wrapper .avatar-inner {
+             animation: counter-rotate 10s linear infinite;
+             width: 100%;
+             height: 100%;
+             display: flex;
+             align-items: center;
+             justify-content: center;
+        }
+
+        @keyframes counter-rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(-360deg); }
+        }
+
+        .profile-name {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 900;
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+        }
+
+        .profile-rank {
+            color: var(--primary-color);
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 25px;
+            display: block;
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px 0;
+            margin-bottom: 25px;
+        }
+
+        .p-stat-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .p-stat-val {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .p-stat-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .profile-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* History Content Area */
+        .history-panel {
+            background: rgba(10, 15, 25, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 30px;
+            backdrop-filter: blur(5px);
+        }
+
+        .panel-header {
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .panel-title i {
+            color: var(--primary-color);
+        }
+
+        .history-table-wrapper {
+            overflow-x: auto;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .history-table th {
+            padding: 15px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            border-bottom: 2px solid rgba(58, 134, 255, 0.2);
+            letter-spacing: 1px;
+        }
+
+        .history-table td {
+            padding: 20px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.9rem;
+        }
+
+        .order-id {
+            color: var(--primary-color);
+            font-family: monospace;
+            font-weight: 700;
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .status-delivered {
+            background: rgba(0, 255, 136, 0.1);
+            color: #00ff88;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+
+        .status-processing {
+            background: rgba(58, 134, 255, 0.1);
+            color: var(--primary-color);
+            border: 1px solid rgba(58, 134, 255, 0.3);
+        }
+
+        .status-cancelled {
+            background: rgba(255, 58, 58, 0.1);
+            color: #ff3a3a;
+            border: 1px solid rgba(255, 58, 58, 0.3);
+        }
+
+        @media (max-width: 992px) {
+            .account-container {
+                grid-template-columns: 1fr;
+            }
+            .profile-card {
+                max-width: 500px;
+                margin: 0 auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <header class="header scrolled" id="header">
+        <nav class="navbar container">
+            <a href="index.html" class="logo">
+                <i class='bx bx-hive'></i>
+                <span class="logo-text">GUNPLA<span class="highlight">STORE</span></span>
+            </a>
+
+            <div class="nav-menu" id="nav-menu">
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="index.html" class="nav-link">TRANG CHỦ</a></li>
+                    <li class="nav-item"><a href="store.html" class="nav-link">CỬA HÀNG</a></li>
+                    <li class="nav-item"><a href="guide.html" class="nav-link">HƯỚNG DẪN</a></li>
+                    <li class="nav-item"><a href="lien-he.html" class="nav-link">LIÊN HỆ</a></li>
+                </ul>
+                <div class="nav-close" id="nav-close">
+                    <i class='bx bx-x'></i>
+                </div>
+            </div>
+
+            <div class="nav-tools">
+                <a href="#" class="cart-icon">
+                    <i class='bx bx-cart-alt'></i>
+                    <span class="cart-count">2</span>
+                </a>
+                <a href="account.html" class="user-icon active">
+                    <i class='bx bx-user-circle'></i>
+                </a>
+                <div class="nav-toggle" id="nav-toggle">
+                    <i class='bx bx-menu-alt-right'></i>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main">
+        <section class="account-section">
+            <div class="container">
+                <div class="account-container">
+                    
+                    <!-- Profile Card -->
+                    <aside class="profile-card">
+                        <div class="avatar-wrapper">
+                            <div class="avatar-inner">
+                                <i class='bx bx-user-circle'></i>
+                            </div>
+                        </div>
+                        <h2 class="profile-name">PHI CÔNG DỰ BỊ</h2>
+                        <span class="profile-rank">RANK: RECRUIT (KHÁCH HÀNG)</span>
+                        
+                        <div class="profile-stats">
+                            <div class="p-stat-item">
+                                <span class="p-stat-val">3</span>
+                                <span class="p-stat-label">Đơn hàng</span>
+                            </div>
+                            <div class="p-stat-item">
+                                <span class="p-stat-val">450</span>
+                                <span class="p-stat-label">Điểm tích lũy</span>
+                            </div>
+                        </div>
+
+                        <div class="profile-actions">
+                            <button class="btn btn-primary">
+                                <i class='bx bx-edit-alt'></i> CHỈNH SỬA HỒ SƠ
+                            </button>
+                            <button class="btn" style="border: 1px solid rgba(255,255,255,0.1);" id="logout-btn">
+                                <i class='bx bx-log-out'></i> ĐĂNG XUẤT
+                            </button>
+                        </div>
+                    </aside>
+
+                    <!-- History Panel -->
+                    <div class="history-panel">
+                        <div class="panel-header">
+                            <h3 class="panel-title"><i class='bx bx-history'></i> LỊCH SỬ ĐƠN HÀNG</h3>
+                            <div class="system-label"><span class="status-dot"></span> DỮ LIỆU MỚI NHẤT</div>
+                        </div>
+
+                        <div class="history-table-wrapper">
+                            <table class="history-table">
+                                <thead>
+                                    <tr>
+                                        <th>Mã đơn hàng</th>
+                                        <th>Ngày giao dịch</th>
+                                        <th>Sản phẩm</th>
+                                        <th>Tổng thanh toán</th>
+                                        <th>Trạng thái</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><span class="order-id">#GSTORE-8821</span></td>
+                                        <td>25/05/2026</td>
+                                        <td>PG Unleashed RX-78-2...</td>
+                                        <td>6,850,000₫</td>
+                                        <td><span class="status-badge status-delivered">Hoàn tất</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="order-id">#GSTORE-7750</span></td>
+                                        <td>12/04/2026</td>
+                                        <td>MG Wing Gundam Zero...</td>
+                                        <td>1,550,000₫</td>
+                                        <td><span class="status-badge status-delivered">Hoàn tất</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="order-id">#GSTORE-9902</span></td>
+                                        <td>27/05/2026</td>
+                                        <td>RG Sazabi MSN-04</td>
+                                        <td>1,150,000₫</td>
+                                        <td><span class="status-badge status-processing">Đang xử lý</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer-minimal">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 G-STORE NETWORK. ALL RIGHTS RESERVED.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JS -->
+    <script src="script.js"></script>
+    <script>
+        // Individual logout for this page
+        const logoutBtn = document.getElementById('logout-btn');
+        if(logoutBtn) {
+            logoutBtn.addEventListener('click', () => {
+                localStorage.removeItem('gst_admin_logged');
+                window.location.href = 'login.html';
+            });
+        }
+    </script>
+</body>
+
+</html>
