@@ -80,6 +80,13 @@ if (heroSection && cubes.length > 0) {
             const speed = (index + 1) * 2;
             cube.style.transform = `translate(${x * speed}px, ${y * speed}px)`;
         });    });
+        
+        cubes.forEach((cube, index) => {
+            // Give different cubes different speeds based on index
+            const speed = (index + 1) * 2; 
+            cube.style.transform = `translate(${x * speed}px, ${y * speed}px)`;
+        });
+    });
     
     // Reset transform when mouse leaves
     heroSection.addEventListener('mouseleave', () => {
@@ -96,6 +103,7 @@ const universeTrack = document.querySelector('.universe-track');
 if (universeTrack) {
     universeTrack.addEventListener('wheel', (e) => {
         if (window.innerWidth > 768) {
+        if(window.innerWidth > 768) {
             e.preventDefault();
             universeTrack.scrollLeft += e.deltaY;
         }
