@@ -285,6 +285,63 @@ body.admin-body {
     padding: 40px;
     clip-path: var(--clip-card);
     position: relative;
+    transition: var(--transition);
+}
+
+.modal-content.wide {
+    max-width: 850px;
+}
+
+.modal-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 40px;
+}
+
+.modal-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.image-upload-wrapper {
+    width: 100%;
+    aspect-ratio: 1 / 1.2;
+    background: rgba(255, 255, 255, 0.02);
+    border: 2px dashed var(--panel-border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.image-upload-wrapper:hover {
+    border-color: var(--primary-color);
+    background: rgba(59, 130, 246, 0.05);
+}
+
+.image-upload-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    position: absolute;
+    top: 0; left: 0;
+}
+
+.image-upload-wrapper i {
+    font-size: 3rem;
+    color: var(--text-muted);
+}
+
+.image-upload-wrapper span {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-family: var(--font-subheading);
 }
 
 .modal-header {
@@ -344,4 +401,10 @@ body.admin-body {
     .admin-main { padding: 20px; }
     .stats-grid { grid-template-columns: 1fr; }
     .page-header { flex-direction: column; align-items: flex-start; gap: 20px; }
+}
+
+/* --- Form Controls --- */
+select option {
+    color: #000;
+    background-color: #fff;
 }

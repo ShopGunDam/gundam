@@ -79,12 +79,6 @@ if (heroSection && cubes.length > 0) {
             // Give different cubes different speeds based on index
             const speed = (index + 1) * 2;
             cube.style.transform = `translate(${x * speed}px, ${y * speed}px)`;
-        });    });
-        
-        cubes.forEach((cube, index) => {
-            // Give different cubes different speeds based on index
-            const speed = (index + 1) * 2; 
-            cube.style.transform = `translate(${x * speed}px, ${y * speed}px)`;
         });
     });
     
@@ -103,7 +97,6 @@ const universeTrack = document.querySelector('.universe-track');
 if (universeTrack) {
     universeTrack.addEventListener('wheel', (e) => {
         if (window.innerWidth > 768) {
-        if(window.innerWidth > 768) {
             e.preventDefault();
             universeTrack.scrollLeft += e.deltaY;
         }
@@ -334,35 +327,8 @@ if (tutorialPortal) {
 /* =========================================
    SPOTLIGHT SLIDER LOGIC
    ========================================= */
-const spotlightData = [
-    {
-        title: "PG UNLEASHED",
-        highlight: "RX-78-2",
-        armor: "95%",
-        mobility: "80%",
-        weapon: "90%",
-        price: "6,850,000₫",
-        img: "assets/images/PG/pg_unleashed.png"
-    },
-    {
-        title: "MG WING GUNDAM",
-        highlight: "ZERO EW",
-        armor: "70%",
-        mobility: "95%",
-        weapon: "85%",
-        price: "1,550,000₫",
-        img: "assets/images/MG/WingZero.png"
-    },
-    {
-        title: "RG SAZABI",
-        highlight: "MSN-04",
-        armor: "85%",
-        mobility: "75%",
-        weapon: "95%",
-        price: "1,150,000₫",
-        img: "assets/images/RG/Sazabi.png"
-    }
-];
+// --- SPOTLIGHT DATA (CLEARED FOR MIGRATION) ---
+const spotlightData = [];
 
 let currentSpotlight = 0;
 
@@ -378,11 +344,6 @@ const nextBtn = document.getElementById('spot-next');
 function updateSpotlight(index) {
     const data = spotlightData[index];
 
-    // Smooth transition
-    spotImg.style.opacity = '0';
-    spotImg.style.transform = 'translateX(20px)';
-
-    
     // Smooth transition
     spotImg.style.opacity = '0';
     spotImg.style.transform = 'translateX(20px)';
@@ -418,21 +379,212 @@ if (nextBtn && prevBtn) {
     });
 }
 /* =========================================
+   STORE & CART LOGIC
+   ========================================= */
+const storeState = {
+    products: [],
+    cart: JSON.parse(localStorage.getItem('gst_cart')) || [],
+    apiUrl: 'http://localhost:5000/api'
+};
+
+async function fetchStoreProducts() {
+    try {
+        const response = await fetch(`${storeState.apiUrl}/products`);
+        storeState.products = await response.json();
+        renderStoreProducts();
+    } catch (err) {
+        console.error("Store unreachable:", err);
+    }
+}
+
+// --- Injected Cart Sidebar ---
+const cartHTML = `
+    <div class="cart-sidebar" id="cart-sidebar">
+        <div class="cart-header">
+            <h3>GIỎ HÀNG <span class="highlight">TACTICAL</span></h3>
+            <div class="cart-close" id="cart-close"><i class='bx bx-x'></i></div>
+        </div>
+        <div class="cart-items-container" id="cart-items">
+            <!-- Items injected here -->
+        </div>
+        <div class="cart-footer">
+            <div class="cart-total-row">
+                <span>TỔNG CỘNG:</span>
+                <span class="highlight" id="cart-total-price">0₫</span>
+            </div>
+            <button class="btn btn-primary cart-checkout-btn" id="checkout-btn">
+                <i class='bx bx-credit-card'></i> XÁC NHẬN THANH TOÁN
+            </button>
+        </div>
+    </div>
+    <div class="modal-overlay" id="cart-overlay"></div>
+`;
+
+document.body.insertAdjacentHTML('beforeend', cartHTML);
+
+const cartSidebar = document.getElementById('cart-sidebar');
+const cartClose = document.getElementById('cart-close');
+const cartIcon = document.querySelector('.cart-icon');
+const cartOverlay = document.getElementById('cart-overlay');
+const cartCountBadge = document.querySelector('.cart-count');
+const cartItemsWrapper = document.getElementById('cart-items');
+const cartTotalPrice = document.getElementById('cart-total-price');
+const checkoutBtn = document.getElementById('checkout-btn');
+
+function updateCartUI() {
+    // Update badge
+    if(cartCountBadge) {
+        cartCountBadge.innerText = storeState.cart.length;
+    }
+
+    // Render items
+    if(cartItemsWrapper) {
+        if(storeState.cart.length === 0) {
+            cartItemsWrapper.innerHTML = '<p class="empty-cart-msg">Hệ thống chưa ghi nhận vật phẩm nào...</p>';
+            cartTotalPrice.innerText = '0₫';
+        } else {
+            let total = 0;
+            cartItemsWrapper.innerHTML = storeState.cart.map((item, index) => {
+                const priceValue = parseInt(item.price.replace(/[^\d]/g, ''));
+                total += priceValue;
+                return `
+                    <div class="cart-item">
+                        <img src="${item.img || 'assets/images/default.png'}" alt="${item.name}" class="cart-item-img">
+                        <div class="cart-item-info">
+                            <div class="cart-item-name">${item.name}</div>
+                            <div class="cart-item-price">${item.price}</div>
+                        </div>
+                        <i class='bx bx-trash-alt cart-item-remove' onclick="removeFromCart(${index})"></i>
+                    </div>
+                `;
+            }).join('');
+            cartTotalPrice.innerText = total.toLocaleString() + '₫';
+        }
+    }
+    
+    localStorage.setItem('gst_cart', JSON.stringify(storeState.cart));
+}
+
+function addToCart(productId) {
+    const product = storeState.products.find(p => p.id === productId);
+    if(product) {
+        storeState.cart.push(product);
+        updateCartUI();
+        alert(`Đã thêm ${product.name} vào hệ thống giỏ hàng!`);
+    }
+}
+
+function removeFromCart(index) {
+    storeState.cart.splice(index, 1);
+    updateCartUI();
+}
+
+// Sidebar Controls
+if(cartIcon) {
+    cartIcon.addEventListener('click', (e) => {
+        e.preventDefault();
+        cartSidebar.classList.add('open');
+        cartOverlay.style.display = 'block';
+    });
+}
+
+if(cartClose) {
+    cartClose.addEventListener('click', () => {
+        cartSidebar.classList.remove('open');
+        cartOverlay.style.display = 'none';
+    });
+}
+
+if(cartOverlay) {
+    cartOverlay.addEventListener('click', () => {
+        cartSidebar.classList.remove('open');
+        cartOverlay.style.display = 'none';
+    });
+}
+
+if(checkoutBtn) {
+    checkoutBtn.addEventListener('click', () => {
+        if(storeState.cart.length === 0) return alert("Giỏ hàng đang trống!");
+        alert("Xác nhận thanh toán thành công! Đang thiết lập kênh vận chuyển...");
+        storeState.cart = [];
+        updateCartUI();
+        cartSidebar.classList.remove('open');
+        cartOverlay.style.display = 'none';
+    });
+}
+
+// --- Render Store Products ---
+function renderStoreProducts() {
+    const productsFlex = document.querySelector('.products-flex');
+    const matchesCount = document.querySelector('.matches-count');
+
+    if (productsFlex) {
+        if (storeState.products.length === 0) {
+            productsFlex.innerHTML = '<div style="width:100%; text-align:center; padding:50px; color:var(--text-muted);">Sóng tín hiệu yếu... Không tìm thấy sản phẩm nào trong kho.</div>';
+            if(matchesCount) matchesCount.innerText = '0';
+            return;
+        }
+
+        productsFlex.innerHTML = storeState.products.map(p => `
+            <div class="product-card" data-category="${p.series}" data-price="${p.price}">
+                <div class="product-scanner"></div>
+                <div class="product-img-wrapper">
+                    <span class="product-badge">${p.series}</span>
+                    <img src="${p.img || 'assets/images/default.png'}" alt="${p.name}" class="product-img">
+                </div>
+                <div class="product-info">
+                    <span class="product-tech-id">${p.id}</span>
+                    <h3 class="product-name">${p.name}</h3>
+                    <div class="product-specs">
+                        <div class="spec-item"><i class='bx bx-cube'></i> Kho: ${p.stock}</div>
+                    </div>
+                    <div class="product-action-row">
+                        <span class="product-price">${p.price}</span>
+                        <button class="btn product-btn" onclick="addToCart('${p.id}')">
+                            <i class='bx bx-cart-add'></i> MUA NGAY
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+
+        if(matchesCount) matchesCount.innerText = storeState.products.length;
+    }
+}
+
+// Initial Calls
+window.addEventListener('DOMContentLoaded', () => {
+    updateCartUI();
+    fetchStoreProducts(); // Fetch from Node.js
+});
+
+/* =========================================
    LOGIN HANDLING
    ========================================= */
 const loginForm = document.querySelector('.login-form');
 if (loginForm) {
-    loginForm.addEventListener('submit', (e) => {
+    loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
 
-        // Mock Admin Authentication
-        if (username === 'admin' && password === '123') {
-            localStorage.setItem('gst_admin_logged', 'true');
-            window.location.href = 'admin.html';
-        } else {
-            alert('Thông tin định danh không chính xác. Vui lòng thử lại!');
+        try {
+            const response = await fetch('http://localhost:5000/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                localStorage.setItem('gst_admin_logged', 'true');
+                window.location.href = result.role === 'Admin' ? 'admin.html' : 'index.html';
+            } else {
+                alert('Thông tin định danh không chính xác. Vui lòng thử lại!');
+            }
+        } catch (err) {
+            alert('Không thể kết nối đến máy chủ xác thực.');
         }
     });
 }

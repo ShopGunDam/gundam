@@ -2,26 +2,33 @@
    ADMIN DASHBOARD LOGIC
    ========================================= */
 
-// --- INITIAL DATA (MOCK) ---
-const INITIAL_PRODUCTS = [
-    { id: 'GP-782', name: 'RX-78-2 Gundam', series: 'PG Unleashed', stock: 12, price: '6,850,000₫', status: 'In Stock' },
-    { id: 'GP-000', name: 'Wing Gundam Zero EW', series: 'MG Ver.Ka', stock: 5, price: '1,550,000₫', status: 'In Stock' },
-    { id: 'GP-004', name: 'MSN-04 Sazabi', series: 'RG', stock: 2, price: '1,150,000₫', status: 'Low Stock' },
-    { id: 'GP-101', name: 'Freedom Gundam', series: 'MG 2.0', stock: 0, price: '1,250,000₫', status: 'Out of Stock' }
-];
+// --- INITIAL DATA (CLEARED FOR MIGRATION) ---
+const INITIAL_PRODUCTS = [];
 
-const INITIAL_USERS = [
-    { id: 'USR-001', name: 'Đặng Hoàng Nam', email: 'nam@gst.com', role: 'Admin', joined: '2026-01-15' },
-    { id: 'USR-002', name: 'Vinh Pilot', email: 'vinh@gst.com', role: 'User', joined: '2026-02-20' },
-    { id: 'USR-003', name: 'Guest Alpha', email: 'guest@gst.com', role: 'User', joined: '2026-03-05' }
-];
+const INITIAL_USERS = [];
+
+// --- FORCED RESET FOR DATA MIGRATION ---
+localStorage.removeItem('gst_products');
+localStorage.removeItem('gst_users');
 
 // --- APP STATE ---
 const state = {
-    products: JSON.parse(localStorage.getItem('gst_products')) || INITIAL_PRODUCTS,
-    users: JSON.parse(localStorage.getItem('gst_users')) || INITIAL_USERS,
-    currentView: 'overview'
+    products: [],
+    users: [],
+    currentView: 'overview',
+    apiUrl: 'http://localhost:5000/api'
 };
+
+// --- DATA FETCHING ---
+async function fetchProducts() {
+    try {
+        const response = await fetch(`${state.apiUrl}/products`);
+        state.products = await response.json();
+        renderView(state.currentView);
+    } catch (err) {
+        console.error("Failed to fetch products:", err);
+    }
+}
 
 // --- AUTHENTICATION ---
 function checkAuth() {
@@ -29,9 +36,10 @@ function checkAuth() {
     const overlay = document.getElementById('auth-overlay');
     
     if (isAdmin === 'true') {
-        setTimeout(() => {
+        setTimeout(async () => {
             overlay.style.opacity = '0';
             setTimeout(() => overlay.style.display = 'none', 500);
+            await fetchProducts(); // Load data from SQL
             renderView('overview');
         }, 1500);
     } else {
@@ -39,11 +47,7 @@ function checkAuth() {
     }
 }
 
-// --- DATA PERSISTENCE ---
-function saveData() {
-    localStorage.setItem('gst_products', JSON.stringify(state.products));
-    localStorage.setItem('gst_users', JSON.stringify(state.users));
-}
+// (saveData is no longer needed globally as we save individually per action)
 
 // --- VIEW RENDERING ---
 function renderView(viewName) {
@@ -234,11 +238,19 @@ function renderAccounts() {
 }
 
 // --- CRUD OPERATIONS ---
-function deleteProduct(id) {
+async function deleteProduct(id) {
     if (confirm(`Bạn có chắc muốn xóa sản phẩm ${id}?`)) {
-        state.products = state.products.filter(p => p.id !== id);
-        saveData();
-        renderView('warehouse');
+        try {
+            const response = await fetch(`${state.apiUrl}/products/${id}`, {
+                method: 'DELETE'
+            });
+            if (response.ok) {
+                await fetchProducts();
+                renderView('warehouse');
+            }
+        } catch (err) {
+            alert("Lỗi khi xóa sản phẩm: " + err.message);
+        }
     }
 }
 
@@ -257,54 +269,155 @@ const modal = document.getElementById('modal-container');
 function showAddProductModal() {
     modal.style.display = 'flex';
     modal.innerHTML = `
-        <div class="modal-content">
+        <div class="modal-content wide">
             <div class="modal-header">
-                <h3 class="modal-title">NHẬP <span class="highlight">MẶC HÀNG MỚI</span></h3>
+                <h3 class="modal-title">HỆ THỐNG <span class="highlight">NHẬP MÔ HÌNH MỚI</span></h3>
             </div>
+            
             <form id="add-product-form" class="admin-form">
-                <div class="form-group">
-                    <label>TÊN SẢN PHẨM</label>
-                    <input type="text" id="p-name" placeholder="Ví dụ: Gundam Exia" required>
+                <div class="modal-grid">
+                    <!-- Left: Image Section -->
+                    <div class="modal-left">
+                        <label>ẢNH MÔ HÌNH (SƠ ĐỒ)</label>
+                        <div class="image-upload-wrapper" id="img-upload-trigger" style="cursor: pointer;">
+                            <i class='bx bx-cloud-upload'></i>
+                            <span>CHỌN ẢNH TỪ HỆ THỐNG</span>
+                            <img id="img-preview" src="" style="display:none; width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">
+                        </div>
+                        <input type="file" id="p-img-file" style="display:none" accept="image/*">
+                        <input type="text" id="p-img-url" placeholder="Hoặc nhập URL ảnh..." style="margin-top: 10px; font-size: 0.75rem;">
+                    </div>
+
+                    <!-- Right: Info Section -->
+                    <div class="modal-right">
+                        <div class="form-group">
+                            <label>MÃ ĐỊNH DANH (ID)</label>
+                            <input type="text" id="p-id" value="GP-${Math.floor(Date.now()/100000)}" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>TÊN SẢN PHẨM</label>
+                            <input type="text" id="p-name" placeholder="Ví dụ: Gundam Exia" required>
+                        </div>
+                        <div class="form-group">
+                            <label>LINH KIỆN / SERIES</label>
+                            <select id="p-series">
+                                <option>Perfect Grade (PG)</option>
+                                <option>Master Grade (MG)</option>
+                                <option>Real Grade (RG)</option>
+                                <option>High Grade (HG)</option>
+                                <option>Phụ Kiện</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>ĐƠN GIÁ (₫)</label>
+                            <input type="text" id="p-price" placeholder="1,000,000₫" required>
+                        </div>
+                        <div class="form-group">
+                            <label>SỐ LƯỢNG KHO</label>
+                            <input type="number" id="p-stock" value="10" required>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>SERIES</label>
-                    <select id="p-series">
-                        <option>Perfect Grade (PG)</option>
-                        <option>Master Grade (MG)</option>
-                        <option>Real Grade (RG)</option>
-                        <option>High Grade (HG)</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>ĐƠN GIÁ (₫)</label>
-                    <input type="text" id="p-price" placeholder="1,000,000₫" required>
-                </div>
-                <div class="form-group">
-                    <label>SỐ LƯỢNG KHO</label>
-                    <input type="number" id="p-stock" value="10" required>
-                </div>
+
                 <div class="form-footer">
-                    <button type="button" class="btn" onclick="closeModal()">HỦY</button>
-                    <button type="submit" class="btn btn-primary">XÁC NHẬN NHẬP</button>
+                    <button type="button" class="btn" onclick="closeModal()">HỦY LỆNH</button>
+                    <button type="submit" class="btn btn-primary" id="btn-save-product">XÁC NHẬN CẬP NHẬT KHO</button>
                 </div>
             </form>
         </div>
     `;
 
-    document.getElementById('add-product-form').onsubmit = (e) => {
+    const imgUploadTrigger = document.getElementById('img-upload-trigger');
+    const imgFileInput = document.getElementById('p-img-file');
+    const imgUrlInput = document.getElementById('p-img-url');
+    const imgPreview = document.getElementById('img-preview');
+    const uploadIcon = imgUploadTrigger.querySelector('i');
+    const uploadText = imgUploadTrigger.querySelector('span');
+
+    // Trigger file picker
+    imgUploadTrigger.onclick = () => imgFileInput.click();
+
+    // Handle file selection
+    imgFileInput.onchange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imgPreview.src = e.target.result;
+                imgPreview.style.display = 'block';
+                uploadIcon.style.display = 'none';
+                uploadText.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    // Keep URL input sync
+    imgUrlInput.oninput = () => {
+        if(imgUrlInput.value) {
+            imgPreview.src = imgUrlInput.value;
+            imgPreview.style.display = 'block';
+            uploadIcon.style.display = 'none';
+            uploadText.style.display = 'none';
+        }
+    };
+
+    document.getElementById('add-product-form').onsubmit = async (e) => {
         e.preventDefault();
+        const btnSave = document.getElementById('btn-save-product');
+        btnSave.disabled = true;
+        btnSave.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> ĐANG TẢI...';
+
+        let finalImgUrl = imgUrlInput.value || 'assets/images/default.png';
+
+        // 1. If file is selected, upload it first
+        if (imgFileInput.files.length > 0) {
+            const formData = new FormData();
+            formData.append('image', imgFileInput.files[0]);
+            
+            try {
+                const uploadRes = await fetch(`${state.apiUrl.replace('/products', '')}/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const uploadData = await uploadRes.json();
+                if (uploadData.url) {
+                    finalImgUrl = uploadData.url;
+                }
+            } catch (err) {
+                console.error("Upload failed, using default image");
+            }
+        }
+
         const newProduct = {
-            id: 'GP-' + Math.floor(Math.random() * 1000),
+            id: document.getElementById('p-id').value,
             name: document.getElementById('p-name').value,
             series: document.getElementById('p-series').value,
             price: document.getElementById('p-price').value,
             stock: parseInt(document.getElementById('p-stock').value),
-            status: 'In Stock'
+            img: finalImgUrl
         };
-        state.products.unshift(newProduct);
-        saveData();
-        closeModal();
-        renderView('warehouse');
+        
+        try {
+            const response = await fetch(`${state.apiUrl}/products`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newProduct)
+            });
+            
+            if (response.ok) {
+                await fetchProducts();
+                closeModal();
+                renderView('warehouse');
+            } else {
+                const err = await response.json();
+                alert("Lỗi: " + err.error);
+            }
+        } catch (err) {
+            alert("Không thể kết nối đến Server Node.js");
+        } finally {
+            btnSave.disabled = false;
+        }
     };
 }
 

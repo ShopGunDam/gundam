@@ -142,27 +142,3 @@ BEGIN
 END
 GO
 
--- =============================================
--- SAMPLE DATA (Dữ liệu mẫu)
--- =============================================
--- Lưu ý: Kiểm tra trùng lặp trước khi chèn
-IF NOT EXISTS (SELECT 1 FROM taikhoan WHERE Username = 'admin')
-BEGIN
-    INSERT INTO taikhoan (Username, Password, Role) VALUES (N'admin', N'admin123', N'Admin');
-    INSERT INTO taikhoan (Username, Password, Role) VALUES (N'nam_pilot', N'123456', N'User');
-END
-
-IF NOT EXISTS (SELECT 1 FROM khachhang WHERE Email = 'nam@gst.com')
-BEGIN
-    INSERT INTO khachhang (TenKH, Email, SDT, DiaChi, Username) 
-    VALUES (N'Đặng Hoàng Nam', N'nam@gst.com', N'0123456789', N'Hồ Chí Minh, Việt Nam', N'nam_pilot');
-END
-
-IF NOT EXISTS (SELECT 1 FROM sanpham WHERE MaSP = 'GP-782')
-BEGIN
-    INSERT INTO sanpham (MaSP, TenSP, LoaiSP, DonGia, SoLuong, HinhAnh) VALUES 
-    (N'GP-782', N'Gundam RX-78-2', N'PG Unleashed', 6850000, 12, N'assets/images/PG/pg_unleashed.png'),
-    (N'GP-000', N'Wing Gundam Zero EW', N'MG Ver.Ka', 1550000, 5, N'assets/images/MG/WingZero.png'),
-    (N'GP-004', N'MSN-04 Sazabi', N'RG', 1150000, 2, N'assets/images/RG/Sazabi.png');
-END
-GO
