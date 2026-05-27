@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GUNPLA STORE | Liên Hệ - Kết Nối Vũ Trụ</title>
+    <meta name="description" content="Liên hệ với GUNPLA STORE - Chuyên cung cấp mô hình Gunpla chính hãng Bandai. Hỗ trợ tư vấn, đặt hàng, báo giá 24/7.">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;900&family=Open+Sans:wght@300;400;500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- Boxicons -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+    <!-- Shared CSS from Nam branch -->
+    <link rel="stylesheet" href="style.css">
+
+    <link rel="stylesheet" href="contact.css">
+</head>
+
+<body>
+    <!-- ==================== HEADER (Kế thừa từ Nam) ==================== -->
+    <header class="header" id="header">
+        <nav class="navbar container">
+            <a href="index.html" class="logo">
+                <i class='bx bx-hive'></i>
+                <span class="logo-text">GUNPLA<span class="highlight">STORE</span></span>
+            </a>
+
+            <div class="nav-menu" id="nav-menu">
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="index.html" class="nav-link">TRANG CHỦ</a></li>
+                    <li class="nav-item"><a href="store.html" class="nav-link">CỬA HÀNG</a></li>
+                    <li class="nav-item"><a href="#guide" class="nav-link">HƯỚNG DẪN</a></li>
+                    <li class="nav-item"><a href="lien-he.html" class="nav-link active">LIÊN HỆ</a></li>
+                </ul>
+                <div class="nav-close" id="nav-close">
+                    <i class='bx bx-x'></i>
+                </div>
+            </div>
+
+            <div class="nav-tools">
+                <div class="search-box">
+                    <input type="text" placeholder="Tìm kiếm Gunpla..." class="search-input">
+                    <i class='bx bx-target-lock search-icon'></i>
+                </div>
+                <a href="#" class="cart-icon">
+                    <i class='bx bx-cart-alt'></i>
+                    <span class="cart-count">2</span>
+                </a>
+                <a href="#" class="user-icon">
+                    <i class='bx bx-user-circle'></i>
+                </a>
+                <div class="nav-toggle" id="nav-toggle">
+                    <i class='bx bx-menu-alt-right'></i>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main">
+
+        <!-- ==================== HERO BANNER ==================== -->
+        <section class="contact-hero" id="contact-hero">
+            <div class="contact-hero-bg"></div>
+            <div class="contact-hero-grid"></div>
+            <div class="hero-scan-beam"></div>
+
+            <!-- Corner brackets decoration -->
+            <div class="corner-bracket tl"></div>
+            <div class="corner-bracket tr"></div>
+            <div class="corner-bracket bl"></div>
+            <div class="corner-bracket br"></div>
+
+            <div class="container contact-hero-content">
+                <div class="page-breadcrumb">
+                    <a href="index.html">TRANG CHỦ</a>
+                    <i class='bx bx-chevron-right'></i>
+                    <span>LIÊN HỆ</span>
+                </div>
+
+                <h1 class="contact-hero-title">
+                    KẾT NỐI<br>
+                    <span class="line2">VŨ TRỤ GUNPLA</span>
+                </h1>
+                <p class="contact-hero-sub">
+                    Gửi tín hiệu đến chúng tôi. Đội ngũ hỗ trợ luôn trực tuyến 24/7 — tư vấn, đặt hàng, và giải đáp mọi thắc mắc về Gunpla của bạn.
+                </p>
+
+                <div class="hero-status-bar">
+                    <div class="status-chip">
+                        <div class="dot"></div>
+                        HỆ THỐNG TRỰC TUYẾN
+                    </div>
+                    <div class="status-chip">
+                        <div class="dot"></div>
+                        PHẢN HỒI &lt; 30 PHÚT
+                    </div>
+                    <div class="status-chip">
+                        <div class="dot"></div>
+                        HỖ TRỢ 24/7
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== INFO CARDS ==================== -->
+        <section class="contact-info-section" id="contact-info">
+            <div class="container">
+                <div class="info-cards-row">
+                    <!-- Card 1: Address -->
+                    <div class="info-card" id="card-address">
+                        <div class="info-card-scanner"></div>
+                        <div class="info-card-icon">
+                            <i class='bx bx-map-pin'></i>
+                        </div>
+                        <div class="info-card-label">TỌA ĐỘ CĂN CỨ</div>
+                        <div class="info-card-title">ĐỊA CHỈ</div>
+                        <div class="info-card-value">
+                            123 Đường Lắp Ráp, Phường Gundam<br>
+                            Quận Mô Hình, TP. Hồ Chí Minh<br>
+                            <a href="#map-section">› Xem bản đồ</a>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Phone/Chat -->
+                    <div class="info-card" id="card-phone">
+                        <div class="info-card-scanner"></div>
+                        <div class="info-card-icon">
+                            <i class='bx bx-headphone'></i>
+                        </div>
+                        <div class="info-card-label">TÍN HIỆU LIÊN LẠC</div>
+                        <div class="info-card-title">HOTLINE & CHAT</div>
+                        <div class="info-card-value">
+                            <a href="tel:0901234567">0901 234 567</a><br>
+                            <a href="tel:0287654321">028 7654 321</a><br>
+                            <a href="#">› Chat Zalo ngay</a>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Email -->
+                    <div class="info-card" id="card-email">
+                        <div class="info-card-scanner"></div>
+                        <div class="info-card-icon">
+                            <i class='bx bx-envelope'></i>
+                        </div>
+                        <div class="info-card-label">ĐƯỜNG TRUYỀN DỮ LIỆU</div>
+                        <div class="info-card-title">EMAIL</div>
+                        <div class="info-card-value">
+                            <a href="mailto:hello@gunplastore.vn">hello@gunplastore.vn</a><br>
+                            <a href="mailto:order@gunplastore.vn">order@gunplastore.vn</a><br>
+                            <a href="#">› Gửi email ngay</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== MAIN GRID: FORM + SOCIAL ==================== -->
+                <div class="contact-main-grid">
+                    <!-- LEFT: Contact Form -->
+                    <div class="form-panel" id="contact-form-panel">
+                        <div class="form-panel-header">
+                            <div class="form-panel-tag">TRUYỀN TÍN HIỆU</div>
+                            <h2 class="form-panel-title">GỬI TIN<br><span class="highlight">NHẮN ĐẾN CHÚNG TÔI</span></h2>
+                            <p class="form-panel-subtitle">Điền thông tin bên dưới — hệ thống sẽ xử lý và phản hồi trong vòng 30 phút.</p>
+                        </div>
+
+                        <form id="contact-form" novalidate>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label" for="input-name">Họ & Tên</label>
+                                    <input type="text" id="input-name" class="form-control" placeholder="Nguyễn Văn A" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="input-phone">Số điện thoại</label>
+                                    <input type="tel" id="input-phone" class="form-control" placeholder="09xx xxx xxx" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="input-email">Email</label>
+                                <input type="email" id="input-email" class="form-control" placeholder="your@email.com">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="input-topic">Chủ đề liên hệ</label>
+                                <select id="input-topic" class="form-control">
+                                    <option value="">-- Chọn chủ đề --</option>
+                                    <option value="order">Đặt hàng / Báo giá</option>
+                                    <option value="consult">Tư vấn sản phẩm Gunpla</option>
+                                    <option value="shipping">Vận chuyển & Giao hàng</option>
+                                    <option value="return">Đổi trả & Bảo hành</option>
+                                    <option value="collab">Hợp tác & Đại lý</option>
+                                    <option value="other">Khác</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Mức độ ưu tiên</label>
+                                <div class="priority-group">
+                                    <button type="button" class="priority-btn active" id="priority-normal" onclick="setPriority(this)">THƯỜNG</button>
+                                    <button type="button" class="priority-btn" id="priority-high" onclick="setPriority(this)">CAO</button>
+                                    <button type="button" class="priority-btn urgent" id="priority-urgent" onclick="setPriority(this)">KHẨN CẤP</button>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="input-message">Nội dung tin nhắn</label>
+                                <textarea id="input-message" class="form-control" placeholder="Mô tả chi tiết yêu cầu của bạn... Ví dụ: Tôi muốn hỏi về PG Unleashed RX-78-2, giá hiện tại và thời gian giao hàng?" required></textarea>
+                            </div>
+
+                            <button type="submit" class="btn-submit" id="submit-btn">
+                                <i class='bx bx-send'></i>
+                                PHÁT TÍN HIỆU
+                            </button>
+                        </form>
+
+                        <div class="form-success" id="form-success">
+                            <div class="success-icon">
+                                <i class='bx bx-check'></i>
+                            </div>
+                            <div class="success-title">TÍN HIỆU ĐÃ ĐƯỢC GỬI!</div>
+                            <p class="success-msg">Hệ thống đã nhận được thông điệp của bạn.<br>Chúng tôi sẽ phản hồi trong vòng 30 phút.</p>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT: Social + Hours -->
+                    <div class="right-panel">
+                        <!-- Social Links -->
+                        <div class="social-card" id="social-links-card">
+                            <div class="social-card-header">
+                                <div class="social-card-tag">MẠNG LƯỚI KẾT NỐI</div>
+                                <h3 class="social-card-title">THEO DÕI<br><span class="highlight">CHÚNG TÔI</span></h3>
+                            </div>
+                            <div class="social-links-list">
+                                <a href="#" class="social-link-item sl-facebook" id="link-facebook">
+                                    <div class="social-link-icon">
+                                        <i class='bx bxl-facebook'></i>
+                                    </div>
+                                    <div class="social-link-info">
+                                        <div class="social-link-name">FACEBOOK</div>
+                                        <div class="social-link-handle">@GunplaStore.VN · 12.5K followers</div>
+                                    </div>
+                                    <div class="social-link-arrow"><i class='bx bx-right-arrow-alt'></i></div>
+                                </a>
+
+                                <a href="#" class="social-link-item sl-youtube" id="link-youtube">
+                                    <div class="social-link-icon">
+                                        <i class='bx bxl-youtube'></i>
+                                    </div>
+                                    <div class="social-link-info">
+                                        <div class="social-link-name">YOUTUBE</div>
+                                        <div class="social-link-handle">@GunplaStore · 8.2K subscribers</div>
+                                    </div>
+                                    <div class="social-link-arrow"><i class='bx bx-right-arrow-alt'></i></div>
+                                </a>
+
+                                <a href="#" class="social-link-item sl-instagram" id="link-instagram">
+                                    <div class="social-link-icon">
+                                        <i class='bx bxl-instagram'></i>
+                                    </div>
+                                    <div class="social-link-info">
+                                        <div class="social-link-name">INSTAGRAM</div>
+                                        <div class="social-link-handle">@gunplastore.vn · 5.7K followers</div>
+                                    </div>
+                                    <div class="social-link-arrow"><i class='bx bx-right-arrow-alt'></i></div>
+                                </a>
+
+                                <a href="#" class="social-link-item sl-tiktok" id="link-tiktok">
+                                    <div class="social-link-icon">
+                                        <i class='bx bxl-tiktok'></i>
+                                    </div>
+                                    <div class="social-link-info">
+                                        <div class="social-link-name">TIKTOK</div>
+                                        <div class="social-link-handle">@gunplastore · 3.1K followers</div>
+                                    </div>
+                                    <div class="social-link-arrow"><i class='bx bx-right-arrow-alt'></i></div>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Operating Hours -->
+                        <div class="hours-card" id="hours-card">
+                            <div class="hours-header">
+                                <i class='bx bx-time-five'></i>
+                                <div class="hours-header-text">
+                                    <h3>GIỜ HOẠT ĐỘNG</h3>
+                                    <span>MÚNG GIỜ VIỆT NAM (GMT+7)</span>
+                                </div>
+                            </div>
+                            <div class="hours-list">
+                                <div class="hours-row">
+                                    <span class="hours-day">Thứ 2 – Thứ 6</span>
+                                    <span class="hours-time">08:00 – 21:00</span>
+                                </div>
+                                <div class="hours-row today" id="hours-saturday">
+                                    <span class="hours-day">Thứ 7 <span class="today-badge">HÔM NAY</span></span>
+                                    <span class="hours-time">08:00 – 22:00</span>
+                                </div>
+                                <div class="hours-row">
+                                    <span class="hours-day">Chủ Nhật</span>
+                                    <span class="hours-time">09:00 – 20:00</span>
+                                </div>
+                                <div class="hours-row">
+                                    <span class="hours-day">Ngày Lễ</span>
+                                    <span class="hours-time">10:00 – 18:00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== MAP SECTION ==================== -->
+        <section class="map-section section" id="map-section">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-divider">
+                        <i class='bx bx-map'></i>
+                    </div>
+                    <h2 class="section-title">TỌA ĐỘ <span class="highlight">CĂN CỨ</span></h2>
+                    <p class="section-subtitle">Ghé thăm showroom để trải nghiệm trực tiếp hàng trăm mô hình Gunpla chính hãng.</p>
+                </div>
+
+                <div class="map-wrapper" id="map-wrapper">
+                    <div class="map-overlay-top"></div>
+                    <iframe
+                        id="store-map"
+                        class="map-iframe"
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.4441!2d106.6296!3d10.7769!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTDCsDQ2JzM2LjkiTiAxMDbCsDM3JzQ2LjYiRQ!5e0!3m2!1svi!2svn!4v1716500000000!5m2!1svi!2svn"
+                        allowfullscreen=""
+                        loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade"
+                        title="Bản đồ GUNPLA STORE">
+                    </iframe>
+                    <div class="map-coords">
+                        <div class="coord-item">LAT:<span>10.7769° N</span></div>
+                        <div class="coord-item">LONG:<span>106.6296° E</span></div>
+                        <div class="coord-item">ZONE:<span>HỒ CHÍ MINH</span></div>
+                        <div class="coord-item">STATUS:<span>ĐANG MỞ CỬA</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== FAQ SECTION ==================== -->
+        <section class="faq-section" id="faq">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-divider">
+                        <i class='bx bx-help-circle'></i>
+                    </div>
+                    <h2 class="section-title">CÂU HỎI <span class="highlight">THƯỜNG GẶP</span></h2>
+                    <p class="section-subtitle">Những thắc mắc phổ biến về sản phẩm, đặt hàng và dịch vụ tại GUNPLA STORE.</p>
+                </div>
+
+                <div class="faq-grid" id="faq-grid">
+                    <div class="faq-item" id="faq-1">
+                        <div class="faq-question" onclick="toggleFaq('faq-1')">
+                            <div class="faq-q-left">
+                                <span class="faq-number">01</span>
+                                <span class="faq-q-text">Sản phẩm có phải hàng chính hãng Bandai không?</span>
+                            </div>
+                            <div class="faq-toggle"><i class='bx bx-plus'></i></div>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Tất cả sản phẩm tại GUNPLA STORE đều là hàng chính hãng 100% từ Bandai Nhật Bản. Chúng tôi có giấy tờ chứng nhận nhà phân phối ủy quyền và cam kết hoàn tiền nếu phát hiện hàng giả.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item" id="faq-2">
+                        <div class="faq-question" onclick="toggleFaq('faq-2')">
+                            <div class="faq-q-left">
+                                <span class="faq-number">02</span>
+                                <span class="faq-q-text">Thời gian giao hàng là bao lâu?</span>
+                            </div>
+                            <div class="faq-toggle"><i class='bx bx-plus'></i></div>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Nội thành TP.HCM: 2-4 tiếng (giao nhanh). Các tỉnh thành khác: 1-3 ngày. Đơn hàng đặt trước (pre-order) có thể kéo dài 2-8 tuần tùy sản phẩm — chúng tôi sẽ thông báo cụ thể khi đặt.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item" id="faq-3">
+                        <div class="faq-question" onclick="toggleFaq('faq-3')">
+                            <div class="faq-q-left">
+                                <span class="faq-number">03</span>
+                                <span class="faq-q-text">Có thể đổi trả sản phẩm không?</span>
+                            </div>
+                            <div class="faq-toggle"><i class='bx bx-plus'></i></div>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Chúng tôi hỗ trợ đổi trả trong 7 ngày kể từ ngày nhận hàng nếu sản phẩm bị lỗi do sản xuất. Sản phẩm cần còn nguyên hộp, tem niêm phong. Liên hệ hotline để được hướng dẫn quy trình đổi trả.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item" id="faq-4">
+                        <div class="faq-question" onclick="toggleFaq('faq-4')">
+                            <div class="faq-q-left">
+                                <span class="faq-number">04</span>
+                                <span class="faq-q-text">Làm thế nào để đặt hàng số lượng lớn / làm đại lý?</span>
+                            </div>
+                            <div class="faq-toggle"><i class='bx bx-plus'></i></div>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Chúng tôi có chính sách đại lý và giảm giá sỉ hấp dẫn. Vui lòng điền form liên hệ bên trên, chọn chủ đề "Hợp tác & Đại lý". Đội ngũ kinh doanh sẽ liên hệ và báo giá trong 2 giờ làm việc.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item" id="faq-5">
+                        <div class="faq-question" onclick="toggleFaq('faq-5')">
+                            <div class="faq-q-left">
+                                <span class="faq-number">05</span>
+                                <span class="faq-q-text">Gunpla nào phù hợp cho người mới bắt đầu?</span>
+                            </div>
+                            <div class="faq-toggle"><i class='bx bx-plus'></i></div>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Người mới nên bắt đầu với HG (High Grade) hoặc SD — lắp ráp đơn giản, giá cả phải chăng. Khi đã quen có thể nâng lên RG, MG và cuối cùng là PG. Đội ngũ tư vấn luôn sẵn sàng giúp bạn chọn kit phù hợp nhất.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item" id="faq-6">
+                        <div class="faq-question" onclick="toggleFaq('faq-6')">
+                            <div class="faq-q-left">
+                                <span class="faq-number">06</span>
+                                <span class="faq-q-text">Có hỗ trợ thanh toán trả góp không?</span>
+                            </div>
+                            <div class="faq-toggle"><i class='bx bx-plus'></i></div>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Có! Chúng tôi hỗ trợ thanh toán trả góp 0% lãi suất qua thẻ tín dụng cho đơn hàng từ 1.000.000₫ trở lên. Hỗ trợ các ngân hàng: Vietcombank, Techcombank, VPBank, MB Bank. Liên hệ để biết thêm chi tiết.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== WHY CHOOSE US ==================== -->
+        <section class="why-section" id="why-us">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-divider"><i class='bx bx-shield-quarter'></i></div>
+                    <h2 class="section-title">TẠI SAO CHỌN <span class="highlight">GUNPLA STORE</span></h2>
+                    <p class="section-subtitle">Cam kết mang đến trải nghiệm mua sắm Gunpla tốt nhất Việt Nam.</p>
+                </div>
+                <div class="why-grid">
+                    <div class="why-card">
+                        <span class="why-number">01</span>
+                        <div class="why-icon"><i class='bx bx-badge-check'></i></div>
+                        <div class="why-title">100% Chính Hãng</div>
+                        <p class="why-desc">Nhà phân phối ủy quyền Bandai Nhật Bản. Mỗi sản phẩm có tem chống hàng giả và giấy chứng nhận xuất xứ.</p>
+                    </div>
+                    <div class="why-card">
+                        <span class="why-number">02</span>
+                        <div class="why-icon"><i class='bx bx-rocket'></i></div>
+                        <div class="why-title">Giao Siêu Tốc</div>
+                        <p class="why-desc">Nội thành TP.HCM giao trong 2-4 giờ. Toàn quốc 1-3 ngày. Đóng gói cẩn thận, bảo vệ hộp tuyệt đối.</p>
+                    </div>
+                    <div class="why-card">
+                        <span class="why-number">03</span>
+                        <div class="why-icon"><i class='bx bx-headphone'></i></div>
+                        <div class="why-title">Tư Vấn 24/7</div>
+                        <p class="why-desc">Đội ngũ Newtype am hiểu Gunpla sẵn sàng tư vấn kit phù hợp, hướng dẫn lắp ráp và kỹ thuật sơn.</p>
+                    </div>
+                    <div class="why-card">
+                        <span class="why-number">04</span>
+                        <div class="why-icon"><i class='bx bx-refresh'></i></div>
+                        <div class="why-title">Đổi Trả Dễ Dàng</div>
+                        <p class="why-desc">Đổi trả trong 7 ngày nếu lỗi do sản xuất. Hoàn tiền 100% nếu phát hiện hàng không chính hãng.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== TESTIMONIALS ==================== -->
+        <section class="testimonials-section" id="testimonials">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-divider"><i class='bx bx-conversation'></i></div>
+                    <h2 class="section-title">ĐÁNH GIÁ <span class="highlight">KHÁCH HÀNG</span></h2>
+                    <p class="section-subtitle">Hơn 5.000 Newtype đã tin tưởng và đồng hành cùng GUNPLA STORE.</p>
+                </div>
+                <div class="testimonials-grid">
+                    <div class="testi-card">
+                        <div class="testi-quote">"</div>
+                        <div class="testi-stars">
+                            <i class='bx bxs-star'></i><i class='bx bxs-star'></i><i class='bx bxs-star'></i><i class='bx bxs-star'></i><i class='bx bxs-star'></i>
+                        </div>
+                        <p class="testi-text">Đặt PG Unleashed RX-78-2, shop tư vấn tận tình từ A-Z. Hộp được đóng gói cực kỳ chắc chắn, giao nhanh hơn dự kiến. Xứng đáng 5 sao!</p>
+                        <div class="testi-author">
+                            <div class="testi-avatar">MH</div>
+                            <div>
+                                <div class="testi-name">Minh Hùng</div>
+                                <div class="testi-grade">Collector · PG Builder</div>
+                            </div>
+                            <span class="testi-badge">VERIFIED</span>
+                        </div>
+                    </div>
+                    <div class="testi-card">
+                        <div class="testi-quote">"</div>
+                        <div class="testi-stars">
+                            <i class='bx bxs-star'></i><i class='bx bxs-star'></i><i class='bx bxs-star'></i><i class='bx bxs-star'></i><i class='bx bxs-star'></i>
+                        </div>
+                        <p class="testi-text">Mình là newbie Gunpla, được anh nhân viên tư vấn bắt đầu với HG rất chi tiết. Giờ đã lên đến MG rồi! Shop uy tín, giá cả hợp lý.</p>
+                        <div class="testi-author">
+                            <div class="testi-avatar" style="background: linear-gradient(135deg, #ef4444, #f97316);">TL</div>
+                            <div>
+                                <div class="testi-name">Thu Lan</div>
+                                <div class="testi-grade">Newtype Mới · HG → MG</div>
+                            </div>
+                            <span class="testi-badge">VERIFIED</span>
+                        </div>
+                    </div>
+                    <div class="testi-card">
+                        <div class="testi-quote">"</div>
+                        <div class="testi-stars">
+                            <i class='bx bxs-star'></i><i class='bx bxs-star'></i><i class='bx bxs-star'></i><i class='bx bxs-star'></i><i class='bx bxs-star-half'></i>
+                        </div>
+                        <p class="testi-text">Mua sỉ cho cửa hàng mình, giá đại lý rất tốt. Hàng về đúng hạn, không thiếu phụ kiện, chất lượng đồng đều. Sẽ tiếp tục hợp tác lâu dài.</p>
+                        <div class="testi-author">
+                            <div class="testi-avatar" style="background: linear-gradient(135deg, #00ffcc, #0ea5e9);">QD</div>
+                            <div>
+                                <div class="testi-name">Quốc Đạt</div>
+                                <div class="testi-grade">Đại Lý · TP. Đà Nẵng</div>
+                            </div>
+                            <span class="testi-badge">PARTNER</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ==================== FLOATING QUICK CONTACT ==================== -->
+    <div class="floating-contact" id="floating-contact">
+        <a href="https://zalo.me/0901234567" class="float-btn float-btn-zalo" id="float-zalo" target="_blank">
+            <i class='bx bx-message-rounded-dots'></i> Chat Zalo
+        </a>
+        <a href="tel:0901234567" class="float-btn float-btn-phone" id="float-phone">
+            <i class='bx bx-phone-call'></i> Gọi Ngay
+        </a>
+        <a href="https://m.me/GunplaStore" class="float-btn float-btn-messenger" id="float-messenger" target="_blank">
+            <i class='bx bxl-messenger'></i> Messenger
+        </a>
+        <button class="float-toggle" id="float-toggle" onclick="toggleFloat()">
+            <i class='bx bx-support'></i>
+        </button>
+    </div>
+
+    <!-- ==================== FOOTER (Kế thừa từ Nam) ==================== -->
+    <footer class="footer-minimal">
+        <div class="container">
+            <div class="footer-top">
+                <a href="index.html" class="logo">
+                    <i class='bx bx-hive'></i>
+                    <span class="logo-text">GUNPLA<span class="highlight">STORE</span></span>
+                </a>
+                <div class="sys-info">
+                    <span>SYS.VER: 2.0.4</span>
+                    <span>NET: SECURE</span>
+                </div>
+            </div>
+
+            <div class="footer-grid">
+                <div class="f-col">
+                    <h4>CĂN CỨ DỮ LIỆU</h4>
+                    <a href="#">Hướng dẫn lắp ráp</a>
+                    <a href="#">Phân loại Grade</a>
+                    <a href="#">Công cụ & Phụ kiện</a>
+                </div>
+                <div class="f-col">
+                    <h4>LIÊN KẾT MẠNG</h4>
+                    <a href="#">Mạng lưới Facebook</a>
+                    <a href="#">Kênh truyền tín hiệu Youtube</a>
+                    <a href="#">Tín hiệu Instagram</a>
+                </div>
+                <div class="f-col">
+                    <h4>GIAO THỨC BẢO MẬT</h4>
+                    <a href="#">Chính sách bảo mật</a>
+                    <a href="#">Điều khoản sử dụng</a>
+                    <a href="#">Giao thức hoàn trả</a>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 G-STORE NETWORK. ALL RIGHTS RESERVED.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ==================== JAVASCRIPT ==================== -->
+    <script src="script.js"></script>
+    <script src="contact.js"></script>
+</body>
+
+</html>
