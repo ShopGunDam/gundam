@@ -63,6 +63,7 @@
 
 html {
     scroll-behavior: smooth;
+    zoom: 0.8;
 }
 
 body {
@@ -1952,6 +1953,7 @@ body.header-hidden .header {
    RESPONSIVE MEDIA QUERIES
    ========================================= */
 @media (max-width: 992px) {
+
     .spotlight-wrapper { grid-template-columns: 1fr; padding: 30px; }
     .spotlight-visual { height: 300px; grid-row: 1; }
     .bento-grid-container { grid-template-columns: repeat(2, 1fr); grid-template-rows: auto; }
