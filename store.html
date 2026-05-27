@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GUNPLA STORE // PHÒNG TRANG BỊ</title>
+
+    <meta name="description"
+        content="Hệ thống kho hàng mô hình Gunpla chính hãng HG, RG, MG, PG, phụ kiện chính hãng Bandai, Daban, Super Nova.">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;900&family=Open+Sans:wght@300;400;500;600;700&family=Roboto:wght@400;500;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Boxicons -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- Navbar (Giữ nguyên từ index) -->
+    <header class="header scrolled" id="header">
+        <nav class="navbar container">
+            <a href="index.html" class="logo">
+                <i class='bx bx-hive'></i>
+                <span class="logo-text">GUNPLA<span class="highlight">STORE</span></span>
+            </a>
+
+            <div class="nav-menu" id="nav-menu">
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="index.html" class="nav-link">TRANG CHỦ</a></li>
+                    <li class="nav-item"><a href="store.html" class="nav-link active">CỬA HÀNG</a></li>
+                    <li class="nav-item"><a href="guide.html" class="nav-link">HƯỚNG DẪN</a></li>
+                    <li class="nav-item"><a href="#contact" class="nav-link">LIÊN HỆ</a></li>
+                </ul>
+                <div class="nav-close" id="nav-close">
+                    <i class='bx bx-x'></i>
+                </div>
+            </div>
+
+            <div class="nav-tools">
+                <div class="search-box">
+                    <input type="text" placeholder="Tìm kiếm Gunpla..." class="search-input">
+                    <i class='bx bx-target-lock search-icon'></i>
+                </div>
+                <a href="#" class="cart-icon">
+                    <i class='bx bx-cart-alt'></i>
+                    <span class="cart-count">2</span>
+                </a>
+                <a href="#" class="user-icon">
+                    <i class='bx bx-user-circle'></i>
+                </a>
+                <div class="nav-toggle" id="nav-toggle">
+                    <i class='bx bx-menu-alt-right'></i>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <!-- Store Banner Section -->
+        <section class="store-hero banner-style">
+            <div class="gundam-combat-figure"></div>
+            <div class="container hero-flex">
+                <div class="hero-content-left">
+                    <div class="banner-title-box">
+                        <h1 class="store-hero-title-new">MÔ HÌNH GUNDAM <br><span class="highlight">CHÍNH HÃNG</span>
+                        </h1>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Two Column Grid Section -->
+        <section class="store-section section">
+            <div class="container store-container">
+
+                <!-- Left Sidebar Column (CSS Grid Left Column) -->
+                <aside class="store-sidebar">
+                    <h2 class="sidebar-title">
+                        <i class='bx bx-radar'></i> LỌC TRANG BỊ
+                    </h2>
+
+                    <!-- Search Filter -->
+                    <div class="filter-group">
+                        <h3 class="filter-group-title">TÌM KIẾM DỮ LIỆU</h3>
+                        <div class="sidebar-search">
+                            <input type="text" placeholder="Mã hoặc tên mô hình..." class="sidebar-search-input">
+                            <i class='bx bx-search-alt sidebar-search-icon'></i>
+                        </div>
+                    </div>
+
+                    <!-- Category Filter -->
+                    <div class="filter-group">
+                        <h3 class="filter-group-title">PHÂN LOẠI GRADE</h3>
+                        <div class="filter-list">
+                            <label class="filter-checkbox-label">
+                                <input type="checkbox" class="filter-checkbox" data-filter="category" value="HG">
+                                <span>High Grade (HG 1/144)</span>
+                            </label>
+                            <label class="filter-checkbox-label">
+                                <input type="checkbox" class="filter-checkbox" data-filter="category" value="RG">
+                                <span>Real Grade (RG 1/144)</span>
+                            </label>
+                            <label class="filter-checkbox-label">
+                                <input type="checkbox" class="filter-checkbox" data-filter="category" value="MG">
+                                <span>Master Grade (MG 1/100)</span>
+                            </label>
+                            <label class="filter-checkbox-label">
+                                <input type="checkbox" class="filter-checkbox" data-filter="category" value="PG">
+                                <span>Perfect Grade (PG 1/60)</span>
+                            </label>
+                            <label class="filter-checkbox-label">
+                                <input type="checkbox" class="filter-checkbox" data-filter="category" value="Phụ Kiện">
+                                <span>Accessories (Phụ Kiện)</span>
+                            </label>
+                            <label class="filter-checkbox-label">
+                                <input type="checkbox" class="filter-checkbox" data-filter="category" value="Dụng Cụ">
+                                <span>Tools (Dụng Cụ)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Manufacturer Filter -->
+                    <div class="filter-group">
+                        <h3 class="filter-group-title">NHÀ CUNG CẤP</h3>
+                        <div class="filter-list">
+                            <label class="filter-checkbox-label">
+                                <input type="checkbox" class="filter-checkbox" data-filter="manufacturer"
+                                    value="Bandai">
+                                <span>Bandai (Chính Hãng)</span>
+                            </label>
+                            <label class="filter-checkbox-label">
+                                <input type="checkbox" class="filter-checkbox" data-filter="manufacturer" value="Daban">
+                                <span>Daban Model</span>
+                            </label>
+                            <label class="filter-checkbox-label">
+                                <input type="checkbox" class="filter-checkbox" data-filter="manufacturer"
+                                    value="Super Nova">
+                                <span>Super Nova</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Price Filter -->
+                    <div class="filter-group">
+                        <h3 class="filter-group-title">HẠN MỨC NGÂN SÁCH</h3>
+                        <div class="price-range-wrapper">
+                            <input type="range" class="price-slider" min="100000" max="8000000" step="50000"
+                                value="8000000">
+                            <div class="price-values">
+                                <span>Tối thiểu: 100.000đ</span>
+                                <span>Tối đa: <span class="price-max-val">8.000.000đ</span></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Reset Filters Button -->
+                    <button class="btn btn-reset-filters">
+                        <i class='bx bx-reset'></i> KHÔI PHỤC HỆ THỐNG
+                    </button>
+                </aside>
+
+                <!-- Right Products Column (CSS Grid Right Column) -->
+                <section class="store-products">
+
+                    <!-- Products Toolbar -->
+                    <div class="products-toolbar">
+                        <div class="system-matches">
+                            <span class="system-matches-dot"></span>
+                            <span>KẾT QUẢ DÒ TÌM: <span class="matches-count">8</span> THIẾT BỊ KHỚP</span>
+                        </div>
+                        <div class="sort-wrapper">
+                            <span>MÃ SẮP XẾP:</span>
+                            <select class="sort-select">
+                                <option value="default">MẶC ĐỊNH (QUÉT HỆ THỐNG)</option>
+                                <option value="price-asc">GIÁ TĂNG DẦN</option>
+                                <option value="price-desc">GIÁ GIẢM DẦN</option>
+                                <option value="alpha-asc">KÝ TỰ A - Z</option>
+                                <option value="alpha-desc">KÝ TỰ Z - A</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Products Flexbox List -->
+                    <div class="products-flex">
+
+                        <!-- Product Card 1 -->
+                        <div class="product-card" data-category="RG" data-manufacturer="Bandai" data-price="1150000">
+                            <div class="product-scanner"></div>
+                            <div class="product-img-wrapper">
+                                <span class="product-badge">RG 1/144</span>
+                                <span class="product-manufacturer-badge">BANDAI</span>
+                                <img src="assets/images/RG/Sazabi.png" alt="RG Sazabi" class="product-img">
+                            </div>
+                            <div class="product-info">
+                                <span class="product-tech-id">MSN-04 // SAZABI</span>
+                                <h3 class="product-name">Mô Hình Lắp Ráp RG Sazabi - MSN-04</h3>
+                                <div class="product-specs">
+                                    <div class="spec-item"><i class='bx bx-cube'></i> Tỷ lệ: 1/144</div>
+                                    <div class="spec-item"><i class='bx bx-ruler'></i> Cao: ~18cm</div>
+                                </div>
+                                <div class="product-action-row">
+                                    <span class="product-price">1,150,000₫</span>
+                                    <button class="btn product-btn"><i class='bx bx-cart-add'></i> MUA NGAY</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Product Card 2 -->
+                        <div class="product-card" data-category="MG" data-manufacturer="Bandai" data-price="1550000">
+                            <div class="product-scanner"></div>
+                            <div class="product-img-wrapper">
+                                <span class="product-badge">MG 1/100</span>
+                                <span class="product-manufacturer-badge">BANDAI</span>
+                                <img src="assets/images/MG/WingZero.png" alt="MG Wing Zero EW" class="product-img">
+                            </div>
+                            <div class="product-info">
+                                <span class="product-tech-id">XXXG-00W0 // WING ZERO EW</span>
+                                <h3 class="product-name">Mô Hình MG Wing Gundam Zero EW (Ver.Ka)</h3>
+                                <div class="product-specs">
+                                    <div class="spec-item"><i class='bx bx-cube'></i> Tỷ lệ: 1/100</div>
+                                    <div class="spec-item"><i class='bx bx-ruler'></i> Cao: ~19cm</div>
+                                </div>
+                                <div class="product-action-row">
+                                    <span class="product-price">1,550,000₫</span>
+                                    <button class="btn product-btn"><i class='bx bx-cart-add'></i> MUA NGAY</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Product Card 3 -->
+                        <div class="product-card" data-category="HG" data-manufacturer="Bandai" data-price="450000">
+                            <div class="product-scanner"></div>
+                            <div class="product-img-wrapper">
+                                <span class="product-badge">HG 1/144</span>
+                                <span class="product-manufacturer-badge">BANDAI</span>
+                                <img src="assets/images/HG/Aerial.png" alt="HG Aerial" class="product-img">
+                            </div>
+                            <div class="product-info">
+                                <span class="product-tech-id">XVX-016 // GUNDAM AERIAL</span>
+                                <h3 class="product-name">Mô Hình HG Gundam Aerial - Witch from Mercury</h3>
+                                <div class="product-specs">
+                                    <div class="spec-item"><i class='bx bx-cube'></i> Tỷ lệ: 1/144</div>
+                                    <div class="spec-item"><i class='bx bx-ruler'></i> Cao: ~13.5cm</div>
+                                </div>
+                                <div class="product-action-row">
+                                    <span class="product-price">450,000₫</span>
+                                    <button class="btn product-btn"><i class='bx bx-cart-add'></i> MUA NGAY</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Product Card 4 -->
+                        <div class="product-card" data-category="PG" data-manufacturer="Bandai" data-price="6850000">
+                            <div class="product-scanner"></div>
+                            <div class="product-img-wrapper">
+                                <span class="product-badge">PG 1/60</span>
+                                <span class="product-manufacturer-badge">BANDAI</span>
+                                <img src="assets/images/PG/pg_unleashed.png" alt="PG Unleashed RX-78-2"
+                                    class="product-img">
+                            </div>
+                            <div class="product-info">
+                                <span class="product-tech-id">RX-78-2 // GUNDAM UNLEASHED</span>
+                                <h3 class="product-name">Mô Hình PG Unleashed RX-78-2 Gundam</h3>
+                                <div class="product-specs">
+                                    <div class="spec-item"><i class='bx bx-cube'></i> Tỷ lệ: 1/60</div>
+                                    <div class="spec-item"><i class='bx bx-ruler'></i> Cao: ~30cm</div>
+                                </div>
+                                <div class="product-action-row">
+                                    <span class="product-price">6,850,000₫</span>
+                                    <button class="btn product-btn"><i class='bx bx-cart-add'></i> MUA NGAY</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Product Card 5 -->
+                        <div class="product-card" data-category="Phụ Kiện" data-manufacturer="Bandai"
+                            data-price="180000">
+                            <div class="product-scanner"></div>
+                            <div class="product-img-wrapper">
+                                <span class="product-badge">ACCESSORY</span>
+                                <span class="product-manufacturer-badge">BANDAI</span>
+                                <img src="assets/images/PhuKien/ActionBase.png" alt="Action Base 5" class="product-img">
+                            </div>
+                            <div class="product-info">
+                                <span class="product-tech-id">AB-5 // ACTION BASE 5</span>
+                                <h3 class="product-name">Đế Trưng Bày Mô Hình Action Base 5 Clear Color</h3>
+                                <div class="product-specs">
+                                    <div class="spec-item"><i class='bx bx-cube'></i> Phụ kiện trưng bày</div>
+                                    <div class="spec-item"><i class='bx bx-color-fill'></i> Màu: Trong suốt</div>
+                                </div>
+                                <div class="product-action-row">
+                                    <span class="product-price">180,000₫</span>
+                                    <button class="btn product-btn"><i class='bx bx-cart-add'></i> MUA NGAY</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Product Card 6 -->
+                        <div class="product-card" data-category="MG" data-manufacturer="Daban" data-price="580000">
+                            <div class="product-scanner"></div>
+                            <div class="product-img-wrapper">
+                                <span class="product-badge">MG 1/100</span>
+                                <span class="product-manufacturer-badge">DABAN</span>
+                                <img src="assets/images/MG/WingZero.png" alt="Daban MG Wing Zero" class="product-img"
+                                    style="filter: hue-rotate(45deg);">
+                            </div>
+                            <div class="product-info">
+                                <span class="product-tech-id">D-8820 // WING ZERO CUSTOM</span>
+                                <h3 class="product-name">Mô Hình Daban MG Wing Gundam Zero Custom (8820)</h3>
+                                <div class="product-specs">
+                                    <div class="spec-item"><i class='bx bx-cube'></i> Tỷ lệ: 1/100</div>
+                                    <div class="spec-item"><i class='bx bx-ruler'></i> Cao: ~19cm</div>
+                                </div>
+                                <div class="product-action-row">
+                                    <span class="product-price">580,000₫</span>
+                                    <button class="btn product-btn"><i class='bx bx-cart-add'></i> MUA NGAY</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Product Card 7 -->
+                        <div class="product-card" data-category="RG" data-manufacturer="Daban" data-price="420000">
+                            <div class="product-scanner"></div>
+                            <div class="product-img-wrapper">
+                                <span class="product-badge">RG 1/144</span>
+                                <span class="product-manufacturer-badge">DABAN</span>
+                                <img src="assets/images/RG/Sazabi.png" alt="Daban RG Sazabi" class="product-img"
+                                    style="filter: hue-rotate(180deg);">
+                            </div>
+                            <div class="product-info">
+                                <span class="product-tech-id">D-MSN04 // SAZABI COLD</span>
+                                <h3 class="product-name">Mô Hình Daban RG Sazabi - Màu Đặc Biệt</h3>
+                                <div class="product-specs">
+                                    <div class="spec-item"><i class='bx bx-cube'></i> Tỷ lệ: 1/144</div>
+                                    <div class="spec-item"><i class='bx bx-ruler'></i> Cao: ~18cm</div>
+                                </div>
+                                <div class="product-action-row">
+                                    <span class="product-price">420,000₫</span>
+                                    <button class="btn product-btn"><i class='bx bx-cart-add'></i> MUA NGAY</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Product Card 8 -->
+                        <div class="product-card" data-category="HG" data-manufacturer="Super Nova" data-price="380000">
+                            <div class="product-scanner"></div>
+                            <div class="product-img-wrapper">
+                                <span class="product-badge">HG 1/144</span>
+                                <span class="product-manufacturer-badge">SUPER NOVA</span>
+                                <img src="assets/images/HG/Aerial.png" alt="Super Nova Aerial" class="product-img"
+                                    style="filter: hue-rotate(120deg);">
+                            </div>
+                            <div class="product-info">
+                                <span class="product-tech-id">SN-XVX016 // GUNDAM AERIAL ADVANCED</span>
+                                <h3 class="product-name">Mô Hình HG Gundam Aerial Super Nova Custom</h3>
+                                <div class="product-specs">
+                                    <div class="spec-item"><i class='bx bx-cube'></i> Tỷ lệ: 1/144</div>
+                                    <div class="spec-item"><i class='bx bx-ruler'></i> Cao: ~14cm</div>
+                                </div>
+                                <div class="product-action-row">
+                                    <span class="product-price">380,000₫</span>
+                                    <button class="btn product-btn"><i class='bx bx-cart-add'></i> MUA NGAY</button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer (Giữ nguyên từ index) -->
+    <footer class="footer-minimal">
+        <div class="container">
+            <div class="footer-top">
+                <a href="#" class="logo">
+                    <i class='bx bx-hive'></i>
+                    <span class="logo-text">GUNPLA<span class="highlight">STORE</span></span>
+                </a>
+                <div class="sys-info">
+                    <span>SYS.VER: 2.0.4</span>
+                    <span>NET: SECURE</span>
+                </div>
+            </div>
+
+            <div class="footer-grid">
+                <div class="f-col">
+                    <h4>CĂN CỨ DỮ LIỆU</h4>
+                    <a href="#">Hướng dẫn lắp ráp</a>
+                    <a href="#">Phân loại Grade</a>
+                    <a href="#">Công cụ & Phụ kiện</a>
+                </div>
+                <div class="f-col">
+                    <h4>LIÊN KẾT MẠNG</h4>
+                    <a href="#">Mạng lưới Facebook</a>
+                    <a href="#">Kênh truyền tín hiệu Youtube</a>
+                    <a href="#">Tín hiệu Instagram</a>
+                </div>
+                <div class="f-col">
+                    <h4>GIAO THỨC BẢO MẬT</h4>
+                    <a href="#">Chính sách bảo mật</a>
+                    <a href="#">Điều khoản sử dụng</a>
+                    <a href="#">Giao thức hoàn trả</a>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 G-STORE NETWORK. ALL RIGHTS RESERVED.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Custom JS -->
+    <script src="script.js"></script>
+</body>
+
+</html>
