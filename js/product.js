@@ -1,6 +1,9 @@
-const apiHosts = window.location.hostname === 'localhost'
-    ? ['http://localhost:5000', 'http://127.0.0.1:5000']
-    : ['http://127.0.0.1:5000', 'http://localhost:5000'];
+const currentOrigin = window.location.protocol.startsWith('http') ? window.location.origin : null;
+const apiHosts = [
+    currentOrigin,
+    'http://localhost:5000',
+    'http://127.0.0.1:5000'
+].filter(Boolean);
 
 async function requestApi(path, options = {}) {
     const fetchOptions = {

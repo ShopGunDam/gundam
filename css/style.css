@@ -944,7 +944,6 @@ img {
     display: flex;
     flex-direction: column;
     transition: var(--transition);
-    cursor: pointer;
 }
 
 .product-card.hide,
@@ -1075,6 +1074,7 @@ img {
     align-items: center;
     overflow: hidden;
     border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+    cursor: pointer;
 }
 
 .product-img {
@@ -1155,6 +1155,7 @@ img {
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     transition: var(--transition);
+    cursor: pointer;
 }
 
 .product-card:hover .product-name {
@@ -1198,6 +1199,26 @@ img {
     color: var(--neon-green);
     font-weight: 900;
     text-shadow: 0 0 10px rgba(0, 255, 204, 0.2);
+}
+
+.product-price-btn {
+    appearance: none;
+    background: transparent;
+    border: 1px solid rgba(56, 189, 248, 0.65);
+    color: var(--neon-green);
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+    font-family: var(--font-heading);
+    font-size: 1rem;
+    font-weight: 900;
+}
+
+.product-price-btn:hover {
+    background: rgba(14, 165, 233, 0.12);
+    color: #fff;
+    transform: translateY(-1px);
 }
 
 .product-btn {
@@ -2470,6 +2491,11 @@ body.header-hidden .header {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    cursor: pointer;
+}
+
+.spotlight-img {
+    cursor: pointer;
 }
 
 .radar-stats {
@@ -2637,16 +2663,34 @@ body.header-hidden .header {
     z-index: 2;
 }
 
+.bento-top-labels {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+
+.bento-new-label,
 .bento-badge {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 10px;
     font-family: var(--font-subheading);
     font-weight: 700;
-    color: #fff;
-    background: var(--primary-color);
-    padding: 2px 8px;
     font-size: 0.8rem;
-    margin-bottom: 10px;
-    clip-path: var(--clip-btn);
+    border-radius: 999px;
+    clip-path: none;
+}
+
+.bento-new-label {
+    background: rgba(56, 189, 248, 0.95);
+    color: #fff;
+}
+
+.bento-badge {
+    background: var(--primary-color);
+    color: #fff;
 }
 
 .bento-item h3 {
@@ -3131,6 +3175,103 @@ body.header-hidden .header {
     margin-bottom: 20px;
     font-family: var(--font-heading);
     font-size: 1.2rem;
+}
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    z-index: 1950;
+}
+
+.payment-modal {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) scale(0.95);
+    width: min(520px, calc(100% - 40px));
+    background: rgba(10, 14, 23, 0.98);
+    border: 1px solid rgba(59, 130, 246, 0.35);
+    border-radius: 18px;
+    padding: 24px;
+    box-shadow: 0 0 60px rgba(0, 0, 0, 0.55);
+    z-index: 2050;
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.payment-modal.open {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.payment-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+}
+
+.payment-modal-header h3 {
+    margin: 0;
+    font-family: var(--font-heading);
+    letter-spacing: 1px;
+}
+
+.payment-modal-close {
+    cursor: pointer;
+    font-size: 1.8rem;
+    color: var(--text-muted);
+}
+
+.payment-modal-close:hover {
+    color: var(--secondary-color);
+}
+
+.payment-modal-body p {
+    margin-bottom: 18px;
+    color: var(--text-muted);
+}
+
+.payment-options {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(140px, 1fr));
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.payment-option-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(14, 165, 233, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.45);
+    color: #fff;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.payment-option-btn:hover {
+    background: rgba(56, 189, 248, 0.18);
+    transform: translateY(-1px);
+}
+
+.payment-help {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+@media screen and (max-width: 620px) {
+    .payment-options {
+        grid-template-columns: 1fr;
+    }
 }
 
 .cart-checkout-btn {

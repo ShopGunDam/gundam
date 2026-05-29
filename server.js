@@ -24,10 +24,10 @@ const upload = multer({ storage: storage });
 
 // --- SQL SERVER CONFIGURATION ---
 const config = {
-    user: process.env.DB_USER || 'sa',
-    password: process.env.DB_PASSWORD || '123456',
-    server: process.env.DB_SERVER || 'AC05\\SQL2019',
-    database: process.env.DB_NAME || 'gunpla_store',
+    user: process.env.DB_USER || 'your_db_user',
+    password: process.env.DB_PASSWORD || '1your_db_password',
+    server: process.env.DB_SERVER || 'your_db_server',
+    database: process.env.DB_NAME || 'your_db_name',
     options: {
         encrypt: false,
         trustServerCertificate: true

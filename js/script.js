@@ -63,9 +63,12 @@ function scrollActive() {
 
 window.addEventListener('scroll', scrollActive);
 
-const apiHosts = window.location.hostname === 'localhost'
-    ? ['http://localhost:5000', 'http://127.0.0.1:5000']
-    : ['http://127.0.0.1:5000', 'http://localhost:5000'];
+const currentOrigin = window.location.protocol.startsWith('http') ? window.location.origin : null;
+const apiHosts = [
+    currentOrigin,
+    'http://localhost:5000',
+    'http://127.0.0.1:5000'
+].filter(Boolean);
 
 async function requestApi(path, options = {}) {
     const fetchOptions = {
@@ -371,30 +374,68 @@ if (storeLayout) {
 /* =========================================
    TUTORIAL PORTAL FILTERING & SEARCH
    ========================================= */
+const categoryMeta = {
+    news: { label: 'SỰ KIỆN', icon: 'bx bx-calendar-event', status: 'HOT' },
+    promo: { label: 'ƯU ĐÃI', icon: 'bx bxs-gift', status: 'LIVE' },
+    guide: { label: 'TIN SỰ KIỆN', icon: 'bx bx-book', status: 'NEW' },
+    event: { label: 'SỰ KIỆN', icon: 'bx bx-calendar-event', status: 'HOT' },
+    default: { label: 'TIN TỨC', icon: 'bx bx-news', status: 'MỚI' }
+};
+
+function normalizeCategory(value) {
+    if (!value) return 'default';
+    const key = value.toString().toLowerCase().trim();
+    if (['news', 'sự kiện', 'event'].includes(key)) return 'news';
+    if (['promo', 'ưu đãi', 'khuyến mãi'].includes(key)) return 'promo';
+    if (['guide', 'tin sự kiện', 'hướng dẫn'].includes(key)) return 'guide';
+    if (['article', 'tin tức'].includes(key)) return 'default';
+    return key;
+}
+
 const tutorialPortal = document.querySelector('.tutorial-portal');
+
+function createFeaturedNewsCard(item) {
+    const categoryKey = normalizeCategory(item.category);
+    const { label } = categoryMeta[categoryKey] || categoryMeta.default;
+    const imgSrc = item.img || 'assets/images/1780023776769.png';
+    return `
+        <article class="news-card">
+            <img src="${imgSrc}" alt="${item.title}">
+            <div class="news-card-body">
+                <span class="news-cat">${label}</span>
+                <h3>${item.title}</h3>
+                <p>${item.excerpt || item.body || ''}</p>
+                <a href="guide.html" class="btn btn-secondary">Xem chi tiết</a>
+            </div>
+        </article>
+    `;
+}
+
+function renderFeaturedNewsCards(newsItems = []) {
+    const featuredGrid = document.querySelector('.featured-news-grid');
+    if (!featuredGrid) return;
+
+    const featuredItems = [...newsItems]
+        .sort((a, b) => {
+            const dateA = a.datePosted ? new Date(a.datePosted).getTime() : 0;
+            const dateB = b.datePosted ? new Date(b.datePosted).getTime() : 0;
+            if (dateB !== dateA) return dateB - dateA;
+            return (b.id || 0) - (a.id || 0);
+        })
+        .slice(0, 3);
+
+    if (featuredItems.length === 0) {
+        featuredGrid.innerHTML = '<p>Chưa có tin nổi bật để hiển thị.</p>';
+        return;
+    }
+
+    featuredGrid.innerHTML = featuredItems.map(createFeaturedNewsCard).join('');
+}
 
 if (tutorialPortal) {
     const filterBtns = document.querySelectorAll('.portal-filter-btn');
     const tutorialGrid = document.querySelector('.tutorial-grid');
     const guideSearch = document.querySelector('.guide-search-input') || document.querySelector('.search-input');
-
-    const categoryMeta = {
-        news: { label: 'SỰ KIỆN', icon: 'bx bx-calendar-event', status: 'HOT' },
-        promo: { label: 'ƯU ĐÃI', icon: 'bx bxs-gift', status: 'LIVE' },
-        guide: { label: 'TIN SỰ KIỆN', icon: 'bx bx-book', status: 'NEW' },
-        event: { label: 'SỰ KIỆN', icon: 'bx bx-calendar-event', status: 'HOT' },
-        default: { label: 'TIN TỨC', icon: 'bx bx-news', status: 'MỚI' }
-    };
-
-    function normalizeCategory(value) {
-        if (!value) return 'default';
-        const key = value.toString().toLowerCase().trim();
-        if (['news', 'sự kiện', 'event'].includes(key)) return 'news';
-        if (['promo', 'ưu đãi', 'khuyến mãi'].includes(key)) return 'promo';
-        if (['guide', 'tin sự kiện', 'hướng dẫn'].includes(key)) return 'guide';
-        if (['article', 'tin tức'].includes(key)) return 'default';
-        return key;
-    }
 
     function createTutorialCard(item) {
         const categoryKey = normalizeCategory(item.category);
@@ -437,6 +478,14 @@ if (tutorialPortal) {
             return;
         }
 
+        // Sort newest posts first, đảm bảo tin mới lên đầu
+        newsItems.sort((a, b) => {
+            const dateA = a.datePosted ? new Date(a.datePosted).getTime() : 0;
+            const dateB = b.datePosted ? new Date(b.datePosted).getTime() : 0;
+            if (dateB !== dateA) return dateB - dateA;
+            return (b.id || 0) - (a.id || 0);
+        });
+
         tutorialGrid.innerHTML = newsItems.map(createTutorialCard).join('');
     }
 
@@ -446,6 +495,7 @@ if (tutorialPortal) {
             const response = await requestApi('/api/news');
             const newsData = await response.json();
             renderNewsCards(newsData);
+            renderFeaturedNewsCards(newsData);
             filterTutorials();
         } catch (err) {
             tutorialGrid.innerHTML = `
@@ -463,11 +513,13 @@ if (tutorialPortal) {
         const activeBtn = document.querySelector('.portal-filter-btn.active');
         const filterValue = activeBtn ? activeBtn.getAttribute('data-filter') : 'all';
         const searchQuery = guideSearch ? guideSearch.value.toLowerCase().trim() : '';
+        const featuredCategories = ['news', 'promo', 'guide'];
 
         tutorialCards.forEach(card => {
             const category = card.getAttribute('data-category') || '';
             const title = card.querySelector('h3') ? card.querySelector('h3').textContent.toLowerCase() : '';
-            const matchesCategory = filterValue === 'all' || category === filterValue;
+            const matchesCategory = filterValue === 'all' ||
+                (filterValue === 'news' ? featuredCategories.includes(category) : category === filterValue);
             const matchesSearch = searchQuery === '' || title.includes(searchQuery);
 
             if (matchesCategory && matchesSearch) {
@@ -497,6 +549,22 @@ if (tutorialPortal) {
 
     loadNewsFromServer();
 }
+
+const featuredNewsGrid = document.querySelector('.featured-news-grid');
+if (featuredNewsGrid) {
+    async function loadFeaturedNews() {
+        try {
+            const response = await requestApi('/api/news');
+            const newsData = await response.json();
+            renderFeaturedNewsCards(newsData);
+        } catch (err) {
+            console.error('Không thể tải trending news:', err);
+        }
+    }
+
+    loadFeaturedNews();
+}
+
 /* =========================================
    SPOTLIGHT SLIDER LOGIC
    ========================================= */
@@ -508,14 +576,41 @@ let currentSpotlight = 0;
 const spotTitle = document.getElementById('spotlight-title');
 const spotPrice = document.getElementById('spotlight-price');
 const spotImg = document.getElementById('spotlight-img');
+const spotlightBuyBtn = document.getElementById('spotlight-buy-btn');
 const armorBar = document.getElementById('stat-armor');
 const mobilityBar = document.getElementById('stat-mobility');
 const weaponBar = document.getElementById('stat-weapon');
 const prevBtn = document.getElementById('spot-prev');
 const nextBtn = document.getElementById('spot-next');
 
+function parsePriceValue(priceText) {
+    return parseInt(priceText.toString().replace(/[^\d]/g, ''), 10) || 0;
+}
+
+function buildSpotlightData(products) {
+    const topProducts = [...products]
+        .map(p => ({
+            ...p,
+            priceValue: parsePriceValue(p.price)
+        }))
+        .sort((a, b) => b.priceValue - a.priceValue)
+        .slice(0, 3);
+
+    return topProducts.map(product => ({
+        id: product.id,
+        title: product.series || 'Sản phẩm cao cấp',
+        highlight: product.name,
+        price: product.price,
+        img: product.img || 'assets/images/default.png',
+        armor: product.armor || '85%',
+        mobility: product.mobility || '75%',
+        weapon: product.weapon || '80%'
+    }));
+}
+
 function updateSpotlight(index) {
     const data = spotlightData[index];
+    if (!data) return;
 
     // Smooth transition
     spotImg.style.opacity = '0';
@@ -526,27 +621,59 @@ function updateSpotlight(index) {
         spotTitle.innerHTML = `${data.title} <br><span class="highlight" id="spotlight-highlight">${data.highlight}</span>`;
         spotPrice.innerText = data.price;
         spotImg.src = data.img;
-        spotImg.alt = data.title + " " + data.highlight;
+        spotImg.alt = data.title + ' ' + data.highlight;
 
-        
         // Update stats
         armorBar.style.width = data.armor;
         mobilityBar.style.width = data.mobility;
         weaponBar.style.width = data.weapon;
 
-        
+        // Update action button target
+        if (spotlightBuyBtn) {
+            spotlightBuyBtn.onclick = (event) => {
+                event.stopPropagation();
+                addToCart(data.id, event);
+            };
+            spotlightBuyBtn.innerHTML = `<i class='bx bx-cart-add'></i> MUA NGAY`;
+        }
+
         spotImg.style.opacity = '1';
         spotImg.style.transform = 'translateX(0)';
     }, 300);
 }
 
+function refreshSpotlight(products) {
+    spotlightData.length = 0;
+    spotlightData.push(...buildSpotlightData(products));
+    currentSpotlight = 0;
+    if (spotlightData.length > 0) {
+        updateSpotlight(currentSpotlight);
+    }
+}
+
+if (spotTitle) {
+    spotTitle.addEventListener('click', () => {
+        const data = spotlightData[currentSpotlight];
+        if (data?.id) gotoProductDetail(data.id);
+    });
+}
+
+if (spotImg) {
+    spotImg.addEventListener('click', () => {
+        const data = spotlightData[currentSpotlight];
+        if (data?.id) gotoProductDetail(data.id);
+    });
+}
+
 if (nextBtn && prevBtn) {
     nextBtn.addEventListener('click', () => {
+        if (spotlightData.length === 0) return;
         currentSpotlight = (currentSpotlight + 1) % spotlightData.length;
         updateSpotlight(currentSpotlight);
     });
 
     prevBtn.addEventListener('click', () => {
+        if (spotlightData.length === 0) return;
         currentSpotlight = (currentSpotlight - 1 + spotlightData.length) % spotlightData.length;
         updateSpotlight(currentSpotlight);
     });
@@ -565,8 +692,55 @@ async function fetchStoreProducts() {
         const response = await fetch(`${storeState.apiUrl}/products`);
         storeState.products = await response.json();
         renderStoreProducts();
+        refreshSpotlight(storeState.products);
     } catch (err) {
         console.error("Store unreachable:", err);
+    }
+}
+
+function createHomepageProductCard(product, size = 'bento-medium') {
+    const imageUrl = product.img || 'assets/images/default.png';
+    return `
+        <div class="bento-item ${size}" onclick="gotoProductDetail('${encodeURIComponent(product.id)}')">
+            <img src="${imageUrl}" alt="${product.name}">
+            <div class="bento-overlay">
+                <div class="bento-top-labels">
+                    <span class="bento-new-label">MỚI</span>
+                    <span class="bento-badge">${product.series || 'Sản phẩm mới'}</span>
+                </div>
+                <h3>${product.name}</h3>
+                <button class="product-price-btn" onclick="addToCart('${product.id}', event)">
+                    <i class='bx bx-cart-add'></i> ${product.price}
+                </button>
+            </div>
+            <div class="scanner-line"></div>
+        </div>
+    `;
+}
+
+async function loadHomepageNewProducts() {
+    const container = document.getElementById('homepage-new-products');
+    if (!container) return;
+
+    try {
+        const response = await requestApi('/api/products');
+        const products = await response.json();
+        const newest = products
+            .slice()
+            .sort((a, b) => (parseInt(b.id, 10) || 0) - (parseInt(a.id, 10) || 0))
+            .slice(0, 3);
+
+        if (newest.length === 0) {
+            container.innerHTML = '<div class="bento-loading"><p>Chưa có sản phẩm mới để hiển thị.</p></div>';
+            return;
+        }
+
+        container.innerHTML = newest
+            .map((product, index) => createHomepageProductCard(product, index === 0 ? 'bento-large' : 'bento-medium'))
+            .join('');
+    } catch (err) {
+        console.error('Không tải được sản phẩm mới nhất:', err);
+        container.innerHTML = '<div class="bento-loading"><p>Không thể tải sản phẩm mới nhất. Vui lòng thử lại sau.</p></div>';
     }
 }
 
@@ -591,6 +765,28 @@ const cartHTML = `
         </div>
     </div>
     <div class="modal-overlay" id="cart-overlay"></div>
+    <div class="payment-modal" id="payment-modal">
+        <div class="payment-modal-header">
+            <h3>Chọn hình thức thanh toán</h3>
+            <span class="payment-modal-close" id="payment-modal-close">&times;</span>
+        </div>
+        <div class="payment-modal-body">
+            <p>Vui lòng chọn phương thức thanh toán để tiếp tục.</p>
+            <div class="payment-options">
+                <button class="btn payment-option-btn" id="qr-payment-btn">
+                    <i class='bx bx-scan'></i>
+                    <span>Thanh toán QR</span>
+                </button>
+                <button class="btn payment-option-btn" id="bank-payment-btn">
+                    <i class='bx bx-bank'></i>
+                    <span>Thanh toán Ngân hàng</span>
+                </button>
+            </div>
+            <div class="payment-help">
+                <p><strong>Lưu ý:</strong> Thanh toán QR sẽ quét mã từ ví điện tử. Ngân hàng phù hợp cho chuyển khoản nội bộ.</p>
+            </div>
+        </div>
+    </div>
 `;
 
 document.body.insertAdjacentHTML('beforeend', cartHTML);
@@ -599,6 +795,10 @@ const cartSidebar = document.getElementById('cart-sidebar');
 const cartClose = document.getElementById('cart-close');
 const cartIcon = document.querySelector('.cart-icon');
 const cartOverlay = document.getElementById('cart-overlay');
+const paymentModal = document.getElementById('payment-modal');
+const paymentModalClose = document.getElementById('payment-modal-close');
+const qrPaymentBtn = document.getElementById('qr-payment-btn');
+const bankPaymentBtn = document.getElementById('bank-payment-btn');
 const cartCountBadge = document.querySelector('.cart-count');
 const cartItemsWrapper = document.getElementById('cart-items');
 const cartTotalPrice = document.getElementById('cart-total-price');
@@ -675,21 +875,57 @@ if(cartClose) {
     });
 }
 
+function showPaymentModal() {
+    if (!paymentModal || !cartOverlay) return;
+    paymentModal.classList.add('open');
+    cartOverlay.style.display = 'block';
+}
+
+function hidePaymentModal() {
+    if (!paymentModal || !cartOverlay) return;
+    paymentModal.classList.remove('open');
+    cartOverlay.style.display = 'none';
+}
+
 if(cartOverlay) {
     cartOverlay.addEventListener('click', () => {
+        if (paymentModal && paymentModal.classList.contains('open')) {
+            hidePaymentModal();
+            return;
+        }
         cartSidebar.classList.remove('open');
         cartOverlay.style.display = 'none';
+    });
+}
+
+if(paymentModalClose) {
+    paymentModalClose.addEventListener('click', hidePaymentModal);
+}
+
+if(qrPaymentBtn) {
+    qrPaymentBtn.addEventListener('click', () => {
+        alert('Chọn thanh toán bằng QR. Vui lòng quét mã QR hiển thị trên thiết bị.');
+        storeState.cart = [];
+        updateCartUI();
+        hidePaymentModal();
+        cartSidebar.classList.remove('open');
+    });
+}
+
+if(bankPaymentBtn) {
+    bankPaymentBtn.addEventListener('click', () => {
+        alert('Chọn thanh toán ngân hàng. Vui lòng chuyển khoản vào tài khoản trong hóa đơn.');
+        storeState.cart = [];
+        updateCartUI();
+        hidePaymentModal();
+        cartSidebar.classList.remove('open');
     });
 }
 
 if(checkoutBtn) {
     checkoutBtn.addEventListener('click', () => {
         if(storeState.cart.length === 0) return alert("Giỏ hàng đang trống!");
-        alert("Xác nhận thanh toán thành công! Đang thiết lập kênh vận chuyển...");
-        storeState.cart = [];
-        updateCartUI();
-        cartSidebar.classList.remove('open');
-        cartOverlay.style.display = 'none';
+        showPaymentModal();
     });
 }
 
@@ -719,7 +955,7 @@ function renderStoreProducts() {
                         <div class="spec-item"><i class='bx bx-cube'></i> Kho: ${p.stock}</div>
                     </div>
                     <div class="product-action-row">
-                        <span class="product-price">${p.price}</span>
+                        <button class="product-price-btn" onclick="addToCart('${p.id}', event)">${p.price}</button>
                         <button class="btn product-btn" onclick="addToCart('${p.id}', event)">
                             <i class='bx bx-cart-add'></i> MUA NGAY
                         </button>
@@ -744,6 +980,7 @@ function renderStoreProducts() {
 window.addEventListener('DOMContentLoaded', () => {
     updateCartUI();
     fetchStoreProducts(); // Fetch from Node.js
+    loadHomepageNewProducts();
 });
 
 /* =========================================
