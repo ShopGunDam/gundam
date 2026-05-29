@@ -63,10 +63,36 @@ function scrollActive() {
 
 window.addEventListener('scroll', scrollActive);
 
+const apiHosts = window.location.hostname === 'localhost'
+    ? ['http://localhost:5000', 'http://127.0.0.1:5000']
+    : ['http://127.0.0.1:5000', 'http://localhost:5000'];
 
-/* =========================================
-   3D CUBES PARALLAX ON MOUSEMOVE
-   ========================================= */
+async function requestApi(path, options = {}) {
+    const fetchOptions = {
+        mode: 'cors',
+        cache: 'no-store',
+        ...options
+    };
+    let lastError;
+    for (const host of apiHosts) {
+        const url = `${host}${path}`;
+        try {
+            const response = await fetch(url, fetchOptions);
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => null);
+                const errorMessage = errorData?.error || `HTTP ${response.status}`;
+                lastError = new Error(`${url}: ${errorMessage}`);
+                continue;
+            }
+            return response;
+        } catch (err) {
+            lastError = err;
+            continue;
+        }
+    }
+    throw lastError;
+}
+
 const cubes = document.querySelectorAll('.cube');
 const heroSection = document.querySelector('.hero');
 
@@ -135,7 +161,6 @@ if (storeLayout) {
     const sortSelect = document.querySelector('.sort-select');
     const matchesCount = document.querySelector('.matches-count');
     const productsFlex = document.querySelector('.products-flex');
-    const productCards = document.querySelectorAll('.product-card');
 
     // Create empty state element if it doesn't exist
     const emptyState = document.createElement('div');
@@ -181,6 +206,7 @@ if (storeLayout) {
     }
 
     function filterProducts() {
+        const productCards = document.querySelectorAll('.product-card');
         const searchQuery = searchInput ? searchInput.value.toLowerCase().trim() : '';
 
         // Gather selected categories
@@ -202,7 +228,8 @@ if (storeLayout) {
         productCards.forEach(card => {
             const name = card.querySelector('.product-name').textContent.toLowerCase();
             const category = card.getAttribute('data-category').toLowerCase();
-            const manufacturer = card.getAttribute('data-manufacturer').toLowerCase();
+            // In case data-manufacturer doesn't exist, handle gracefully
+            const manufacturer = (card.getAttribute('data-manufacturer') || '').toLowerCase();
             const price = parseFloat(card.getAttribute('data-price'));
 
             // Check if matches criteria
@@ -242,6 +269,7 @@ if (storeLayout) {
 
     function sortProducts() {
         if (!sortSelect) return;
+        const productCards = document.querySelectorAll('.product-card');
         const criteria = sortSelect.value;
         const cardsArray = Array.from(productCards);
 
@@ -270,11 +298,74 @@ if (storeLayout) {
         });
     }
 
+    function normalizeCategoryValue(value) {
+        if (!value) return null;
+        const lower = value.toString().toLowerCase().trim();
+        const map = {
+            'hg': 'high grade (hg)',
+            'high grade': 'high grade (hg)',
+            'high grade (hg)': 'high grade (hg)',
+            'mg': 'master grade (mg)',
+            'master grade': 'master grade (mg)',
+            'master grade (mg)': 'master grade (mg)',
+            'rg': 'real grade (rg)',
+            'real grade': 'real grade (rg)',
+            'real grade (rg)': 'real grade (rg)',
+            'pg': 'perfect grade (pg)',
+            'perfect grade': 'perfect grade (pg)',
+            'perfect grade (pg)': 'perfect grade (pg)',
+            'phụ kiện': 'phụ kiện',
+            'accessories': 'phụ kiện',
+            'dụng cụ': 'dụng cụ',
+            'tools': 'dụng cụ'
+        };
+        return map[lower] || lower;
+    }
+
+    function applyUrlFilters() {
+        const params = new URLSearchParams(window.location.search);
+        const categoryParam = params.get('category') || params.get('grade');
+        const manufacturerParam = params.get('manufacturer');
+        const queryParam = params.get('q') || params.get('search');
+
+        if (queryParam && searchInput) {
+            searchInput.value = queryParam;
+        }
+
+        if (categoryParam) {
+            const normalizedCategory = normalizeCategoryValue(categoryParam);
+            categoryCheckboxes.forEach(cb => {
+                cb.checked = normalizeCategoryValue(cb.value) === normalizedCategory;
+            });
+        }
+
+        if (manufacturerParam) {
+            const normalizedManufacturer = manufacturerParam.toString().toLowerCase().trim();
+            manufacturerCheckboxes.forEach(cb => {
+                cb.checked = cb.value.toString().toLowerCase().trim() === normalizedManufacturer;
+            });
+        }
+
+        if (priceSlider && params.has('maxPrice')) {
+            const maxPrice = parseFloat(params.get('maxPrice'));
+            if (!Number.isNaN(maxPrice)) {
+                priceSlider.value = Math.min(maxPrice, priceSlider.max);
+                priceMaxVal.textContent = formatVND(priceSlider.value);
+            }
+        }
+
+        filterProducts();
+    }
+
+    // Expose functions globally so async loaded products can re-run them
+    window.filterProducts = filterProducts;
+    window.sortProducts = sortProducts;
+
     // Initial load
     if (priceSlider) {
         priceMaxVal.textContent = formatVND(priceSlider.value);
     }
-    filterProducts();
+    applyUrlFilters();
 }
 
 /* =========================================
@@ -284,18 +375,98 @@ const tutorialPortal = document.querySelector('.tutorial-portal');
 
 if (tutorialPortal) {
     const filterBtns = document.querySelectorAll('.portal-filter-btn');
-    const tutorialCards = document.querySelectorAll('.tutorial-card');
-    const guideSearch = document.querySelector('.search-input');
+    const tutorialGrid = document.querySelector('.tutorial-grid');
+    const guideSearch = document.querySelector('.guide-search-input') || document.querySelector('.search-input');
+
+    const categoryMeta = {
+        news: { label: 'SỰ KIỆN', icon: 'bx bx-calendar-event', status: 'HOT' },
+        promo: { label: 'ƯU ĐÃI', icon: 'bx bxs-gift', status: 'LIVE' },
+        guide: { label: 'TIN SỰ KIỆN', icon: 'bx bx-book', status: 'NEW' },
+        event: { label: 'SỰ KIỆN', icon: 'bx bx-calendar-event', status: 'HOT' },
+        default: { label: 'TIN TỨC', icon: 'bx bx-news', status: 'MỚI' }
+    };
+
+    function normalizeCategory(value) {
+        if (!value) return 'default';
+        const key = value.toString().toLowerCase().trim();
+        if (['news', 'sự kiện', 'event'].includes(key)) return 'news';
+        if (['promo', 'ưu đãi', 'khuyến mãi'].includes(key)) return 'promo';
+        if (['guide', 'tin sự kiện', 'hướng dẫn'].includes(key)) return 'guide';
+        if (['article', 'tin tức'].includes(key)) return 'default';
+        return key;
+    }
+
+    function createTutorialCard(item) {
+        const categoryKey = normalizeCategory(item.category);
+        const { label, icon, status } = categoryMeta[categoryKey] || categoryMeta.default;
+        let imgSrc = item.img || 'assets/images/1780023776769.png';
+        if (imgSrc && !imgSrc.startsWith('http') && imgSrc.startsWith('assets/')) {
+            imgSrc = `${apiHosts[0]}/${imgSrc}`;
+        }
+        return `
+            <a href="#" class="tutorial-card event-card" data-category="${categoryKey}">
+                <div class="card-media">
+                    <img src="${imgSrc}" alt="${item.title}">
+                </div>
+                <div class="card-body">
+                    <div class="card-top">
+                        <span class="card-type"><i class='${icon}'></i> ${label}</span>
+                        <span class="card-date">${item.datePosted || ''}</span>
+                    </div>
+                    <div class="card-content">
+                        <span class="card-id">NEWS-${item.id}</span>
+                        <h3>${item.title}</h3>
+                        <p class="card-excerpt">${item.excerpt || item.body || ''}</p>
+                    </div>
+                    <div class="card-meta">
+                        <span class="card-status">${status}</span>
+                    </div>
+                </div>
+            </a>
+        `;
+    }
+
+    function renderNewsCards(newsItems = []) {
+        if (!tutorialGrid) return;
+        if (newsItems.length === 0) {
+            tutorialGrid.innerHTML = `
+                <div class="tutorial-empty">
+                    <p>Chưa có bài viết nào được đăng. Vui lòng kiểm tra lại sau.</p>
+                </div>
+            `;
+            return;
+        }
+
+        tutorialGrid.innerHTML = newsItems.map(createTutorialCard).join('');
+    }
+
+    async function loadNewsFromServer() {
+        if (!tutorialGrid) return;
+        try {
+            const response = await requestApi('/api/news');
+            const newsData = await response.json();
+            renderNewsCards(newsData);
+            filterTutorials();
+        } catch (err) {
+            tutorialGrid.innerHTML = `
+                <div class="tutorial-empty error">
+                    <p>Không thể tải dữ liệu tin tức. ${err.message}</p>
+                </div>
+            `;
+            console.error(err);
+        }
+    }
 
     function filterTutorials() {
+        if (!tutorialGrid) return;
+        const tutorialCards = tutorialGrid.querySelectorAll('.tutorial-card');
         const activeBtn = document.querySelector('.portal-filter-btn.active');
         const filterValue = activeBtn ? activeBtn.getAttribute('data-filter') : 'all';
         const searchQuery = guideSearch ? guideSearch.value.toLowerCase().trim() : '';
 
         tutorialCards.forEach(card => {
-            const category = card.getAttribute('data-category');
-            const title = card.querySelector('h3').textContent.toLowerCase();
-
+            const category = card.getAttribute('data-category') || '';
+            const title = card.querySelector('h3') ? card.querySelector('h3').textContent.toLowerCase() : '';
             const matchesCategory = filterValue === 'all' || category === filterValue;
             const matchesSearch = searchQuery === '' || title.includes(searchQuery);
 
@@ -323,6 +494,8 @@ if (tutorialPortal) {
     if (guideSearch) {
         guideSearch.addEventListener('input', filterTutorials);
     }
+
+    loadNewsFromServer();
 }
 /* =========================================
    SPOTLIGHT SLIDER LOGIC
@@ -465,7 +638,14 @@ function updateCartUI() {
     localStorage.setItem('gst_cart', JSON.stringify(storeState.cart));
 }
 
-function addToCart(productId) {
+function gotoProductDetail(productId) {
+    window.location.href = `product.html?id=${encodeURIComponent(productId)}`;
+}
+
+function addToCart(productId, event) {
+    if (event) {
+        event.stopPropagation();
+    }
     const product = storeState.products.find(p => p.id === productId);
     if(product) {
         storeState.cart.push(product);
@@ -526,7 +706,7 @@ function renderStoreProducts() {
         }
 
         productsFlex.innerHTML = storeState.products.map(p => `
-            <div class="product-card" data-category="${p.series}" data-price="${p.price}">
+            <div class="product-card" data-category="${p.series}" data-price="${p.price}" onclick="gotoProductDetail('${p.id}')">
                 <div class="product-scanner"></div>
                 <div class="product-img-wrapper">
                     <span class="product-badge">${p.series}</span>
@@ -540,7 +720,7 @@ function renderStoreProducts() {
                     </div>
                     <div class="product-action-row">
                         <span class="product-price">${p.price}</span>
-                        <button class="btn product-btn" onclick="addToCart('${p.id}')">
+                        <button class="btn product-btn" onclick="addToCart('${p.id}', event)">
                             <i class='bx bx-cart-add'></i> MUA NGAY
                         </button>
                     </div>
@@ -549,6 +729,14 @@ function renderStoreProducts() {
         `).join('');
 
         if(matchesCount) matchesCount.innerText = storeState.products.length;
+        
+        // Trigger filtering and sorting for newly rendered dynamic products
+        if (window.filterProducts) {
+            window.filterProducts();
+        }
+        if (window.sortProducts) {
+            window.sortProducts();
+        }
     }
 }
 

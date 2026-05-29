@@ -1,4 +1,4 @@
-﻿        /* =========================================
+        /* =========================================
            FIX HEADER NAVBAR - PREVENT WRAP
            ========================================= */
         .header .navbar {
@@ -394,6 +394,14 @@
             color: var(--text-muted);
         }
 
+        .form-panel-note {
+            font-size: 0.9rem;
+            color: var(--text-main);
+            margin-top: 12px;
+            line-height: 1.7;
+            opacity: 0.9;
+        }
+
         /* Form inputs */
         .form-row {
             display: grid;
@@ -499,6 +507,38 @@
             background: rgba(239,68,68,0.08);
         }
 
+        .rating-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 4px;
+        }
+
+        .rating-star {
+            width: 44px;
+            height: 44px;
+            border: 1px solid rgba(59,130,246,0.25);
+            background: rgba(5,7,10,0.65);
+            color: rgba(255,255,255,0.6);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            clip-path: var(--clip-btn);
+            transition: var(--transition);
+        }
+
+        .rating-star:hover,
+        .rating-star.active {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            background: rgba(59,130,246,0.08);
+        }
+
+        .rating-star i {
+            font-size: 1rem;
+        }
+
         /* Submit button */
         .btn-submit {
             width: 100%;
@@ -565,9 +605,10 @@
 
         /* --- RIGHT PANEL: SOCIAL + MAP + FAQ --- */
         .right-panel {
-            display: flex;
-            flex-direction: column;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 24px;
+            align-items: start;
         }
 
         /* Social links card */
@@ -1153,6 +1194,7 @@
         }
         @media (max-width: 992px) {
             .contact-main-grid { grid-template-columns: 1fr; }
+            .right-panel { display: flex; flex-direction: column; }
             .info-cards-row { grid-template-columns: 1fr 1fr; }
             .faq-grid { grid-template-columns: 1fr; }
             .testimonials-grid { grid-template-columns: 1fr 1fr; }
