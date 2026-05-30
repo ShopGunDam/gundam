@@ -37,8 +37,35 @@ function toggleFaq(id) {
     const item = document.getElementById(id);
     if (!item) return;
     const isOpen = item.classList.contains('open');
-    document.querySelectorAll('.faq-item').forEach(el => el.classList.remove('open'));
-    if (!isOpen) item.classList.add('open');
+    
+    // Close all open items first
+    document.querySelectorAll('.faq-item.open').forEach(el => {
+        const ans = el.querySelector('.faq-answer');
+        if (ans) {
+            ans.style.maxHeight = ans.scrollHeight + 'px';
+            // Force reflow so browser registers the current height
+            ans.offsetHeight;
+            ans.style.maxHeight = '0';
+        }
+        el.classList.remove('open');
+    });
+
+    // Open clicked item if it wasn't already open
+    if (!isOpen) {
+        const answer = item.querySelector('.faq-answer');
+        if (answer) {
+            item.classList.add('open');
+            answer.style.maxHeight = answer.scrollHeight + 'px';
+            // After transition ends, set to 'none' so content can resize dynamically
+            const onEnd = () => {
+                if (item.classList.contains('open')) {
+                    answer.style.maxHeight = 'none';
+                }
+                answer.removeEventListener('transitionend', onEnd);
+            };
+            answer.addEventListener('transitionend', onEnd);
+        }
+    }
 }
 
 // Floating Quick Contact
