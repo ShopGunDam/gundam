@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ĐĂNG NHẬP | GUNPLA STORE</title>
+
+    <meta name="description" content="Đăng nhập vào tài khoản Gunpla Store của bạn để truy xuất dữ liệu mô hình.">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;900&family=Open+Sans:wght@300;400;500;600;700&family=Roboto:wght@400;500;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Boxicons -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/login.css">
+</head>
+
+<body>
+    <!-- Navbar (Giữ nguyên từ index) -->
+    <header class="header scrolled" id="header">
+        <nav class="navbar container">
+            <a href="index.html" class="logo">
+                <i class='bx bx-hive'></i>
+                <span class="logo-text">GUNPLA<span class="highlight">STORE</span></span>
+            </a>
+
+            <div class="nav-menu" id="nav-menu">
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="index.html" class="nav-link">TRANG CHỦ</a></li>
+                    <li class="nav-item"><a href="store.html" class="nav-link">CỬA HÀNG</a></li>
+                    <li class="nav-item"><a href="guide.html" class="nav-link">HƯỚNG DẪN</a></li>
+                    <li class="nav-item"><a href="lien-he.html" class="nav-link">LIÊN HỆ</a></li>
+                </ul>
+                <div class="nav-close" id="nav-close">
+                    <i class='bx bx-x'></i>
+                </div>
+            </div>
+
+            <div class="nav-tools">
+                <a href="#" class="cart-icon">
+                    <i class='bx bx-cart-alt'></i>
+                    <span class="cart-count">0</span>
+                </a>
+                <a href="login.html" class="user-icon active">
+                    <i class='bx bx-user-circle'></i>
+                </a>
+                <div class="nav-toggle" id="nav-toggle">
+                    <i class='bx bx-menu-alt-right'></i>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main">
+        <section class="login-section">
+            <div class="login-bg-overlay"></div>
+            
+            <div class="login-container">
+                <div class="login-card">
+                    <div class="form-scanner"></div>
+                    
+                    <div class="login-header">
+                        <div class="system-label" id="status-glitch">
+                            <span class="status-dot"></span> SECURE AUTHENTICATION
+                        </div>
+                        <h2 class="glitch" data-text="ĐĂNG NHẬP">ĐĂNG <span class="highlight">NHẬP</span></h2>
+                        <p class="section-subtitle">Vui lòng nhập định danh phi công</p>
+                    </div>
+
+                    <form action="#" class="login-form">
+                        <div class="form-group">
+                            <label for="username">IDENTIFICATION (USERNAME/EMAIL)</label>
+                            <div class="input-wrapper">
+                                <i class='bx bx-user-pin'></i>
+                                <input type="text" id="username" class="form-input" placeholder="admin hoặc email" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password">ACCESS KEY (MẬT KHẨU)</label>
+                            <div class="input-wrapper">
+                                <i class='bx bx-lock-alt'></i>
+                                <input type="password" id="password" class="form-input" placeholder="••••••••" required>
+                            </div>
+                        </div>
+
+                        <div class="form-options">
+                            <label class="remember-me">
+                                <input type="checkbox"> Ghi nhớ dữ liệu
+                            </label>
+                            <a href="#" class="forgot-pw">Quên khóa truy cập?</a>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-glitch login-btn">
+                            <i class='bx bx-log-in-circle'></i> KHỞI CHẠY ĐĂNG NHẬP
+                        </button>
+
+                        <p class="register-prompt">
+                            Chưa có dữ liệu phi công? <a href="#">ĐĂNG KÝ NGAY</a>
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Minimalist Sci-Fi Footer (Giữ nguyên từ index) -->
+    <footer class="footer-minimal">
+        <div class="container">
+            <div class="footer-top">
+                <a href="#" class="logo">
+                    <i class='bx bx-hive'></i>
+                    <span class="logo-text">GUNPLA<span class="highlight">STORE</span></span>
+                </a>
+                <div class="sys-info">
+                    <span>SYS.VER: 2.0.4</span>
+                    <span>NET: SECURE</span>
+                </div>
+            </div>
+
+            <div class="footer-grid">
+                <div class="f-col">
+                    <h4>CĂN CỨ DỮ LIỆU</h4>
+                    <a href="guide.html">Hướng dẫn lắp ráp</a>
+                    <a href="store.html">Phân loại Grade</a>
+                    <a href="store.html">Công cụ & Phụ kiện</a>
+                </div>
+                <div class="f-col">
+                    <h4>LIÊN KẾT MẠNG</h4>
+                    <a href="#">Mạng lưới Facebook</a>
+                    <a href="#">Kênh truyền tín hiệu Youtube</a>
+                    <a href="#">Tín hiệu Instagram</a>
+                </div>
+                <div class="f-col">
+                    <h4>GIAO THỨC BẢO MẬT</h4>
+                    <a href="#">Chính sách bảo mật</a>
+                    <a href="#">Điều khoản sử dụng</a>
+                    <a href="lien-he.html">Giao thức hoàn trả</a>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 G-STORE NETWORK. ALL RIGHTS RESERVED.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Custom JS -->
+    <script src="js/script.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GUNPLA STORE | Awaken Your Inner Newtype</title>
+
+    <meta name="description"
+        content="Chuyên cung cấp mô hình chính hãng Bandai, Gunpla đa dạng các cấp độ HG, RG, MG, PG.">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;900&family=Open+Sans:wght@300;400;500;600;700&family=Roboto:wght@400;500;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Boxicons -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <!-- Navbar (Giữ nguyên) -->
+    <header class="header" id="header">
+        <nav class="navbar container">
+            <a href="index.html" class="logo">
+                <i class='bx bx-hive'></i>
+                <span class="logo-text">GUNPLA<span class="highlight">STORE</span></span>
+            </a>
+
+            <div class="nav-menu" id="nav-menu">
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="index.html" class="nav-link active">TRANG CHỦ</a></li>
+                    <li class="nav-item"><a href="store.html" class="nav-link">CỬA HÀNG</a></li>
+                    <li class="nav-item"><a href="guide.html" class="nav-link">HƯỚNG DẪN</a></li>
+                    <li class="nav-item"><a href="lien-he.html" class="nav-link">LIÊN HỆ</a></li>
+                </ul>
+                <div class="nav-close" id="nav-close">
+                    <i class='bx bx-x'></i>
+                </div>
+            </div>
+
+            <div class="nav-tools">
+                <div class="search-box">
+                    <input type="text" placeholder="Tìm kiếm Gunpla..." class="search-input">
+                    <i class='bx bx-target-lock search-icon'></i>
+                </div>
+                <a href="#" class="cart-icon">
+                    <i class='bx bx-cart-alt'></i>
+                    <span class="cart-count">2</span>
+                </a>
+                <a href="login.html" class="user-icon">
+                    <i class='bx bx-user-circle'></i>
+                </a>
+                <div class="nav-toggle" id="nav-toggle">
+                    <i class='bx bx-menu-alt-right'></i>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main">
+        <!-- New Sci-Fi Hero Section with Video & Cubes -->
+        <section class="hero section" id="home">
+            <div class="hero-bg">
+                <div class="overlay"></div>
+                <!-- Video Background -->
+                <video autoplay loop muted playsinline class="hero-video">
+                    <!-- Placeholder video URL (Royalty Free Sci-Fi/Space loop) -->
+                    <source src="https://cdn.pixabay.com/video/2021/08/04/83866-584742617_large.mp4" type="video/mp4">
+                    Trình duyệt của bạn không hỗ trợ thẻ video.
+                </video>
+            </div>
+
+            <!-- Floating Cubes Container -->
+            <div class="cubes-container" id="cubes-container">
+                <div class="cube cube-1">
+                    <div class="cube-inner"></div>
+                </div>
+                <div class="cube cube-2">
+                    <div class="cube-inner"></div>
+                </div>
+                <div class="cube cube-3">
+                    <div class="cube-inner"></div>
+                </div>
+                <div class="cube cube-4">
+                    <div class="cube-inner"></div>
+                </div>
+                <div class="cube cube-5">
+                    <div class="cube-inner"></div>
+                </div>
+            </div>
+
+            <div class="hero-content container">
+                <div class="system-status glitch" data-text="SYSTEM ONLINE">
+                    <span class="status-dot"></span> SYSTEM ONLINE
+                </div>
+                <h1 class="hero-title glitch" data-text="KIẾN TẠO ĐAM MÊ">KIẾN TẠO <span class="highlight">ĐAM
+                        MÊ</span><br>LẮP RÁP TƯƠNG LAI</h1>
+                <p class="hero-subtitle">Khởi động hệ thống. Kết nối vũ trụ Gunpla. Khám phá hàng ngàn mô hình công nghệ
+                    cao từ High Grade đến Perfect Grade.</p>
+                <div class="hero-actions">
+                    <a href="#spotlight" class="btn btn-primary btn-glitch">
+                        <i class='bx bx-crosshair'></i> KHỞI ĐỘNG
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bento Box Grid (New Arrivals) - NOW WITHOUT THE WIDE ACCESSORY ITEM -->
+        <section class="bento section" id="bento-grid">
+            <div class="container">
+                <div class="section-header flex-header">
+                    <div>
+                        <h2 class="section-title">THIẾT BỊ <span class="highlight">MỚI NHẤT</span></h2>
+                        <p class="section-subtitle">Dữ liệu cập nhật từ tổng hành dinh Bandai.</p>
+                    </div>
+                    <a href="store.html" class="view-all">Truy xuất tất cả <i class='bx bx-radar'></i></a>
+                </div>
+
+                <div class="bento-grid-container" id="homepage-new-products">
+                    <div class="bento-loading">
+                        <p>Đang tải sản phẩm mới nhất...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Spotlight Section (Asymmetric Radar Design) -->
+        <section class="spotlight section" id="spotlight">
+            <div class="container">
+                <div class="spotlight-wrapper">
+                    <!-- Left: Radar/Info -->
+                    <div class="spotlight-info">
+                        <div class="tech-badge">CLASSIFIED INFO</div>
+                        <h2 class="spotlight-title" id="spotlight-title">PG UNLEASHED <br><span class="highlight" id="spotlight-highlight">RX-78-2</span></h2>
+
+                        <div class="radar-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">ARMOR</span>
+                                <div class="stat-bar">
+                                    <div class="stat-fill" id="stat-armor" style="width: 95%;"></div>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">MOBILITY</span>
+                                <div class="stat-bar">
+                                    <div class="stat-fill" id="stat-mobility" style="width: 80%;"></div>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">WEAPON</span>
+                                <div class="stat-bar">
+                                    <div class="stat-fill" id="stat-weapon" style="width: 90%;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="spotlight-price">
+                            <span class="digital-price" id="spotlight-price">6,850,000₫</span>
+                            <button id="spotlight-buy-btn" class="btn btn-primary"><i class='bx bx-cart-add'></i> MUA NGAY</button>
+                        </div>
+                    </div>
+
+                    <!-- Right: Big Image -->
+                    <div class="spotlight-visual">
+                        <div class="visual-bg-circle"></div>
+                        <div class="visual-bg-crosshair"></div>
+                        <img src="assets/images/PG/pg_unleashed.png" alt="PG Unleashed RX-78-2" class="spotlight-img" id="spotlight-img">
+                    </div>
+
+                    <!-- Navigation Buttons -->
+                    <button class="spotlight-nav prev-btn" id="spot-prev"><i class='bx bx-chevron-left'></i></button>
+                    <button class="spotlight-nav next-btn" id="spot-next"><i class='bx bx-chevron-right'></i></button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured News Section -->
+        <section class="featured-news section" id="featured-news">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">TIN TỨC <span class="highlight">NỔI BẬT</span></h2>
+                    <p class="section-subtitle">Cập nhật sự kiện, collab và tin hot nhất của cộng đồng Gunpla.</p>
+                </div>
+
+                <div class="featured-news-grid"></div>
+            </div>
+        </section>
+
+        <!-- Featured Product Grades Section -->
+        <section class="universe section" id="universe">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">PHÂN LOẠI <span class="highlight">GRADE</span></h2>
+                    <p class="section-subtitle">Những tuyệt tác đỉnh cao của mỗi cấp độ.</p>
+                </div>
+
+                <div class="universe-track">
+                    <!-- PG -->
+                    <div class="universe-card">
+                        <div class="uc-bg">
+                            <img src="assets/images/PG/pg_unleashed.png" alt="Perfect Grade">
+                        </div>
+                        <div class="uc-content">
+                            <h3>P.G.</h3>
+                            <span>PG UNLEASHED RX-78-2</span>
+                            <a href="store.html?category=PG" class="uc-btn"><i class='bx bx-right-arrow-alt'></i></a>
+                        </div>
+                    </div>
+                    <!-- MG -->
+                    <div class="universe-card">
+                        <div class="uc-bg">
+                            <img src="assets/images/MG/WingZero.png" alt="Master Grade">
+                        </div>
+                        <div class="uc-content">
+                            <h3>M.G.</h3>
+                            <span>WING GUNDAM ZERO EW</span>
+                            <a href="store.html?category=MG" class="uc-btn"><i class='bx bx-right-arrow-alt'></i></a>
+                        </div>
+                    </div>
+                    <!-- RG -->
+                    <div class="universe-card">
+                        <div class="uc-bg">
+                            <img src="assets/images/RG/Sazabi.png" alt="Real Grade">
+                        </div>
+                        <div class="uc-content">
+                            <h3>R.G.</h3>
+                            <span>SAZABI</span>
+                            <a href="store.html?category=RG" class="uc-btn"><i class='bx bx-right-arrow-alt'></i></a>
+                        </div>
+                    </div>
+                    <!-- HG -->
+                    <div class="universe-card">
+                        <div class="uc-bg">
+                            <img src="assets/images/HG/Aerial.png" alt="High Grade">
+                        </div>
+                        <div class="uc-content">
+                            <h3>H.G.</h3>
+                            <span>GUNDAM AERIAL</span>
+                            <a href="store.html?category=HG" class="uc-btn"><i class='bx bx-right-arrow-alt'></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- New Section for the Accessory (Action Base 5) - PLACED AT THE VERY BOTTOM -->
+        <section class="section accessory-spotlight" id="accessory-spotlight">
+            <div class="container">
+                <div class="bento-item bento-wide">
+                    <div class="bento-split">
+                        <div class="bento-info">
+                            <span class="tech-text">ACCESSORY DEPLOYMENT</span>
+                            <h3>ACTION BASE 5 <br> CLEAR COLOR</h3>
+                            <button class="bento-btn"><i class='bx bx-cart-add'></i> 180,000₫</button>
+                        </div>
+                        <img src="assets/images/PhuKien/ActionBase.png" alt="Action Base">
+                    </div>
+                    <div class="scanner-line"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Minimalist Sci-Fi Footer -->
+    <footer class="footer-minimal">
+        <div class="container">
+            <div class="footer-top">
+                <a href="#" class="logo">
+                    <i class='bx bx-hive'></i>
+                    <span class="logo-text">GUNPLA<span class="highlight">STORE</span></span>
+                </a>
+                <div class="sys-info">
+                    <span>SYS.VER: 2.0.4</span>
+                    <span>NET: SECURE</span>
+                </div>
+            </div>
+
+            <div class="footer-grid">
+                <div class="f-col">
+                    <h4>CĂN CỨ DỮ LIỆU</h4>
+                    <a href="guide.html">Hướng dẫn lắp ráp</a>
+                    <a href="store.html">Phân loại Grade</a>
+                    <a href="store.html">Công cụ & Phụ kiện</a>
+                </div>
+                <div class="f-col">
+                    <h4>LIÊN KẾT MẠNG</h4>
+                    <a href="#">Mạng lưới Facebook</a>
+                    <a href="#">Kênh truyền tín hiệu Youtube</a>
+                    <a href="#">Tín hiệu Instagram</a>
+                </div>
+                <div class="f-col">
+                    <h4>GIAO THỨC BẢO MẬT</h4>
+                    <a href="#">Chính sách bảo mật</a>
+                    <a href="#">Điều khoản sử dụng</a>
+                    <a href="lien-he.html">Giao thức hoàn trả</a>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 G-STORE NETWORK. ALL RIGHTS RESERVED.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Custom JS -->
+    <script src="js/script.js"></script>
+</body>
+
+</html>
