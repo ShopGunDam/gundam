@@ -1,0 +1,500 @@
+/* =========================================
+   REGISTER & FORGOT PASSWORD EXTRA STYLES
+   ========================================= */
+
+/* Register section layout */
+.register-section {
+    padding: 100px 20px 60px;
+    align-items: flex-start;
+}
+
+.register-container {
+    max-width: 620px;
+    width: 100%;
+}
+
+.register-card {
+    padding: 45px 40px !important;
+}
+
+/* Corner decorations */
+.corner-tl,
+.corner-br {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-color: var(--neon-green);
+    border-style: solid;
+    opacity: 0.6;
+}
+
+.corner-tl {
+    top: 8px;
+    left: 8px;
+    border-width: 2px 0 0 2px;
+}
+
+.corner-br {
+    bottom: 8px;
+    right: 8px;
+    border-width: 0 2px 2px 0;
+}
+
+/* Form rows (2-column layout) */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+@media (max-width: 540px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    .register-card {
+        padding: 35px 22px !important;
+    }
+}
+
+/* Field status icons (valid/invalid indicator inside input) */
+.field-status {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.field-status.valid {
+    display: flex;
+    color: var(--neon-green);
+    background: rgba(0,255,204,0.15);
+}
+
+.field-status.valid::before {
+    content: '✓';
+}
+
+.field-status.invalid {
+    display: flex;
+    color: #ef4444;
+    background: rgba(239,68,68,0.15);
+}
+
+.field-status.invalid::before {
+    content: '✕';
+}
+
+/* Field error messages */
+.field-error {
+    display: block;
+    font-size: 0.78rem;
+    color: #ef4444;
+    margin-top: 5px;
+    font-family: var(--font-subheading);
+    min-height: 16px;
+    opacity: 0;
+    transform: translateY(-3px);
+    transition: all 0.2s ease;
+}
+
+.field-error.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Auth alert banner */
+.auth-alert {
+    border-radius: 0;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    font-family: var(--font-subheading);
+    font-size: 0.88rem;
+    clip-path: var(--clip-btn);
+    animation: fadeSlideIn 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.auth-alert.success {
+    background: rgba(0, 255, 204, 0.1);
+    border-left: 3px solid var(--neon-green);
+    color: var(--neon-green);
+}
+
+.auth-alert.error {
+    background: rgba(239, 68, 68, 0.1);
+    border-left: 3px solid #ef4444;
+    color: #ef4444;
+}
+
+.auth-alert.info {
+    background: rgba(59, 130, 246, 0.1);
+    border-left: 3px solid var(--primary-color);
+    color: var(--primary-color);
+}
+
+@keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Password toggle button */
+.toggle-pw {
+    position: absolute;
+    right: 38px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    padding: 0 4px;
+    transition: color 0.2s;
+    display: flex;
+    align-items: center;
+}
+
+.toggle-pw:hover {
+    color: var(--primary-color);
+}
+
+/* Password strength bar */
+.password-strength {
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.strength-bar {
+    flex: 1;
+    height: 4px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.strength-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 2px;
+    transition: width 0.4s ease, background 0.4s ease;
+}
+
+.strength-label {
+    font-size: 0.75rem;
+    font-family: var(--font-subheading);
+    color: var(--text-muted);
+    white-space: nowrap;
+    transition: color 0.3s;
+    min-width: 90px;
+    text-align: right;
+}
+
+/* Terms & Agreement */
+.terms-agree {
+    margin-bottom: 25px;
+}
+
+.terms-agree .remember-me {
+    align-items: flex-start;
+    line-height: 1.5;
+    color: var(--text-muted);
+    font-size: 0.88rem;
+}
+
+.terms-link {
+    color: var(--primary-color);
+    text-decoration: underline;
+    font-weight: 600;
+}
+
+.terms-link:hover {
+    color: var(--neon-green);
+}
+
+/* Button loading state */
+.login-btn .btn-loading {
+    display: none;
+}
+
+.login-btn.loading .btn-text {
+    display: none;
+}
+
+.login-btn.loading .btn-loading {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Security info card */
+.security-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    background: rgba(0, 255, 204, 0.05);
+    border: 1px solid rgba(0, 255, 204, 0.2);
+    padding: 16px 20px;
+    margin-top: 16px;
+    clip-path: var(--clip-btn);
+}
+
+.sec-icon {
+    font-size: 1.8rem;
+    color: var(--neon-green);
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.sec-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.sec-title {
+    font-family: var(--font-subheading);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--neon-green);
+}
+
+.sec-desc {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+/* ============================
+   FORGOT PASSWORD - STEPS
+   ============================ */
+
+.forgot-container {
+    max-width: 500px;
+}
+
+.forgot-card {
+    padding: 45px 40px !important;
+}
+
+/* Step indicator */
+.step-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: 35px;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    position: relative;
+}
+
+.step-num {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-heading);
+    font-size: 0.75rem;
+    font-weight: 700;
+    border: 2px solid rgba(100, 116, 139, 0.4);
+    color: var(--text-muted);
+    background: rgba(13, 17, 23, 0.8);
+    transition: all 0.4s ease;
+}
+
+.step-label {
+    font-size: 0.62rem;
+    font-family: var(--font-subheading);
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    transition: color 0.4s ease;
+    white-space: nowrap;
+}
+
+.step.active .step-num {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
+}
+
+.step.active .step-label {
+    color: var(--primary-color);
+}
+
+.step.done .step-num {
+    border-color: var(--neon-green);
+    color: var(--neon-green);
+    background: rgba(0,255,204,0.1);
+    box-shadow: 0 0 12px rgba(0, 255, 204, 0.3);
+}
+
+.step.done .step-label {
+    color: var(--neon-green);
+}
+
+.step-line {
+    flex: 1;
+    height: 2px;
+    background: rgba(100, 116, 139, 0.3);
+    margin: 0 8px;
+    margin-bottom: 20px;
+    min-width: 40px;
+    transition: background 0.4s ease;
+}
+
+.step-line.active {
+    background: var(--neon-green);
+    box-shadow: 0 0 6px rgba(0, 255, 204, 0.4);
+}
+
+/* Warning status dot */
+.status-dot.warning {
+    background: #f59e0b !important;
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.6) !important;
+}
+
+.status-dot.success {
+    background: var(--neon-green) !important;
+    box-shadow: 0 0 8px rgba(0, 255, 204, 0.6) !important;
+}
+
+/* Success card */
+.success-card {
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.success-anim {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px 0 25px;
+    position: relative;
+}
+
+.success-ring {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    border: 3px solid var(--neon-green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    color: var(--neon-green);
+    animation: successPulse 2s ease infinite;
+    position: relative;
+    z-index: 2;
+    background: rgba(0, 255, 204, 0.05);
+}
+
+@keyframes successPulse {
+    0%, 100% { box-shadow: 0 0 20px rgba(0, 255, 204, 0.4); }
+    50% { box-shadow: 0 0 40px rgba(0, 255, 204, 0.8); }
+}
+
+.success-ripple {
+    position: absolute;
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    border: 2px solid var(--neon-green);
+    animation: rippleOut 2s linear infinite;
+    opacity: 0;
+}
+
+@keyframes rippleOut {
+    0% { transform: scale(1); opacity: 0.6; }
+    100% { transform: scale(2.5); opacity: 0; }
+}
+
+.success-label {
+    background: rgba(0, 255, 204, 0.1) !important;
+    color: var(--neon-green) !important;
+}
+
+.success-details {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(0,255,204,0.15);
+    padding: 16px 20px;
+    margin: 20px 0 25px;
+    clip-path: var(--clip-btn);
+    text-align: left;
+}
+
+.detail-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-row i {
+    color: var(--neon-green);
+    font-size: 1rem;
+    width: 20px;
+    text-align: center;
+}
+
+.detail-row strong {
+    color: var(--neon-green);
+    font-family: var(--font-subheading);
+}
+
+/* Particles canvas */
+.particles-container {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.particle {
+    position: absolute;
+    border-radius: 50%;
+    animation: floatParticle linear infinite;
+    opacity: 0;
+}
+
+@keyframes floatParticle {
+    0% { transform: translateY(100vh) scale(0); opacity: 0; }
+    10% { opacity: 0.6; }
+    90% { opacity: 0.4; }
+    100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+}
+
+/* Input with toggle-pw needs padding adjustment */
+.input-wrapper:has(.toggle-pw) .form-input {
+    padding-right: 70px;
+}

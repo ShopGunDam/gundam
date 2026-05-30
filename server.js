@@ -4,7 +4,10 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const multer = require('multer');
 const path = require('path');
+const bcrypt = require('bcryptjs');
 require('dotenv').config();
+
+const BCRYPT_SALT_ROUNDS = 10; // rounds for bcrypt hashing
 
 const app = express();
 app.use(cors());
@@ -159,7 +162,9 @@ async function connectDB() {
 
             IF NOT EXISTS (SELECT * FROM taikhoan WHERE Username = N'admin')
             BEGIN
-                INSERT INTO taikhoan (Username, Password, Role) VALUES (N'admin', N'123', N'Admin');
+                -- Luu mat khau da duoc hash bang bcrypt, khong luu plain-text
+                INSERT INTO taikhoan (Username, Password, Role)
+                VALUES (N'admin', N'$2b$10$someplaceholderHashhere123456789012345678901234', N'Admin');
             END
         `);
 
@@ -385,37 +390,201 @@ app.put('/api/products/:id', async (req, res) => {
 
 /**
  * @route POST /api/login
- * @desc Simple admin login check against SQL Server
+ * @desc Login: so sanh mat khau bang bcrypt.compare (ho tro ca hash lan plain-text cu)
  */
 app.post('/api/login', async (req, res) => {
     const { username, password } = req.body;
     try {
         const pool = await sql.connect(config);
-        console.log(`[AUTH] Login Attempt: User="${username}", Pass="${password}"`);
+        console.log(`[AUTH] Login Attempt: User="${username}"`);
 
         const result = await pool.request()
             .input('user', sql.NVarChar, username)
-            .input('pass', sql.NVarChar, password)
-            .query('SELECT * FROM taikhoan WHERE RTRIM(LTRIM(Username)) = @user AND RTRIM(LTRIM(Password)) = @pass');
+            .query('SELECT * FROM taikhoan WHERE RTRIM(LTRIM(Username)) = @user');
 
-        console.log(`[AUTH] Matches found: ${result.recordset.length}`);
-
-        if (result.recordset.length > 0) {
-            const user = result.recordset[0];
-            console.log(`[AUTH] Success! Role detected: ${user.Role}`);
-            // Normalize role to 'Admin' or 'User'
-            const role = RTRIM_JS(user.Role).toLowerCase() === 'admin' ? 'Admin' : 'User';
-            res.json({ success: true, role: role });
-        } else {
-            console.log(`[AUTH] Failed: No match in database.`);
-            res.status(401).json({ success: false, message: 'Invalid credentials' });
+        if (result.recordset.length === 0) {
+            console.log(`[AUTH] Failed: Username not found.`);
+            return res.status(401).json({ success: false, message: 'Tên đăng nhập hoặc mật khẩu không đúng' });
         }
 
-        // Helper for JS trimming if needed
-        function RTRIM_JS(str) {
-            return str ? str.toString().trim() : '';
+        const user = result.recordset[0];
+        const storedPw = user.Password ? user.Password.toString().trim() : '';
+
+        let isMatch = false;
+
+        // Kiem tra xem mat khau co phai bcrypt hash khong (bat dau bang $2b$ hoac $2a$)
+        if (storedPw.startsWith('$2b$') || storedPw.startsWith('$2a$')) {
+            // So sanh bcrypt - bao mat
+            isMatch = await bcrypt.compare(password, storedPw);
+        } else {
+            // Tuong thich nguoc: mat khau plain-text cu (can migrate)
+            isMatch = (storedPw === password);
+            if (isMatch) {
+                // Tu dong hash lai mat khau cu len bcrypt
+                const newHash = await bcrypt.hash(password, BCRYPT_SALT_ROUNDS);
+                await pool.request()
+                    .input('hash', sql.NVarChar, newHash)
+                    .input('uname', sql.NVarChar, username)
+                    .query('UPDATE taikhoan SET Password = @hash WHERE Username = @uname');
+                console.log(`[AUTH] Migrated plain-text password to bcrypt for user: ${username}`);
+            }
+        }
+
+        if (isMatch) {
+            const role = user.Role ? user.Role.toString().trim() : 'User';
+            const normalizedRole = role.toLowerCase() === 'admin' ? 'Admin' : 'User';
+            console.log(`[AUTH] Success! Role: ${normalizedRole}`);
+            res.json({ success: true, role: normalizedRole, username: user.Username });
+        } else {
+            console.log(`[AUTH] Failed: Wrong password.`);
+            res.status(401).json({ success: false, message: 'Tên đăng nhập hoặc mật khẩu không đúng' });
         }
     } catch (err) {
+        console.error('[AUTH] Error:', err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+/**
+ * @route POST /api/register
+ * @desc Dang ky tai khoan moi - mat khau duoc ma hoa bcrypt truoc khi luu
+ */
+app.post('/api/register', async (req, res) => {
+    const { username, password, name, email } = req.body;
+
+    // Validation
+    if (!username || !password || !name || !email) {
+        return res.status(400).json({ error: 'Vui lòng điền đầy đủ thông tin.' });
+    }
+    if (!/^[a-zA-Z0-9_]{3,20}$/.test(username)) {
+        return res.status(400).json({ error: 'Username chỉ chứa a-z, 0-9, _ (3-20 ký tự).' });
+    }
+    if (password.length < 8) {
+        return res.status(400).json({ error: 'Mật khẩu tối thiểu 8 ký tự.' });
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        return res.status(400).json({ error: 'Email không hợp lệ.' });
+    }
+
+    try {
+        const pool = await sql.connect(config);
+
+        // Kiem tra username da ton tai chua
+        const checkUser = await pool.request()
+            .input('username', sql.NVarChar, username)
+            .query('SELECT Username FROM taikhoan WHERE Username = @username');
+
+        if (checkUser.recordset.length > 0) {
+            return res.status(400).json({ error: 'Tên đăng nhập đã tồn tại, vui lòng chọn tên khác.' });
+        }
+
+        // Kiem tra email da ton tai chua
+        const checkEmail = await pool.request()
+            .input('email', sql.NVarChar, email)
+            .query('SELECT Email FROM khachhang WHERE Email = @email');
+
+        if (checkEmail.recordset.length > 0) {
+            return res.status(400).json({ error: 'Email này đã được sử dụng cho tài khoản khác.' });
+        }
+
+        // === HASH MAT KHAU BANG BCRYPT TRUOC KHI LUU ===
+        const hashedPassword = await bcrypt.hash(password, BCRYPT_SALT_ROUNDS);
+        console.log(`[REGISTER] Hashing password for user "${username}" with bcrypt (saltRounds=${BCRYPT_SALT_ROUNDS})`);
+
+        const transaction = new sql.Transaction(pool);
+        await transaction.begin();
+
+        try {
+            // Luu mat khau da duoc hash - TUYET DOI KHONG LUU PLAIN-TEXT
+            await transaction.request()
+                .input('username', sql.NVarChar, username)
+                .input('password', sql.NVarChar, hashedPassword)
+                .input('role', sql.NVarChar, 'User')
+                .query('INSERT INTO taikhoan (Username, Password, Role) VALUES (@username, @password, @role)');
+
+            await transaction.request()
+                .input('name', sql.NVarChar, name)
+                .input('email', sql.NVarChar, email)
+                .input('username', sql.NVarChar, username)
+                .query('INSERT INTO khachhang (TenKH, Email, Username) VALUES (@name, @email, @username)');
+
+            await transaction.commit();
+            console.log(`[REGISTER] User "${username}" registered successfully with bcrypt password.`);
+            res.status(201).json({ success: true, message: 'Tài khoản đã được tạo thành công!' });
+        } catch (err) {
+            await transaction.rollback();
+            throw err;
+        }
+    } catch (err) {
+        console.error('[REGISTER] Error:', err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+/**
+ * @route POST /api/verify-user
+ * @desc Xac minh username ton tai (cho trang quen mat khau)
+ */
+app.post('/api/verify-user', async (req, res) => {
+    const { username } = req.body;
+    if (!username) {
+        return res.status(400).json({ exists: false, message: 'Vui lòng nhập tên đăng nhập.' });
+    }
+    try {
+        const pool = await sql.connect(config);
+        const result = await pool.request()
+            .input('username', sql.NVarChar, username)
+            .query('SELECT Username FROM taikhoan WHERE Username = @username');
+
+        if (result.recordset.length > 0) {
+            res.json({ exists: true, message: 'Tài khoản được xác minh.' });
+        } else {
+            res.status(404).json({ exists: false, message: 'Không tìm thấy tài khoản với username này.' });
+        }
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+/**
+ * @route POST /api/reset-password
+ * @desc Dat lai mat khau - hash bcrypt truoc khi luu
+ */
+app.post('/api/reset-password', async (req, res) => {
+    const { username, newPassword } = req.body;
+
+    if (!username || !newPassword) {
+        return res.status(400).json({ error: 'Thiếu thông tin.' });
+    }
+    if (newPassword.length < 8) {
+        return res.status(400).json({ error: 'Mật khẩu mới tối thiểu 8 ký tự.' });
+    }
+
+    try {
+        const pool = await sql.connect(config);
+
+        // Kiem tra username ton tai
+        const checkUser = await pool.request()
+            .input('username', sql.NVarChar, username)
+            .query('SELECT Username FROM taikhoan WHERE Username = @username');
+
+        if (checkUser.recordset.length === 0) {
+            return res.status(404).json({ error: 'Không tìm thấy tài khoản.' });
+        }
+
+        // === HASH MAT KHAU MOI BANG BCRYPT TRUOC KHI LUU ===
+        const hashedPassword = await bcrypt.hash(newPassword, BCRYPT_SALT_ROUNDS);
+        console.log(`[RESET-PW] Hashing new password for user "${username}" with bcrypt (saltRounds=${BCRYPT_SALT_ROUNDS})`);
+
+        await pool.request()
+            .input('username', sql.NVarChar, username)
+            .input('password', sql.NVarChar, hashedPassword)
+            .query('UPDATE taikhoan SET Password = @password WHERE Username = @username');
+
+        console.log(`[RESET-PW] Password updated successfully for user "${username}".`);
+        res.json({ success: true, message: 'Mật khẩu đã được cập nhật thành công và mã hóa bcrypt!' });
+    } catch (err) {
+        console.error('[RESET-PW] Error:', err.message);
         res.status(500).json({ error: err.message });
     }
 });

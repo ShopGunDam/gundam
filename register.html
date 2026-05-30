@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ĐĂNG KÝ | GUNPLA STORE</title>
+
+    <meta name="description" content="Đăng ký tài khoản Gunpla Store - Tham gia cộng đồng phi công Gundam.">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;900&family=Open+Sans:wght@300;400;500;600;700&family=Roboto:wght@400;500;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Boxicons -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/login.css">
+    <link rel="stylesheet" href="css/register.css">
+</head>
+
+<body>
+    <!-- Navbar -->
+    <header class="header scrolled" id="header">
+        <nav class="navbar container">
+            <a href="index.html" class="logo">
+                <i class='bx bx-hive'></i>
+                <span class="logo-text">GUNPLA<span class="highlight">STORE</span></span>
+            </a>
+
+            <div class="nav-menu" id="nav-menu">
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="index.html" class="nav-link">TRANG CHỦ</a></li>
+                    <li class="nav-item"><a href="store.html" class="nav-link">CỬA HÀNG</a></li>
+                    <li class="nav-item"><a href="guide.html" class="nav-link">HƯỚNG DẪN</a></li>
+                    <li class="nav-item"><a href="lien-he.html" class="nav-link">LIÊN HỆ</a></li>
+                </ul>
+                <div class="nav-close" id="nav-close">
+                    <i class='bx bx-x'></i>
+                </div>
+            </div>
+
+            <div class="nav-tools">
+                <a href="#" class="cart-icon">
+                    <i class='bx bx-cart-alt'></i>
+                    <span class="cart-count">0</span>
+                </a>
+                <a href="login.html" class="user-icon active">
+                    <i class='bx bx-user-circle'></i>
+                </a>
+                <div class="nav-toggle" id="nav-toggle">
+                    <i class='bx bx-menu-alt-right'></i>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main">
+        <section class="login-section register-section">
+            <div class="login-bg-overlay"></div>
+            <!-- Floating particles -->
+            <div class="particles-container" id="particles"></div>
+
+            <div class="login-container register-container">
+                <div class="login-card register-card">
+                    <div class="form-scanner"></div>
+                    <div class="corner-tl"></div>
+                    <div class="corner-br"></div>
+
+                    <div class="login-header">
+                        <div class="system-label">
+                            <span class="status-dot"></span> PILOT REGISTRATION
+                        </div>
+                        <h1 class="glitch" data-text="ĐĂNG KÝ">ĐĂNG <span class="highlight">KÝ</span></h1>
+                        <p class="section-subtitle">Tạo định danh phi công mới</p>
+                    </div>
+
+                    <!-- Alert Box -->
+                    <div class="auth-alert" id="register-alert" style="display:none;"></div>
+
+                    <form id="register-form" class="login-form register-form" novalidate>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="reg-fullname">TÊN ĐẦY ĐỦ</label>
+                                <div class="input-wrapper">
+                                    <i class='bx bx-id-card'></i>
+                                    <input type="text" id="reg-fullname" class="form-input" placeholder="Nguyễn Văn A" required autocomplete="name">
+                                    <div class="field-status" id="status-fullname"></div>
+                                </div>
+                                <span class="field-error" id="err-fullname"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="reg-username">USERNAME</label>
+                                <div class="input-wrapper">
+                                    <i class='bx bx-user-pin'></i>
+                                    <input type="text" id="reg-username" class="form-input" placeholder="pilot_001" required autocomplete="username">
+                                    <div class="field-status" id="status-username"></div>
+                                </div>
+                                <span class="field-error" id="err-username"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="reg-email">EMAIL LIÊN HỆ</label>
+                            <div class="input-wrapper">
+                                <i class='bx bx-envelope'></i>
+                                <input type="email" id="reg-email" class="form-input" placeholder="pilot@gstore.com" required autocomplete="email">
+                                <div class="field-status" id="status-email"></div>
+                            </div>
+                            <span class="field-error" id="err-email"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="reg-password">MẬT KHẨU (ACCESS KEY)</label>
+                            <div class="input-wrapper">
+                                <i class='bx bx-lock-alt'></i>
+                                <input type="password" id="reg-password" class="form-input" placeholder="Tối thiểu 8 ký tự" required autocomplete="new-password">
+                                <button type="button" class="toggle-pw" id="toggle-pw1" aria-label="Hiển thị mật khẩu">
+                                    <i class='bx bx-hide'></i>
+                                </button>
+                                <div class="field-status" id="status-password"></div>
+                            </div>
+                            <div class="password-strength" id="pw-strength">
+                                <div class="strength-bar">
+                                    <div class="strength-fill" id="strength-fill"></div>
+                                </div>
+                                <span class="strength-label" id="strength-label">Nhập mật khẩu</span>
+                            </div>
+                            <span class="field-error" id="err-password"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="reg-confirm">XÁC NHẬN MẬT KHẨU</label>
+                            <div class="input-wrapper">
+                                <i class='bx bx-shield-check'></i>
+                                <input type="password" id="reg-confirm" class="form-input" placeholder="Nhập lại mật khẩu" required autocomplete="new-password">
+                                <button type="button" class="toggle-pw" id="toggle-pw2" aria-label="Hiển thị xác nhận mật khẩu">
+                                    <i class='bx bx-hide'></i>
+                                </button>
+                                <div class="field-status" id="status-confirm"></div>
+                            </div>
+                            <span class="field-error" id="err-confirm"></span>
+                        </div>
+
+                        <div class="terms-agree">
+                            <label class="remember-me">
+                                <input type="checkbox" id="agree-terms" required>
+                                <span>Tôi đồng ý với <a href="#" class="terms-link">Điều khoản sử dụng</a> và <a href="#" class="terms-link">Chính sách bảo mật</a></span>
+                            </label>
+                            <span class="field-error" id="err-terms"></span>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-glitch login-btn" id="register-btn">
+                            <i class='bx bx-user-plus'></i> 
+                            <span class="btn-text">KÍCH HOẠT TÀI KHOẢN</span>
+                            <span class="btn-loading" style="display:none;">
+                                <i class='bx bx-loader-alt bx-spin'></i> ĐANG XỬ LÝ...
+                            </span>
+                        </button>
+
+                        <p class="register-prompt">
+                            Đã có tài khoản? <a href="login.html">ĐĂNG NHẬP NGAY</a>
+                        </p>
+                    </form>
+                </div>
+
+                <!-- Security info card -->
+                <div class="security-info">
+                    <div class="sec-icon"><i class='bx bx-lock-open-alt'></i></div>
+                    <div class="sec-text">
+                        <span class="sec-title">MẬT KHẨU ĐƯỢC MÃ HÓA</span>
+                        <span class="sec-desc">Mật khẩu của bạn được mã hóa bằng thuật toán bcrypt (saltRounds=10) trước khi lưu vào hệ thống. Chúng tôi không bao giờ lưu mật khẩu dạng văn bản thuần.</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer-minimal">
+        <div class="container">
+            <div class="footer-top">
+                <a href="#" class="logo">
+                    <i class='bx bx-hive'></i>
+                    <span class="logo-text">GUNPLA<span class="highlight">STORE</span></span>
+                </a>
+                <div class="sys-info">
+                    <span>SYS.VER: 2.0.4</span>
+                    <span>NET: SECURE</span>
+                </div>
+            </div>
+
+            <div class="footer-grid">
+                <div class="f-col">
+                    <h4>CĂN CỨ DỮ LIỆU</h4>
+                    <a href="guide.html">Hướng dẫn lắp ráp</a>
+                    <a href="store.html">Phân loại Grade</a>
+                    <a href="store.html">Công cụ & Phụ kiện</a>
+                </div>
+                <div class="f-col">
+                    <h4>LIÊN KẾT MẠNG</h4>
+                    <a href="#">Mạng lưới Facebook</a>
+                    <a href="#">Kênh truyền tín hiệu Youtube</a>
+                    <a href="#">Tín hiệu Instagram</a>
+                </div>
+                <div class="f-col">
+                    <h4>GIAO THỨC BẢO MẬT</h4>
+                    <a href="#">Chính sách bảo mật</a>
+                    <a href="#">Điều khoản sử dụng</a>
+                    <a href="lien-he.html">Giao thức hoàn trả</a>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 G-STORE NETWORK. ALL RIGHTS RESERVED.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Custom JS -->
+    <script src="js/script.js"></script>
+    <script src="js/register.js"></script>
+</body>
+
+</html>
