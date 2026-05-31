@@ -149,6 +149,12 @@ function startGoogleAuth() {
         return;
     }
 
+    // Kiểm tra cổng chạy qua Live Server (cổng 5500) hoặc các cổng khác cổng 5000
+    if (window.location.port && window.location.port !== '5000') {
+        showLoginAlert(`⚠️ Google Sign-In yêu cầu chạy qua cổng của server chính thức (5000). Vui lòng truy cập: <a href="http://localhost:5000/login.html" style="color:var(--neon-green); text-decoration:underline; font-weight:bold;">http://localhost:5000/login.html</a>`, 'error');
+        return;
+    }
+
     // Nếu SDK chưa load xong, thử init lại ngay lập tức
     if (!googleTokenClient && window.google && window.GOOGLE_CLIENT_ID) {
         window.onGoogleLibraryLoad();

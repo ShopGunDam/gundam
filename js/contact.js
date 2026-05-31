@@ -70,15 +70,26 @@ function setStarRating(group, hiddenInput, value) {
 function paintStarHover(group, hoverScore) {
     const saved = Number(group.dataset.rating) || 0;
     const display = hoverScore > 0 ? hoverScore : saved;
+
     group.querySelectorAll('.review-star-icon').forEach(star => {
         const v = Number(star.getAttribute('data-value'));
         const lit = display > 0 && v <= display;
-        const isSaved = saved > 0 && v <= saved;
-        star.className = lit
-            ? `bx bxs-star review-star-icon${isSaved ? ' is-lit' : ''}`
-            : 'bx bx-star review-star-icon';
-        star.style.color = lit ? '#f59e0b' : '';
+        // Ngôi sao được highlight: dùng bxs-star + màu vàng (cả hover lẫn đã lưu)
+        if (lit) {
+            star.className = 'bx bxs-star review-star-icon is-lit';
+            star.style.color = '#f59e0b';
+        } else {
+            star.className = 'bx bx-star review-star-icon';
+            star.style.color = '';
+        }
     });
+
+    // Cập nhật nhãn số sao khi hover (ví dụ: "3/5 sao")
+    const label = document.getElementById('review-rating-label');
+    if (label) {
+        label.textContent = display > 0 ? `${display}/5 sao` : 'Chưa chọn điểm';
+        label.classList.toggle('has-score', display > 0);
+    }
 }
 
 function initReviewStarRating() {
@@ -518,12 +529,18 @@ if (contactForm) {
 }
 
 // Page initialization
-window.addEventListener('DOMContentLoaded', async () => {
+async function initContactPage() {
     initModernMotion();
     initReviewStarRating();
     await loadReviewerProfile();
     await fetchAndRenderReviews();
-});
+}
+
+if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', initContactPage);
+} else {
+    initContactPage();
+}
 
 // Auto highlight today's operating hours
 const todayDay = new Date().getDay();
