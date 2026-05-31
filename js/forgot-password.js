@@ -1,13 +1,16 @@
 /**
- * forgot-password.js - Trang quên mật khẩu (3 bước)
- * Bước 1: Xác minh username tồn tại
- * Bước 2: Nhập mật khẩu mới → server hash bcrypt rồi lưu
- * Bước 3: Thông báo thành công
+ * forgot-password.js - Trang quên mật khẩu (4 bước)
+ * Bước 1: Xác minh username tồn tại -> Gửi OTP
+ * Bước 2: Xác thực mã OTP 6 chữ số
+ * Bước 3: Nhập mật khẩu mới -> Gửi kèm OTP -> server hash bcrypt rồi lưu
+ * Bước 4: Thông báo thành công
  */
 
 const API_BASE = 'http://localhost:5000';
 
 let verifiedUsername = '';
+let verifiedOtp = '';
+let timerInterval = null;
 
 // ─── Particles ────────────────────────────────────────────────────────────────
 function createParticles() {
@@ -37,22 +40,79 @@ function showAlert(boxId, message, type = 'error') {
     if (!box) return;
     box.className = `auth-alert ${type}`;
     box.innerHTML = `${icons[type] || ''} ${message}`;
+    box.classList.remove('hidden');
     box.style.display = 'flex';
 }
 function hideAlert(boxId) {
     const box = document.getElementById(boxId);
-    if (box) box.style.display = 'none';
+    if (!box) return;
+    box.style.display = 'none';
+    box.classList.add('hidden');
 }
 
 // ─── Step transitions ─────────────────────────────────────────────────────────
-function goToStep(step) {
-    document.getElementById('step-1').style.display = step === 1 ? 'block' : 'none';
-    document.getElementById('step-2').style.display = step === 2 ? 'block' : 'none';
-    document.getElementById('step-3').style.display = step === 3 ? 'block' : 'none';
+const FORGOT_STEPS = [
+    { id: 'step-1', num: 1 },
+    { id: 'step-otp', num: 2 },
+    { id: 'step-3', num: 3 },
+    { id: 'step-4', num: 4 },
+];
 
-    // Scroll to form
-    const el = document.getElementById(`step-${step}`);
+function goToStep(step) {
+    let activeId = 'step-1';
+
+    FORGOT_STEPS.forEach(({ id, num }) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (num === step) {
+            el.classList.remove('hidden');
+            activeId = id;
+        } else {
+            el.classList.add('hidden');
+        }
+    });
+
+    const el = document.getElementById(activeId);
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+goToStep(1);
+
+// Lắng nghe sự kiện click quay lại bước trước
+document.addEventListener('click', (e) => {
+    const backBtn = e.target.closest('.back-to-step');
+    if (backBtn) {
+        e.preventDefault();
+        const step = parseInt(backBtn.getAttribute('data-back-to'));
+        if (step) goToStep(step);
+    }
+});
+
+// ─── OTP Resend Timer ─────────────────────────────────────────────────────────
+function startOtpTimer() {
+    const timerSpan = document.getElementById('otp-timer');
+    const resendBtn = document.getElementById('resend-otp-btn');
+    if (!timerSpan || !resendBtn) return;
+
+    let timeLeft = 60;
+    timerSpan.textContent = timeLeft;
+    resendBtn.classList.add('disabled-link');
+    resendBtn.style.pointerEvents = 'none';
+    resendBtn.style.opacity = '0.5';
+
+    if (timerInterval) clearInterval(timerInterval);
+
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        timerSpan.textContent = timeLeft;
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            resendBtn.classList.remove('disabled-link');
+            resendBtn.style.pointerEvents = 'auto';
+            resendBtn.style.opacity = '1';
+            resendBtn.innerHTML = 'GỬI LẠI MÃ';
+        }
+    }, 1000);
 }
 
 // ─── Password Strength ────────────────────────────────────────────────────────
@@ -153,8 +213,11 @@ form1.addEventListener('submit', async (e) => {
 
         if (res.ok && data.exists) {
             verifiedUsername = username;
+            document.getElementById('display-masked-email').textContent = data.maskedEmail || 'chưa liên kết email';
             document.getElementById('display-username').textContent = username;
+            
             goToStep(2);
+            startOtpTimer();
         } else {
             const msg = data.message || 'Không tìm thấy tài khoản với username này.';
             showAlert('forgot-alert-1', msg, 'error');
@@ -167,7 +230,107 @@ form1.addEventListener('submit', async (e) => {
     }
 });
 
-// ─── STEP 2: Reset password ───────────────────────────────────────────────────
+// ─── STEP 2 (OTP): Verify OTP ─────────────────────────────────────────────────
+const formOtp   = document.getElementById('forgot-form-otp');
+const otpBtn    = document.getElementById('otp-btn');
+const otpCodeEl = document.getElementById('otp-code');
+const statusOtp = document.getElementById('status-otp-code');
+const errOtp    = document.getElementById('err-otp-code');
+const resendBtn = document.getElementById('resend-otp-btn');
+
+if (otpCodeEl) {
+    otpCodeEl.addEventListener('input', () => {
+        const v = otpCodeEl.value.trim();
+        if (!v) {
+            statusOtp.className = 'field-status';
+            errOtp.className = 'field-error';
+            return;
+        }
+        if (/^\d{6}$/.test(v)) {
+            statusOtp.className = 'field-status valid';
+            errOtp.className = 'field-error';
+            errOtp.textContent = '';
+        } else {
+            statusOtp.className = 'field-status invalid';
+            errOtp.className = 'field-error show';
+            errOtp.textContent = 'Mã OTP phải chứa đúng 6 chữ số';
+        }
+    });
+}
+
+if (formOtp) {
+    formOtp.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        hideAlert('forgot-alert-otp');
+
+        const otp = otpCodeEl.value.trim();
+        if (!otp || !/^\d{6}$/.test(otp)) {
+            showAlert('forgot-alert-otp', 'Mã OTP phải chứa đúng 6 chữ số.', 'error');
+            return;
+        }
+
+        otpBtn.classList.add('loading');
+        otpBtn.disabled = true;
+
+        try {
+            const res = await fetch(`${API_BASE}/api/verify-otp`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: verifiedUsername, otp })
+            });
+            const data = await res.json();
+
+            if (res.ok && data.success) {
+                verifiedOtp = otp;
+                goToStep(3);
+            } else {
+                showAlert('forgot-alert-otp', data.message || 'Mã OTP không chính xác hoặc đã hết hạn.', 'error');
+            }
+        } catch {
+            showAlert('forgot-alert-otp', 'Không thể kết nối tới máy chủ. Vui lòng kiểm tra server.', 'error');
+        } finally {
+            otpBtn.classList.remove('loading');
+            otpBtn.disabled = false;
+        }
+    });
+}
+
+if (resendBtn) {
+    resendBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        if (resendBtn.classList.contains('disabled-link')) return;
+
+        hideAlert('forgot-alert-otp');
+        resendBtn.classList.add('disabled-link');
+        resendBtn.style.pointerEvents = 'none';
+        resendBtn.style.opacity = '0.5';
+
+        try {
+            const res = await fetch(`${API_BASE}/api/verify-user`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: verifiedUsername })
+            });
+            const data = await res.json();
+            if (res.ok && data.exists) {
+                showAlert('forgot-alert-otp', 'Mã OTP mới đã được gửi thành công!', 'success');
+                startOtpTimer();
+            } else {
+                showAlert('forgot-alert-otp', data.message || 'Không thể gửi lại mã OTP.', 'error');
+                resendBtn.classList.remove('disabled-link');
+                resendBtn.style.pointerEvents = 'auto';
+                resendBtn.style.opacity = '1';
+            }
+        } catch {
+            showAlert('forgot-alert-otp', 'Không thể kết nối tới máy chủ. Vui lòng kiểm tra server.', 'error');
+            resendBtn.classList.remove('disabled-link');
+            resendBtn.style.pointerEvents = 'auto';
+            resendBtn.style.opacity = '1';
+        }
+    });
+}
+
+// ─── STEP 3: Reset password ───────────────────────────────────────────────────
 const form2    = document.getElementById('forgot-form-2');
 const resetBtn = document.getElementById('reset-btn');
 
@@ -198,20 +361,20 @@ form2.addEventListener('submit', async (e) => {
     resetBtn.disabled = true;
 
     try {
-        /**
-         * Gửi username + mật khẩu mới lên server.
-         * Server sẽ hash bằng bcrypt (saltRounds=10) rồi UPDATE vào bảng taikhoan.
-         * Không bao giờ lưu plain-text vào database.
-         */
         const res  = await fetch(`${API_BASE}/api/reset-password`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username: verifiedUsername, newPassword: newPw })
+            body: JSON.stringify({ 
+                username: verifiedUsername, 
+                otp: verifiedOtp,
+                newPassword: newPw 
+            })
         });
         const data = await res.json();
 
         if (res.ok && data.success) {
-            goToStep(3);
+            if (timerInterval) clearInterval(timerInterval);
+            goToStep(4);
         } else {
             showAlert('forgot-alert-2', data.message || data.error || 'Cập nhật mật khẩu thất bại.', 'error');
         }

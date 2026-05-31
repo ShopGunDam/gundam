@@ -609,6 +609,7 @@ function buildSpotlightData(products) {
 }
 
 function updateSpotlight(index) {
+    if (!spotImg) return;
     const data = spotlightData[index];
     if (!data) return;
 
@@ -983,33 +984,236 @@ window.addEventListener('DOMContentLoaded', () => {
     loadHomepageNewProducts();
 });
 
+
+
 /* =========================================
-   LOGIN HANDLING
+   RATINGS FUNCTIONALITY FOR GUIDE PAGE
    ========================================= */
-const loginForm = document.querySelector('.login-form');
-if (loginForm) {
-    loginForm.addEventListener('submit', async (e) => {
+
+function escapeHtmlGuide(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function formatRatingDate(dateStr) {
+    if (!dateStr) return '';
+    try {
+        return new Date(dateStr).toLocaleDateString('vi-VN');
+    } catch {
+        return '';
+    }
+}
+
+function getTopicLabel(topic) {
+    const labels = {
+        event: 'S? ki?n',
+        assembly_event: 'S? ki?n l?p ráp',
+        assembly_guide: 'S? ki?n l?p ráp',
+        community: 'Ho?t ð?ng c?ng ð?ng',
+        other: 'Khác'
+    };
+    return labels[topic] || topic || '';
+}
+
+// Load and display ratings from backend only
+async function loadRatings() {
+    const ratingsContainer = document.getElementById('ratings-container');
+    if (!ratingsContainer) return;
+
+    try {
+        const response = await requestApi('/api/reviews');
+        const ratings = await response.json();
+
+        if (!Array.isArray(ratings) || ratings.length === 0) {
+            ratingsContainer.innerHTML = `
+                <div class="empty-state-ratings">
+                    <i class='bx bx-info-circle'></i>
+                    <p>Ch?a có ðánh giá n?o. H?y l? ng??i ð?u ti?n chia s? tr?i nghi?m c?a b?n!</p>
+                </div>
+            `;
+            return;
+        }
+
+        ratingsContainer.innerHTML = ratings.map(rating => {
+            const score = Number(rating.DiemDG) || 0;
+            const stars = Array(5).fill(0).map((_, i) =>
+                `<i class='bx ${i < score ? 'bxs-star' : 'bx-star'}'></i>`
+            ).join('');
+            const topicLabel = getTopicLabel(rating.ChuDe);
+            const dateLabel = formatRatingDate(rating.NgayTao);
+
+            return `
+                <div class="rating-card">
+                    <div class="rating-header">
+                        <div class="rating-name">${escapeHtmlGuide(rating.TenKH)}</div>
+                        <div class="rating-stars">${stars}</div>
+                    </div>
+                    <div class="rating-meta">
+                        <span class="rating-email">${escapeHtmlGuide(rating.Email)}</span>
+                        ${topicLabel ? `<span class="rating-topic">${escapeHtmlGuide(topicLabel)}</span>` : ''}
+                    </div>
+                    <p class="rating-content">${escapeHtmlGuide(rating.NoiDung)}</p>
+                    ${dateLabel ? `<div class="rating-meta"><span class="rating-date">${dateLabel}</span></div>` : ''}
+                </div>
+            `;
+        }).join('');
+    } catch (err) {
+        console.error('L?i khi t?i ðánh giá:', err);
+        ratingsContainer.innerHTML = `
+            <div class="empty-state-ratings">
+                <i class='bx bx-error'></i>
+                <p>Không th? t?i ðánh giá. Vui l?ng th? l?i sau.</p>
+            </div>
+        `;
+    }
+}
+
+async function loadGuideReviewerProfile() {
+    const username = sessionStorage.getItem('gunpla_user');
+    if (!username) return;
+
+    try {
+        const response = await requestApi(`/api/profile/${encodeURIComponent(username)}`);
+        const profile = await response.json();
+
+        const ratingNameInput = document.getElementById('rating-name');
+        const ratingEmailInput = document.getElementById('rating-email');
+
+        if (profile.TenKH && ratingNameInput) ratingNameInput.value = profile.TenKH;
+        if (profile.Email && ratingEmailInput) ratingEmailInput.value = profile.Email;
+    } catch (err) {
+        console.error('Không t?i ð??c h? s? ng??i d?ng:', err);
+    }
+}
+
+// Handle rating form submission
+const ratingForm = document.getElementById('rating-form');
+if (ratingForm) {
+    const ratingNameInput = document.getElementById('rating-name');
+    const ratingEmailInput = document.getElementById('rating-email');
+    const ratingTopicSelect = document.getElementById('rating-topic');
+    const ratingMessageInput = document.getElementById('rating-message');
+    const ratingValueInput = document.getElementById('rating-value');
+    const ratingStars = document.querySelectorAll('#rating-stars i');
+    const formMessage = document.getElementById('form-message');
+    const ratingValueText = document.querySelector('.rating-value-text');
+
+    ratingStars.forEach((star) => {
+        star.addEventListener('click', () => {
+            const value = star.getAttribute('data-value');
+            ratingValueInput.value = value;
+            ratingValueText.textContent = value + '/5 sao';
+            ratingStars.forEach((s, i) => {
+                if (i < value) {
+                    s.classList.add('active');
+                } else {
+                    s.classList.remove('active');
+                }
+            });
+        });
+
+        star.addEventListener('mouseover', () => {
+            const value = star.getAttribute('data-value');
+            ratingStars.forEach((s, i) => {
+                if (i < value) {
+                    s.style.color = 'var(--secondary-color)';
+                } else {
+                    s.style.color = 'rgba(59, 130, 246, 0.3)';
+                }
+            });
+        });
+    });
+
+    document.getElementById('rating-stars').addEventListener('mouseout', () => {
+        const activeCount = ratingValueInput.value;
+        ratingStars.forEach((s, i) => {
+            if (i < activeCount) {
+                s.style.color = 'var(--secondary-color)';
+            } else {
+                s.style.color = 'rgba(59, 130, 246, 0.3)';
+            }
+        });
+    });
+
+    ratingForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
+
+        const name = ratingNameInput.value.trim();
+        const email = ratingEmailInput.value.trim();
+        const topic = ratingTopicSelect.value;
+        const message = ratingMessageInput.value.trim();
+        const rating = parseInt(ratingValueInput.value, 10) || 5;
+
+        if (!name || !email || !topic || !message) {
+            showFormMessage('Vui l?ng ði?n ð?y ð? thông tin.', 'error');
+            return;
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            showFormMessage('Email không h?p l?.', 'error');
+            return;
+        }
 
         try {
-            const response = await fetch('http://localhost:5000/api/login', {
+            await requestApi('/api/reviews', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password })
+                body: JSON.stringify({
+                    name,
+                    email,
+                    topic,
+                    message,
+                    rating
+                })
             });
 
-            const result = await response.json();
+            showFormMessage('C?m ?n! Ðánh giá c?a b?n ð? ð??c g?i th?nh công.', 'success');
+            ratingForm.reset();
+            ratingValueInput.value = 5;
+            ratingValueText.textContent = '5/5 sao';
+            ratingStars.forEach((s, i) => {
+                if (i < 5) {
+                    s.classList.add('active');
+                } else {
+                    s.classList.remove('active');
+                }
+            });
 
-            if (result.success) {
-                localStorage.setItem('gst_admin_logged', 'true');
-                window.location.href = result.role === 'Admin' ? 'admin.html' : 'index.html';
-            } else {
-                alert('ThÃ´ng tin Ä‘á»‹nh danh khÃ´ng chÃ­nh xÃ¡c. Vui lÃ²ng thá»­ láº¡i!');
-            }
+            await loadGuideReviewerProfile();
+            await loadRatings();
         } catch (err) {
-            alert('KhÃ´ng thá»ƒ káº¿t ná»‘i Ä‘áº¿n mÃ¡y chá»§ xÃ¡c thá»±c.');
+            showFormMessage('L?i: ' + err.message, 'error');
+            console.error('L?i g?i ðánh giá:', err);
         }
     });
+
+    function showFormMessage(message, type) {
+        formMessage.textContent = message;
+        formMessage.className = 'form-message show ' + type;
+        setTimeout(() => {
+            formMessage.classList.remove('show');
+        }, 4000);
+    }
+
+    ratingStars.forEach((s, i) => {
+        if (i < 5) {
+            s.classList.add('active');
+        }
+    });
+
+    loadGuideReviewerProfile();
+}
+
+async function initGuideRatings() {
+    await loadGuideReviewerProfile();
+    await loadRatings();
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initGuideRatings);
+} else {
+    initGuideRatings();
 }

@@ -6,13 +6,83 @@ const multer = require('multer');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 require('dotenv').config();
+const nodemailer = require('nodemailer');
+const https = require('https');
 
 const BCRYPT_SALT_ROUNDS = 10; // rounds for bcrypt hashing
+
+const otpStore = new Map(); // Key: username, Value: { otp, email, expiresAt }
+
+// --- NODEMAILER EMAIL CONFIGURATION ---
+const smtpConfig = {
+    host: process.env.SMTP_HOST,
+    port: parseInt(process.env.SMTP_PORT) || 587,
+    secure: process.env.SMTP_PORT === '465', // true for 465, false for other ports
+    auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS
+    }
+};
+
+let mailTransporter = null;
+if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
+    mailTransporter = nodemailer.createTransport(smtpConfig);
+    console.log('[EMAIL] Nodemailer SMTP Transporter configured.');
+} else {
+    console.log('[EMAIL] Warning: SMTP configuration missing in .env. Falling back to console log for OTP.');
+}
+
+// Function to send OTP Email
+async function sendOTPEmail(email, username, otp) {
+    if (!mailTransporter) {
+        console.log(`\n======================================================`);
+        console.log(`[OTP FALLBACK] MÃ OTP CỦA BẠN LÀ: ${otp}`);
+        console.log(`[OTP FALLBACK] Tài khoản: ${username} | Email: ${email}`);
+        console.log(`======================================================\n`);
+        return;
+    }
+
+    const mailOptions = {
+        from: process.env.SMTP_FROM || `"GUNPLA STORE" <${process.env.SMTP_USER}>`,
+        to: email,
+        subject: '🔒 MÃ XÁC MINH OTP - KHÔI PHỤC MẬT KHẨU | GUNPLA STORE',
+        html: `
+            <div style="font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif; background-color: #0c0f16; color: #ffffff; padding: 40px 20px; text-align: center; border-radius: 8px; max-width: 600px; margin: 0 auto; border: 1px solid #00ffcc; box-shadow: 0 0 20px rgba(0, 255, 204, 0.2);">
+                <div style="margin-bottom: 30px;">
+                    <h1 style="color: #00ffcc; font-size: 28px; margin: 0; letter-spacing: 2px; text-transform: uppercase;">GUNPLA STORE NETWORK</h1>
+                    <p style="color: #64748b; font-size: 12px; margin: 5px 0 0; letter-spacing: 1px;">SECURE PROTOCOL TRANSMISSION</p>
+                </div>
+                <div style="background-color: rgba(0, 255, 204, 0.05); border: 1px solid rgba(0, 255, 204, 0.2); padding: 30px; border-radius: 4px; margin-bottom: 30px;">
+                    <p style="font-size: 16px; margin: 0 0 20px; color: #e2e8f0;">Chào phi công <strong style="color: #00ffcc;">${username}</strong>,</p>
+                    <p style="font-size: 14px; margin: 0 0 25px; color: #94a3b8; line-height: 1.6;">Yêu cầu đặt lại mật khẩu truy cập của bạn đã được nhận. Vui lòng sử dụng mã xác minh bảo mật (OTP) dưới đây để tiếp tục:</p>
+                    <div style="font-size: 36px; font-weight: bold; color: #00ffcc; letter-spacing: 10px; background-color: #07090e; padding: 15px; border-radius: 4px; border: 1px dashed rgba(0, 255, 204, 0.5); display: inline-block; margin-bottom: 25px;">${otp}</div>
+                    <p style="font-size: 12px; margin: 0; color: #ef4444;">Mã OTP này có hiệu lực trong vòng 5 phút. Vui lòng tuyệt đối không chia sẻ mã này với bất kỳ ai.</p>
+                </div>
+                <div style="border-top: 1px solid #1e293b; padding-top: 20px; color: #64748b; font-size: 12px;">
+                    <p style="margin: 0;">Đây là email tự động từ hệ thống bảo mật G-STORE NETWORK.</p>
+                    <p style="margin: 5px 0 0;">&copy; 2026 G-STORE NETWORK. ALL RIGHTS RESERVED.</p>
+                </div>
+            </div>
+        `
+    };
+
+    try {
+        await mailTransporter.sendMail(mailOptions);
+        console.log(`[OTP] Email OTP successfully sent to ${email} (User: ${username})`);
+    } catch (err) {
+        console.error('❌ [OTP] Failed to send OTP email:', err.message);
+        // Fallback print to console if mailing fails
+        console.log(`\n======================================================`);
+        console.log(`[OTP FALLBACK (SEND ERROR)] MÃ OTP CỦA BẠN LÀ: ${otp}`);
+        console.log(`[OTP FALLBACK (SEND ERROR)] Tài khoản: ${username} | Email: ${email}`);
+        console.log(`======================================================\n`);
+    }
+}
 
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
-app.use(express.static(__dirname));
+app.use(express.static(path.join(__dirname, '..')));
 
 // --- MULTER CONFIGURATION FOR IMAGE UPLOADS ---
 const storage = multer.diskStorage({
@@ -154,10 +224,6 @@ async function connectDB() {
                     NgayTao DATETIME DEFAULT GETDATE(),
                     DiemDG INT DEFAULT 5 CHECK (DiemDG BETWEEN 1 AND 5)
                 );
-                INSERT INTO danhgia (TenKH, Email, ChuDe, NoiDung, DiemDG) VALUES
-                    (N'Minh Hùng', N'hungm@gstore.com', N'order', N'Đặt PG Unleashed RX-78-2, shop tư vấn tận tình từ A-Z. Hộp được đóng gói cực kỳ chắc chắn, giao nhanh hơn dự kiến. Xứng đáng 5 sao!', 5),
-                    (N'Thu Lan', N'lant@gstore.com', N'consult', N'Mình là newbie Gunpla, được anh nhân viên tư vấn bắt đầu với HG rất chi tiết. Giờ đã lên đến MG rồi! Shop uy tín, giá cả hợp lý.', 5),
-                    (N'Quốc Đạt', N'datq@gstore.com', N'other', N'Mua sỉ cho cửa hàng mình, giá đại lý rất tốt. Hàng về đúng hạn, không thiếu phụ kiện, chất lượng đồng đều. Sẽ tiếp tục hợp tác lâu dài.', 5);
             END
 
             IF NOT EXISTS (SELECT * FROM taikhoan WHERE Username = N'admin')
@@ -446,6 +512,109 @@ app.post('/api/login', async (req, res) => {
 });
 
 /**
+ * @route GET /api/config/google-client-id
+ * @desc Lay Google Client ID tu .env (bao mat thong tin trong code frontend)
+ */
+app.get('/api/config/google-client-id', (req, res) => {
+    res.json({ clientId: process.env.GOOGLE_CLIENT_ID || '' });
+});
+
+/**
+ * @route POST /api/auth/google
+ * @desc Dang nhap bang Google OAuth2 - xac thuc access_token va tu dong tao/tim tai khoan
+ */
+app.post('/api/auth/google', async (req, res) => {
+    const { access_token } = req.body;
+    if (!access_token) {
+        return res.status(400).json({ success: false, message: 'Thiếu access_token từ Google.' });
+    }
+
+    // Goi Google UserInfo API de lay thong tin nguoi dung
+    const googleUser = await new Promise((resolve, reject) => {
+        https.get(
+            `https://www.googleapis.com/oauth2/v3/userinfo`,
+            { headers: { Authorization: `Bearer ${access_token}` } },
+            (resp) => {
+                let data = '';
+                resp.on('data', chunk => data += chunk);
+                resp.on('end', () => {
+                    try { resolve(JSON.parse(data)); }
+                    catch (e) { reject(e); }
+                });
+            }
+        ).on('error', reject);
+    }).catch(() => null);
+
+    if (!googleUser || !googleUser.email) {
+        return res.status(401).json({ success: false, message: 'Token Google không hợp lệ hoặc đã hết hạn.' });
+    }
+
+    const { sub: googleId, email, name: displayName } = googleUser;
+    // Username duy nhat theo Google ID, gioi han 50 ky tu
+    const username = `gg_${googleId}`.substring(0, 50);
+
+    try {
+        const pool = await sql.connect(config);
+
+        // Kiem tra tai khoan Google da ton tai chua
+        const existing = await pool.request()
+            .input('username', sql.NVarChar, username)
+            .query('SELECT t.Username, t.Role FROM taikhoan t WHERE t.Username = @username');
+
+        if (existing.recordset.length > 0) {
+            // Da ton tai -> dang nhap luon
+            const role = existing.recordset[0].Role || 'User';
+            console.log(`[GOOGLE-AUTH] Existing user "${username}" logged in via Google.`);
+            return res.json({ success: true, username, displayName, role });
+        }
+
+        // Chua ton tai -> tao tai khoan moi
+        const randomPw = await bcrypt.hash(googleId + Date.now(), BCRYPT_SALT_ROUNDS);
+        const transaction = new sql.Transaction(pool);
+        await transaction.begin();
+
+        try {
+            // Tao tai khoan trong bang taikhoan
+            await transaction.request()
+                .input('username', sql.NVarChar, username)
+                .input('password', sql.NVarChar, randomPw)
+                .input('role', sql.NVarChar, 'User')
+                .query('INSERT INTO taikhoan (Username, Password, Role) VALUES (@username, @password, @role)');
+
+            // Kiem tra email da co trong khachhang chua
+            const emailCheck = await transaction.request()
+                .input('email', sql.NVarChar, email)
+                .query('SELECT MaKH, Username FROM khachhang WHERE Email = @email');
+
+            if (emailCheck.recordset.length > 0) {
+                // Email da ton tai -> chi cap nhat lien ket Username
+                await transaction.request()
+                    .input('username', sql.NVarChar, username)
+                    .input('email', sql.NVarChar, email)
+                    .query('UPDATE khachhang SET Username = @username WHERE Email = @email AND (Username IS NULL OR Username = \'\')');
+            } else {
+                // Email chua ton tai -> tao moi khach hang
+                await transaction.request()
+                    .input('name', sql.NVarChar, displayName || username)
+                    .input('email', sql.NVarChar, email)
+                    .input('username', sql.NVarChar, username)
+                    .query('INSERT INTO khachhang (TenKH, Email, Username) VALUES (@name, @email, @username)');
+            }
+
+            await transaction.commit();
+            console.log(`[GOOGLE-AUTH] New Google user "${username}" (${email}) registered and logged in.`);
+            return res.status(201).json({ success: true, username, displayName, role: 'User' });
+        } catch (err) {
+            await transaction.rollback();
+            throw err;
+        }
+    } catch (err) {
+        console.error('[GOOGLE-AUTH] Error:', err.message);
+        res.status(500).json({ success: false, message: 'Lỗi hệ thống. Vui lòng thử lại.' });
+    }
+});
+
+/**
  * @route POST /api/register
  * @desc Dang ky tai khoan moi - mat khau duoc ma hoa bcrypt truoc khi luu
  */
@@ -534,10 +703,41 @@ app.post('/api/verify-user', async (req, res) => {
         const pool = await sql.connect(config);
         const result = await pool.request()
             .input('username', sql.NVarChar, username)
-            .query('SELECT Username FROM taikhoan WHERE Username = @username');
+            .query(`
+                SELECT t.Username, k.Email 
+                FROM taikhoan t
+                LEFT JOIN khachhang k ON t.Username = k.Username
+                WHERE RTRIM(LTRIM(t.Username)) = @username
+            `);
 
         if (result.recordset.length > 0) {
-            res.json({ exists: true, message: 'Tài khoản được xác minh.' });
+            const user = result.recordset[0];
+            const email = user.Email ? user.Email.toString().trim() : '';
+            
+            // Tạo mã OTP 6 chữ số
+            const otp = Math.floor(100000 + Math.random() * 900000).toString();
+            
+            // Lưu vào otpStore tạm thời, có hiệu lực trong 5 phút (300000 ms)
+            otpStore.set(username, { otp, email, expiresAt: Date.now() + 5 * 60 * 1000 });
+            
+            // Gửi email thật (hoặc fallback ra console log)
+            await sendOTPEmail(email || 'pilot@gstore.com', username, otp);
+            
+            // Tạo masked email để hiển thị an toàn trên giao diện
+            let maskedEmail = 'chưa liên kết email';
+            if (email && email.includes('@')) {
+                const parts = email.split('@');
+                const namePart = parts[0];
+                const domainPart = parts[1];
+                if (namePart.length <= 2) {
+                    maskedEmail = namePart[0] + '*@' + domainPart;
+                } else {
+                    maskedEmail = namePart.substring(0, 2) + '*'.repeat(Math.max(1, namePart.length - 3)) + namePart.slice(-1) + '@' + domainPart;
+                }
+            }
+
+            // Trả thêm debugOtp trong phản hồi để test dễ dàng
+            res.json({ exists: true, maskedEmail, debugOtp: otp, message: 'Tài khoản được xác minh và mã OTP đã được gửi.' });
         } else {
             res.status(404).json({ exists: false, message: 'Không tìm thấy tài khoản với username này.' });
         }
@@ -550,14 +750,38 @@ app.post('/api/verify-user', async (req, res) => {
  * @route POST /api/reset-password
  * @desc Dat lai mat khau - hash bcrypt truoc khi luu
  */
-app.post('/api/reset-password', async (req, res) => {
-    const { username, newPassword } = req.body;
+app.post('/api/verify-otp', (req, res) => {
+    const { username, otp } = req.body;
+    if (!username || !otp) {
+        return res.status(400).json({ success: false, message: 'Thiếu thông tin xác thực OTP.' });
+    }
+    const record = otpStore.get(username);
+    if (!record) {
+        return res.status(400).json({ success: false, message: 'Không tìm thấy yêu cầu xác thực OTP của tài khoản này.' });
+    }
+    if (Date.now() > record.expiresAt) {
+        otpStore.delete(username);
+        return res.status(400).json({ success: false, message: 'Mã OTP đã hết hạn. Vui lòng yêu cầu gửi lại.' });
+    }
+    if (record.otp !== otp.toString().trim()) {
+        return res.status(400).json({ success: false, message: 'Mã OTP không chính xác. Vui lòng kiểm tra lại.' });
+    }
+    res.json({ success: true, message: 'Xác minh mã OTP thành công.' });
+});
 
-    if (!username || !newPassword) {
-        return res.status(400).json({ error: 'Thiếu thông tin.' });
+app.post('/api/reset-password', async (req, res) => {
+    const { username, otp, newPassword } = req.body;
+
+    if (!username || !otp || !newPassword) {
+        return res.status(400).json({ error: 'Thiếu thông tin đặt lại mật khẩu.' });
     }
     if (newPassword.length < 8) {
         return res.status(400).json({ error: 'Mật khẩu mới tối thiểu 8 ký tự.' });
+    }
+
+    const record = otpStore.get(username);
+    if (!record || record.otp !== otp.toString().trim() || Date.now() > record.expiresAt) {
+        return res.status(400).json({ error: 'Xác thực mã OTP không hợp lệ hoặc đã hết hạn.' });
     }
 
     try {
@@ -582,6 +806,10 @@ app.post('/api/reset-password', async (req, res) => {
             .query('UPDATE taikhoan SET Password = @password WHERE Username = @username');
 
         console.log(`[RESET-PW] Password updated successfully for user "${username}".`);
+        
+        // Xóa OTP khỏi store sau khi dùng thành công
+        otpStore.delete(username);
+
         res.json({ success: true, message: 'Mật khẩu đã được cập nhật thành công và mã hóa bcrypt!' });
     } catch (err) {
         console.error('[RESET-PW] Error:', err.message);
@@ -646,13 +874,16 @@ app.post('/api/users', async (req, res) => {
             return res.status(400).json({ error: 'Tên đăng nhập đã tồn tại!' });
         }
 
+        // Mã hóa mật khẩu trước khi lưu
+        const hashedPassword = await bcrypt.hash(password, BCRYPT_SALT_ROUNDS);
+
         const transaction = new sql.Transaction(pool);
         await transaction.begin();
 
         try {
             await transaction.request()
                 .input('username', sql.NVarChar, username)
-                .input('password', sql.NVarChar, password)
+                .input('password', sql.NVarChar, hashedPassword)
                 .input('role', sql.NVarChar, role)
                 .query('INSERT INTO taikhoan (Username, Password, Role) VALUES (@username, @password, @role)');
 
@@ -721,9 +952,11 @@ app.put('/api/users/:id', async (req, res) => {
         try {
             // Update taikhoan table
             if (password && password.trim() !== '') {
+                // Mã hóa mật khẩu mới trước khi cập nhật
+                const hashedPassword = await bcrypt.hash(password, BCRYPT_SALT_ROUNDS);
                 await transaction.request()
                     .input('username', sql.NVarChar, username)
-                    .input('password', sql.NVarChar, password)
+                    .input('password', sql.NVarChar, hashedPassword)
                     .input('role', sql.NVarChar, role)
                     .query('UPDATE taikhoan SET Password = @password, Role = @role WHERE Username = @username');
             } else {
@@ -752,6 +985,35 @@ app.put('/api/users/:id', async (req, res) => {
 });
 
 /**
+ * @route GET /api/profile/:username
+ * @desc Get customer profile for prefilling review forms
+ */
+app.get('/api/profile/:username', async (req, res) => {
+    const username = (req.params.username || '').trim();
+    if (!username) {
+        return res.status(400).json({ error: 'Username is required' });
+    }
+    try {
+        const pool = await sql.connect(config);
+        const result = await pool.request()
+            .input('username', sql.NVarChar, username)
+            .query(`
+                SELECT k.TenKH, k.Email, k.SDT
+                FROM khachhang k
+                WHERE RTRIM(LTRIM(k.Username)) = @username
+            `);
+
+        if (result.recordset.length === 0) {
+            return res.status(404).json({ error: 'Profile not found' });
+        }
+
+        res.json(result.recordset[0]);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+/**
  * @route GET /api/reviews
  * @desc Get all reviews/testimonials from database
  */
@@ -771,16 +1033,23 @@ app.get('/api/reviews', async (req, res) => {
  */
 app.post('/api/reviews', async (req, res) => {
     const { name, email, topic, message, rating } = req.body;
+    if (!name || !message) {
+        return res.status(400).json({ error: 'Name and message are required' });
+    }
     try {
         const pool = await sql.connect(config);
-        await pool.request()
+        const result = await pool.request()
             .input('name', sql.NVarChar, name)
-            .input('email', sql.NVarChar, email)
-            .input('topic', sql.NVarChar, topic)
+            .input('email', sql.NVarChar, email || '')
+            .input('topic', sql.NVarChar, topic || '')
             .input('message', sql.NVarChar, message)
             .input('rating', sql.Int, rating || 5)
-            .query('INSERT INTO danhgia (TenKH, Email, ChuDe, NoiDung, DiemDG) VALUES (@name, @email, @topic, @message, @rating)');
-        res.status(201).json({ success: true, message: 'Review added successfully' });
+            .query(`
+                INSERT INTO danhgia (TenKH, Email, ChuDe, NoiDung, DiemDG)
+                OUTPUT INSERTED.*
+                VALUES (@name, @email, @topic, @message, @rating)
+            `);
+        res.status(201).json({ success: true, review: result.recordset[0] });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
