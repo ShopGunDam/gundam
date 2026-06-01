@@ -63,6 +63,33 @@ function scrollActive() {
 
 window.addEventListener('scroll', scrollActive);
 
+/* =========================================
+   AUTHENTICATION UI UPDATE
+   ========================================= */
+function updateHeaderAuth() {
+    const user = sessionStorage.getItem('gunpla_user');
+    const userImg = sessionStorage.getItem('gunpla_user_img');
+    const userIcon = document.querySelector('.user-icon');
+    if (user && userIcon) {
+        const displayName = sessionStorage.getItem('gunpla_display_name') || user;
+        // Chuyá»ƒn link tá»« login.html sang account.html khi Ä‘Ã£ Ä‘Äƒng nháº­p
+        userIcon.href = 'account.html';
+        userIcon.style.display = 'flex';
+        userIcon.style.alignItems = 'center';
+        userIcon.style.gap = '12px';
+        userIcon.style.textDecoration = 'none';
+
+        let avatarHTML = `<i class='bx bxs-user-circle' style="color: var(--primary-color);"></i>`;
+        if (userImg) {
+            avatarHTML = `<img src="${userImg}" alt="Avatar" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-color);">`;
+        }
+
+        userIcon.innerHTML = `${avatarHTML} <span style="font-size: 0.85rem; color: #fff; font-family: 'Montserrat', sans-serif; font-weight: 700; letter-spacing: 1px;">${displayName.toUpperCase()}</span>`;
+        userIcon.title = 'Há»“ sÆ¡ phi cÃ´ng: ' + displayName;
+    }
+}
+
+
 const currentOrigin = window.location.protocol.startsWith('http') ? window.location.origin : null;
 const apiHosts = [
     currentOrigin,
@@ -82,7 +109,7 @@ async function requestApi(path, options = {}) {
         try {
             const response = await fetch(url, fetchOptions);
             if (!response.ok) {
-                const errorData = await response.json().catch(() => null);
+                const errorData = await response.clone().json().catch(() => null);
                 const errorMessage = errorData?.error || `HTTP ${response.status}`;
                 lastError = new Error(`${url}: ${errorMessage}`);
                 continue;
@@ -982,6 +1009,7 @@ window.addEventListener('DOMContentLoaded', () => {
     updateCartUI();
     fetchStoreProducts(); // Fetch from Node.js
     loadHomepageNewProducts();
+    updateHeaderAuth();
 });
 
 
@@ -1009,10 +1037,10 @@ function formatRatingDate(dateStr) {
 function getTopicLabel(topic) {
     const labels = {
         event: 'S? ki?n',
-        assembly_event: 'S? ki?n l?p ráp',
-        assembly_guide: 'S? ki?n l?p ráp',
-        community: 'Ho?t ð?ng c?ng ð?ng',
-        other: 'Khác'
+        assembly_event: 'S? ki?n l?p rï¿½p',
+        assembly_guide: 'S? ki?n l?p rï¿½p',
+        community: 'Ho?t ï¿½?ng c?ng ï¿½?ng',
+        other: 'Khï¿½c'
     };
     return labels[topic] || topic || '';
 }
@@ -1030,7 +1058,7 @@ async function loadRatings() {
             ratingsContainer.innerHTML = `
                 <div class="empty-state-ratings">
                     <i class='bx bx-info-circle'></i>
-                    <p>Ch?a có ðánh giá n?o. H?y l? ng??i ð?u ti?n chia s? tr?i nghi?m c?a b?n!</p>
+                    <p>Ch?a cï¿½ ï¿½ï¿½nh giï¿½ n?o. H?y l? ng??i ï¿½?u ti?n chia s? tr?i nghi?m c?a b?n!</p>
                 </div>
             `;
             return;
@@ -1060,11 +1088,11 @@ async function loadRatings() {
             `;
         }).join('');
     } catch (err) {
-        console.error('L?i khi t?i ðánh giá:', err);
+        console.error('L?i khi t?i ï¿½ï¿½nh giï¿½:', err);
         ratingsContainer.innerHTML = `
             <div class="empty-state-ratings">
                 <i class='bx bx-error'></i>
-                <p>Không th? t?i ðánh giá. Vui l?ng th? l?i sau.</p>
+                <p>Khï¿½ng th? t?i ï¿½ï¿½nh giï¿½. Vui l?ng th? l?i sau.</p>
             </div>
         `;
     }
@@ -1084,7 +1112,7 @@ async function loadGuideReviewerProfile() {
         if (profile.TenKH && ratingNameInput) ratingNameInput.value = profile.TenKH;
         if (profile.Email && ratingEmailInput) ratingEmailInput.value = profile.Email;
     } catch (err) {
-        console.error('Không t?i ð??c h? s? ng??i d?ng:', err);
+        console.error('Khï¿½ng t?i ï¿½??c h? s? ng??i d?ng:', err);
     }
 }
 
@@ -1147,13 +1175,13 @@ if (ratingForm) {
         const rating = parseInt(ratingValueInput.value, 10) || 5;
 
         if (!name || !email || !topic || !message) {
-            showFormMessage('Vui l?ng ði?n ð?y ð? thông tin.', 'error');
+            showFormMessage('Vui l?ng ï¿½i?n ï¿½?y ï¿½? thï¿½ng tin.', 'error');
             return;
         }
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
-            showFormMessage('Email không h?p l?.', 'error');
+            showFormMessage('Email khï¿½ng h?p l?.', 'error');
             return;
         }
 
@@ -1170,7 +1198,7 @@ if (ratingForm) {
                 })
             });
 
-            showFormMessage('C?m ?n! Ðánh giá c?a b?n ð? ð??c g?i th?nh công.', 'success');
+            showFormMessage('C?m ?n! ï¿½ï¿½nh giï¿½ c?a b?n ï¿½? ï¿½??c g?i th?nh cï¿½ng.', 'success');
             ratingForm.reset();
             ratingValueInput.value = 5;
             ratingValueText.textContent = '5/5 sao';
@@ -1186,7 +1214,7 @@ if (ratingForm) {
             await loadRatings();
         } catch (err) {
             showFormMessage('L?i: ' + err.message, 'error');
-            console.error('L?i g?i ðánh giá:', err);
+            console.error('L?i g?i ï¿½ï¿½nh giï¿½:', err);
         }
     });
 

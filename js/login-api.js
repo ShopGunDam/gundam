@@ -53,6 +53,9 @@ if (loginForm) {
                 // Lưu session
                 sessionStorage.setItem('gunpla_user', username);
                 sessionStorage.setItem('gunpla_role', data.role);
+                if (data.role === 'Admin') {
+                    localStorage.setItem('gst_admin_logged', 'true');
+                }
 
                 showLoginAlert(`✅ Đăng nhập thành công! Chào mừng <strong>${username}</strong>. Đang chuyển hướng...`, 'success');
 
@@ -188,6 +191,12 @@ async function handleGoogleLogin(accessToken) {
             sessionStorage.setItem('gunpla_user', data.username);
             sessionStorage.setItem('gunpla_role', data.role);
             sessionStorage.setItem('gunpla_display_name', data.displayName || data.username);
+            if (data.picture) {
+                sessionStorage.setItem('gunpla_user_img', data.picture);
+            }
+            if (data.role === 'Admin') {
+                localStorage.setItem('gst_admin_logged', 'true');
+            }
 
             showLoginAlert(`✅ Xin chào <strong>${data.displayName || data.username}</strong>! Đang chuyển hướng...`, 'success');
 

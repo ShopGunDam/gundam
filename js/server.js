@@ -134,9 +134,16 @@ async function connectDB() {
                     SDT NVARCHAR(15),
                     DiaChi NVARCHAR(MAX),
                     Username NVARCHAR(50),
+                    HinhAnh NVARCHAR(MAX),
                     CONSTRAINT chk_email_format CHECK (Email LIKE '%@%'),
                     FOREIGN KEY (Username) REFERENCES taikhoan(Username) ON DELETE SET NULL
                 );
+            END
+
+            -- Đảm bảo cột HinhAnh tồn tại nếu bảng đã được tạo trước đó
+            IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[khachhang]') AND name = 'HinhAnh')
+            BEGIN
+                ALTER TABLE khachhang ADD HinhAnh NVARCHAR(MAX);
             END
 
             IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[nhacungcap]') AND type in (N'U'))
@@ -538,7 +545,14 @@ app.post('/api/auth/google', async (req, res) => {
                 let data = '';
                 resp.on('data', chunk => data += chunk);
                 resp.on('end', () => {
-                    try { resolve(JSON.parse(data)); }
+                    try { 
+                        const parsed = JSON.parse(data);
+                        // Đảm bảo lấy được ảnh chất lượng cao từ Google
+                        if (parsed.picture) {
+                            parsed.picture = parsed.picture.replace('=s96-c', '=s300-c');
+                        }
+                        resolve(parsed); 
+                    }
                     catch (e) { reject(e); }
                 });
             }
@@ -549,7 +563,7 @@ app.post('/api/auth/google', async (req, res) => {
         return res.status(401).json({ success: false, message: 'Token Google không hợp lệ hoặc đã hết hạn.' });
     }
 
-    const { sub: googleId, email, name: displayName } = googleUser;
+    const { sub: googleId, email, name: displayName, picture } = googleUser;
     // Username duy nhat theo Google ID, gioi han 50 ky tu
     const username = `gg_${googleId}`.substring(0, 50);
 
@@ -565,7 +579,7 @@ app.post('/api/auth/google', async (req, res) => {
             // Da ton tai -> dang nhap luon
             const role = existing.recordset[0].Role || 'User';
             console.log(`[GOOGLE-AUTH] Existing user "${username}" logged in via Google.`);
-            return res.json({ success: true, username, displayName, role });
+            return res.json({ success: true, username, displayName, role, picture });
         }
 
         // Chua ton tai -> tao tai khoan moi
@@ -598,12 +612,13 @@ app.post('/api/auth/google', async (req, res) => {
                     .input('name', sql.NVarChar, displayName || username)
                     .input('email', sql.NVarChar, email)
                     .input('username', sql.NVarChar, username)
-                    .query('INSERT INTO khachhang (TenKH, Email, Username) VALUES (@name, @email, @username)');
+                    .input('picture', sql.NVarChar(sql.MAX), picture)
+                    .query('INSERT INTO khachhang (TenKH, Email, Username, HinhAnh) VALUES (@name, @email, @username, @picture)');
             }
 
             await transaction.commit();
             console.log(`[GOOGLE-AUTH] New Google user "${username}" (${email}) registered and logged in.`);
-            return res.status(201).json({ success: true, username, displayName, role: 'User' });
+            return res.status(201).json({ success: true, username, displayName, role: 'User', picture });
         } catch (err) {
             await transaction.rollback();
             throw err;
@@ -998,7 +1013,7 @@ app.get('/api/profile/:username', async (req, res) => {
         const result = await pool.request()
             .input('username', sql.NVarChar, username)
             .query(`
-                SELECT k.TenKH, k.Email, k.SDT
+                SELECT k.TenKH, k.Email, k.SDT, k.DiaChi, k.HinhAnh
                 FROM khachhang k
                 WHERE RTRIM(LTRIM(k.Username)) = @username
             `);
@@ -1009,6 +1024,70 @@ app.get('/api/profile/:username', async (req, res) => {
 
         res.json(result.recordset[0]);
     } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+/**
+ * @route PUT /api/profile/:username
+ * @desc Cập nhật thông tin cá nhân của phi công
+ */
+app.put('/api/profile/:username', async (req, res) => {
+    const username = (req.params.username || '').trim();
+    const { name, email, phone, address, avatar } = req.body;
+
+    try {
+        const pool = await sql.connect(config);
+        
+        // Cập nhật bảng khách hàng
+        await pool.request()
+            .input('username', sql.NVarChar, username)
+            .input('name', sql.NVarChar, name)
+            .input('email', sql.NVarChar, email)
+            .input('phone', sql.NVarChar, phone)
+            .input('address', sql.NVarChar(sql.MAX), address)
+            .input('avatar', sql.NVarChar(sql.MAX), avatar) // Fix error 500: Allow long image strings
+            .query(`
+                UPDATE khachhang 
+                SET TenKH = @name, 
+                    Email = @email, 
+                    SDT = @phone, 
+                    DiaChi = @address, 
+                    HinhAnh = @avatar
+                WHERE RTRIM(LTRIM(Username)) = @username
+            `);
+
+        res.json({ success: true, message: 'Hồ sơ đã được cập nhật trên hệ thống!' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+/**
+ * @route GET /api/orders/:username
+ * @desc Lấy lịch sử đơn hàng của một phi công cụ thể
+ */
+app.get('/api/orders/:username', async (req, res) => {
+    const username = req.params.username;
+    try {
+        const pool = await sql.connect(config);
+        const result = await pool.request()
+            .input('username', sql.NVarChar, username)
+            .query(`
+                SELECT h.MaHD, h.NgayLap, h.TongTien, h.TrangThai,
+                       (SELECT TOP 1 s.TenSP FROM cthoadon ct 
+                        JOIN sanpham s ON ct.MaSP = s.MaSP 
+                        WHERE ct.MaHD = h.MaHD) as SanPhamChinh,
+                       (SELECT COUNT(*) FROM cthoadon WHERE MaHD = h.MaHD) as SoLuongSP
+                FROM hoadon h
+                JOIN khachhang k ON h.MaKH = k.MaKH
+                WHERE k.Username = @username
+                ORDER BY h.NgayLap DESC
+            `);
+
+        res.json(result.recordset);
+    } catch (err) {
+        console.error('[ORDER-API] Error:', err.message);
         res.status(500).json({ error: err.message });
     }
 });
