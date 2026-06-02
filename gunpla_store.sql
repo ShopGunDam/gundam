@@ -35,6 +35,7 @@ BEGIN
         SDT NVARCHAR(15),
         DiaChi NVARCHAR(MAX),
         Username NVARCHAR(50),
+        HinhAnh NVARCHAR(MAX),
         CONSTRAINT chk_email_format CHECK (Email LIKE '%@%'),
         FOREIGN KEY (Username) REFERENCES taikhoan(Username) ON DELETE SET NULL
     );

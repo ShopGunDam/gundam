@@ -216,9 +216,101 @@
     100% { top: 0; }
 }
 
+/* =========================================
+   SOCIAL LOGIN - GOOGLE BUTTON
+   ========================================= */
+.social-login {
+    margin-bottom: 24px;
+}
+
+.social-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.divider-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(59,130,246,0.3), transparent);
+}
+
+.divider-text {
+    font-family: var(--font-subheading);
+    font-size: 0.68rem;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    white-space: nowrap;
+    text-transform: uppercase;
+}
+
+.social-buttons {
+    display: flex;
+    justify-content: center;
+}
+
+.social-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 11px 32px;
+    border: 1px solid rgba(59,130,246,0.25);
+    background: rgba(255,255,255,0.03);
+    cursor: pointer;
+    clip-path: var(--clip-btn);
+    transition: all 0.3s ease;
+    font-family: var(--font-subheading);
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+}
+
+.social-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(66,133,244,0.08), rgba(52,168,83,0.05), rgba(251,188,5,0.05), rgba(234,67,53,0.05));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.social-btn:hover::before { opacity: 1; }
+
+.google-btn:hover {
+    border-color: rgba(66,133,244,0.6);
+    color: #fff;
+    box-shadow: 0 0 20px rgba(66,133,244,0.2), 0 0 40px rgba(66,133,244,0.08);
+    transform: translateY(-1px);
+}
+
+.google-btn svg {
+    flex-shrink: 0;
+    filter: drop-shadow(0 0 4px rgba(66,133,244,0.4));
+    transition: filter 0.3s ease;
+}
+
+.google-btn:hover svg {
+    filter: drop-shadow(0 0 8px rgba(66,133,244,0.7));
+}
+
+.google-btn.loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
 /* Responsive adjustments */
 @media (max-width: 480px) {
     .login-card {
         padding: 40px 25px;
+    }
+    .social-btn {
+        padding: 11px 20px;
     }
 }

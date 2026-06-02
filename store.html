@@ -1,8 +1,10 @@
+﻿<!DOCTYPE html>
 <!DOCTYPE html>
 <html lang="vi">
 
 <head>
     <meta charset="UTF-8">
+    <script src="js/port-redirect.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GUNPLA STORE // PHÒNG TRANG BỊ</title>
 
@@ -36,6 +38,7 @@
                 <ul class="nav-list">
                     <li class="nav-item"><a href="index.html" class="nav-link">TRANG CHỦ</a></li>
                     <li class="nav-item"><a href="store.html" class="nav-link active">CỬA HÀNG</a></li>
+                    <li class="nav-item"><a href="guide.html" class="nav-link">SỰ KIỆN</a></li>
                     <li class="nav-item"><a href="guide.html" class="nav-link">HƯỚNG DẪN</a></li>
                     <li class="nav-item"><a href="lien-he.html" class="nav-link">LIÊN HỆ</a></li>
                 </ul>
@@ -53,6 +56,7 @@
                     <i class='bx bx-cart-alt'></i>
                     <span class="cart-count">2</span>
                 </a>
+                <a href="login.html" class="user-icon" title="User Account">
                 <a href="login.html" class="user-icon">
                     <i class='bx bx-user-circle'></i>
                 </a>
@@ -153,6 +157,7 @@
                     <div class="filter-group">
                         <h3 class="filter-group-title">HẠN MỨC NGÂN SÁCH</h3>
                         <div class="price-range-wrapper">
+                            <input type="range" class="price-slider" min="100000" max="8000000" step="50000" title="Price range filter"
                             <input type="range" class="price-slider" min="100000" max="8000000" step="50000"
                                 value="8000000">
                             <div class="price-values">
@@ -179,6 +184,7 @@
                         </div>
                         <div class="sort-wrapper">
                             <span>MÃ SẮP XẾP:</span>
+                            <select class="sort-select" title="Sort products">
                             <select class="sort-select">
                                 <option value="default">MẶC ĐỊNH (QUÉT HỆ THỐNG)</option>
                                 <option value="price-asc">GIÁ TĂNG DẦN</option>
@@ -216,6 +222,7 @@
             <div class="footer-grid">
                 <div class="f-col">
                     <h4>CĂN CỨ DỮ LIỆU</h4>
+                    <a href="guide.html">Sự Kiện</a>
                     <a href="guide.html">Hướng dẫn lắp ráp</a>
                     <a href="store.html">Phân loại Grade</a>
                     <a href="store.html">Công cụ & Phụ kiện</a>
@@ -244,4 +251,5 @@
     <script src="js/script.js"></script>
 </body>
 
+</html>
 </html>

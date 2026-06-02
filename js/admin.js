@@ -404,6 +404,7 @@ function showAddNewsModal() {
                             <select id="news-category" required>
                                 <option value="news">Tin tức</option>
                                 <option value="promo">Ưu đãi</option>
+                                <option value="guide">Sự kiện</option>
                                 <option value="guide">Cộng đồng</option>
                             </select>
                         </div>

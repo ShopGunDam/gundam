@@ -1,10 +1,11 @@
-<!DOCTYPE html>
+﻿﻿<!DOCTYPE html>
 <html lang="vi">
 
 <head>
     <meta charset="UTF-8">
+    <script src="js/port-redirect.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HỒ SƠ PHI CÔNG | GUNPLA STORE</title>
+    <title>HỒ SƠ CÁ NHÂN | GUNPLA STORE</title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,6 +19,7 @@
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/style.css">
+    <!-- <link rel="stylesheet" href="css/account.css"> --> <!-- Uncomment this if you create account.css -->
     <style>
         /* Account Specific Styles */
         .account-section {
@@ -65,7 +67,7 @@
             padding: 5px;
             border: 2px dashed var(--primary-color);
             position: relative;
-            animation: rotate-border 10s linear infinite;
+            /* animation: rotate-border 10s linear infinite; */ /* Stopped rotation */
         }
 
         @keyframes rotate-border {
@@ -77,34 +79,38 @@
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            background: #1a2230;
+            object-fit: cover;
+        }
+
+        .profile-name-wrapper {
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 3rem;
-            color: var(--primary-color);
-        }
-        
-        .avatar-wrapper .avatar-inner {
-             animation: counter-rotate 10s linear infinite;
-             width: 100%;
-             height: 100%;
-             display: flex;
-             align-items: center;
-             justify-content: center;
-        }
-
-        @keyframes counter-rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(-360deg); }
+            gap: 10px;
+            margin-bottom: 5px;
         }
 
         .profile-name {
             font-family: 'Montserrat', sans-serif;
             font-weight: 900;
             font-size: 1.5rem;
-            margin-bottom: 5px;
             letter-spacing: 1px;
+            color: #fff;
+            text-transform: uppercase;
+        }
+
+        .edit-name-icon {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: 0.3s;
+            opacity: 0.7;
+        }
+
+        .edit-name-icon:hover {
+            opacity: 1;
+            transform: scale(1.2);
+            text-shadow: 0 0 10px var(--primary-glow);
         }
 
         .profile-rank {
@@ -121,7 +127,7 @@
             grid-template-columns: 1fr 1fr;
             gap: 15px;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(58, 134, 255, 0.2);
             padding: 20px 0;
             margin-bottom: 25px;
         }
@@ -148,13 +154,137 @@
             gap: 10px;
         }
 
+        .avatar-upload-btn {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background: var(--primary-color);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            border: 2px solid #0a0f19;
+            transition: 0.3s;
+        }
+
+        .avatar-upload-btn:hover {
+            transform: scale(1.1);
+            background: var(--secondary-color);
+        }
+
+        .hidden-panel { display: none !important; }
+
+        /* Luxury Form Styling */
+        .luxury-panel {
+            background: linear-gradient(145deg, rgba(13, 17, 23, 0.95), rgba(5, 7, 10, 0.98)) !important;
+            border: 1px solid rgba(58, 134, 255, 0.25) !important;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), inset 0 0 40px rgba(58, 134, 255, 0.05) !important;
+            padding: 50px !important;
+            max-width: 900px;
+            margin: 0 auto;
+            border-radius: 20px !important;
+        }
+
+        .luxury-panel .form-group label {
+            color: var(--primary-color);
+            font-size: 0.8rem;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: block;
+            text-transform: uppercase;
+        }
+
+        .luxury-panel .form-control {
+            background: rgba(255, 255, 255, 0.03) !important;
+            border: 1px solid rgba(58, 134, 255, 0.2) !important;
+            border-radius: 10px !important;
+            padding: 18px !important;
+            color: #fff !important;
+            font-size: 1rem !important;
+            width: 100% !important;
+            transition: var(--transition) !important;
+            font-family: var(--font-body);
+        }
+
+        .luxury-panel .form-control:focus {
+            border-color: var(--primary-color) !important;
+            background: rgba(58, 134, 255, 0.08) !important;
+            box-shadow: 0 0 20px rgba(58, 134, 255, 0.15) !important;
+            outline: none;
+        }
+
+        .luxury-panel .btn-save-luxury {
+            padding: 18px 45px;
+            font-size: 1rem;
+            background: var(--primary-color);
+            border: none;
+            box-shadow: 0 10px 25px var(--primary-glow);
+            margin-top: 20px;
+            border-radius: 8px;
+        }
+
+        .admin-form .form-group label { color: var(--primary-color); font-size: 0.75rem; letter-spacing: 1px; }
+
         /* History Content Area */
         .history-panel {
             background: rgba(10, 15, 25, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: 12px;
             padding: 30px;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        /* Luxury Form Styling */
+        .luxury-panel {
+            max-width: 1000px !important; /* Mở rộng form rộng hơn nữa */
+            margin: 0 auto;
+            background: linear-gradient(145deg, rgba(15, 20, 30, 0.9), rgba(5, 10, 15, 0.95)) !important;
+            border: 1px solid rgba(58, 134, 255, 0.2) !important;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.8), inset 0 0 40px rgba(58, 134, 255, 0.05) !important;
+            padding: 60px !important;
+            border-radius: 24px !important;
+        }
+
+        .luxury-form .form-group label {
+            color: var(--primary-color);
+            font-size: 0.75rem;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: block;
+            text-transform: uppercase;
+        }
+
+        .luxury-form .form-control {
+            background: rgba(255, 255, 255, 0.03) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            border-radius: 12px !important;
+            padding: 16px 20px !important;
+            color: #fff !important;
+            font-size: 1rem !important;
+            transition: all 0.3s ease;
+        }
+
+        .luxury-form .form-control:focus {
+            border-color: var(--primary-color) !important;
+            background: rgba(58, 134, 255, 0.05) !important;
+            box-shadow: 0 0 20px rgba(58, 134, 255, 0.1) !important;
+            outline: none;
+        }
+
+        .btn-save-luxury {
+            padding: 15px 40px !important;
+            font-weight: 900 !important;
+            letter-spacing: 2px !important;
+            border-radius: 12px !important;
+            box-shadow: 0 10px 20px var(--primary-glow) !important;
         }
 
         .panel-header {
@@ -258,7 +388,7 @@
                 <ul class="nav-list">
                     <li class="nav-item"><a href="index.html" class="nav-link">TRANG CHỦ</a></li>
                     <li class="nav-item"><a href="store.html" class="nav-link">CỬA HÀNG</a></li>
-                    <li class="nav-item"><a href="guide.html" class="nav-link">HƯỚNG DẪN</a></li>
+                    <li class="nav-item"><a href="guide.html" class="nav-link">SỰ KIỆN</a></li>
                     <li class="nav-item"><a href="lien-he.html" class="nav-link">LIÊN HỆ</a></li>
                 </ul>
                 <div class="nav-close" id="nav-close">
@@ -287,28 +417,33 @@
                 <div class="account-container">
                     
                     <!-- Profile Card -->
-                    <aside class="profile-card">
+                    <aside class="profile-card" id="profile-sidebar">
                         <div class="avatar-wrapper">
-                            <div class="avatar-inner">
-                                <i class='bx bx-user-circle'></i>
-                            </div>
+                            <img src="assets/images/default-gundam-avatar.png" alt="Avatar" class="avatar-img" id="user-avatar-main">
+                            <label for="avatar-input" class="avatar-upload-btn" id="upload-icon-trigger">
+                                <i class='bx bx-camera'></i>
+                            </label>
+                            <input type="file" id="avatar-input" hidden accept="image/*">
                         </div>
-                        <h2 class="profile-name">PHI CÔNG DỰ BỊ</h2>
+                        <div class="profile-name-wrapper">
+                            <h2 class="profile-name" id="display-fullname">PHI CÔNG DỰ BỊ</h2>
+                            <i class='bx bx-edit-alt edit-name-icon' id="quick-edit-name-btn" title="Sửa tên hồ sơ"></i>
+                        </div>
                         <span class="profile-rank">RANK: RECRUIT (KHÁCH HÀNG)</span>
                         
                         <div class="profile-stats">
                             <div class="p-stat-item">
-                                <span class="p-stat-val">3</span>
+                                <span class="p-stat-val" id="stat-order-count">0</span>
                                 <span class="p-stat-label">Đơn hàng</span>
                             </div>
                             <div class="p-stat-item">
-                                <span class="p-stat-val">450</span>
+                                <span class="p-stat-val" id="stat-points">0</span>
                                 <span class="p-stat-label">Điểm tích lũy</span>
                             </div>
                         </div>
 
                         <div class="profile-actions">
-                            <button class="btn btn-primary">
+                            <button class="btn btn-primary" id="edit-profile-trigger">
                                 <i class='bx bx-edit-alt'></i> CHỈNH SỬA HỒ SƠ
                             </button>
                             <button class="btn" style="border: 1px solid rgba(255,255,255,0.1);" id="logout-btn">
@@ -318,7 +453,7 @@
                     </aside>
 
                     <!-- History Panel -->
-                    <div class="history-panel">
+                    <div class="history-panel" id="history-panel">
                         <div class="panel-header">
                             <h3 class="panel-title"><i class='bx bx-history'></i> LỊCH SỬ ĐƠN HÀNG</h3>
                             <div class="system-label"><span class="status-dot"></span> DỮ LIỆU MỚI NHẤT</div>
@@ -336,30 +471,45 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td><span class="order-id">#GSTORE-8821</span></td>
-                                        <td>25/05/2026</td>
-                                        <td>PG Unleashed RX-78-2...</td>
-                                        <td>6,850,000₫</td>
-                                        <td><span class="status-badge status-delivered">Hoàn tất</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td><span class="order-id">#GSTORE-7750</span></td>
-                                        <td>12/04/2026</td>
-                                        <td>MG Wing Gundam Zero...</td>
-                                        <td>1,550,000₫</td>
-                                        <td><span class="status-badge status-delivered">Hoàn tất</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td><span class="order-id">#GSTORE-9902</span></td>
-                                        <td>27/05/2026</td>
-                                        <td>RG Sazabi MSN-04</td>
-                                        <td>1,150,000₫</td>
-                                        <td><span class="status-badge status-processing">Đang xử lý</span></td>
-                                    </tr>
+                                    <!-- Dữ liệu thực từ database sẽ được đổ vào đây bởi account-logic.js -->
                                 </tbody>
                             </table>
                         </div>
+                    </div>
+
+                    <!-- Edit Profile Panel (Hidden by default) -->
+                    <div class="history-panel hidden-panel luxury-panel" id="edit-profile-panel">
+                        <div class="panel-header">
+                            <h3 class="panel-title"><i class='bx bx-user-pin'></i> CẬP NHẬT HỒ SƠ PHI CÔNG</h3>
+                            <button class="btn btn-secondary" id="back-to-history" style="padding: 5px 15px; font-size: 0.7rem;">
+                                <i class='bx bx-arrow-back'></i> QUAY LẠI
+                            </button>
+                        </div>
+                        <form id="update-profile-form" class="admin-form luxury-form">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                                <div class="form-group">
+                                    <label>HỌ VÀ TÊN</label>
+                                    <input type="text" id="edit-name" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>EMAIL</label>
+                                    <input type="email" id="edit-email" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>SỐ ĐIỆN THOẠI</label>
+                                    <input type="text" id="edit-phone" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label>ĐỊA CHỈ NHẬN HÀNG</label>
+                                    <input type="text" id="edit-address" class="form-control">
+                                </div>
+                            </div>
+                            <div style="margin-top: 30px; text-align: right;">
+                                <button type="submit" class="btn btn-primary btn-save-luxury" id="btn-save-profile">
+                                    <i class='bx bx-save'></i> LƯU THAY ĐỔI
+                                </button>
+                            </div>
+                        </form>
                     </div>
 
                 </div>
@@ -378,6 +528,7 @@
 
     <!-- JS -->
     <script src="js/script.js"></script>
+    <script src="js/account-logic.js"></script>
     <script>
         // Individual logout for this page
         const logoutBtn = document.getElementById('logout-btn');
