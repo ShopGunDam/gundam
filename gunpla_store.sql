@@ -113,6 +113,10 @@ BEGIN
         NgayTao DATETIME DEFAULT GETDATE(),
         DiemDG INT DEFAULT 5
     );
+    INSERT INTO danhgia (TenKH, Email, ChuDe, NoiDung, DiemDG) VALUES
+    (N'Minh Hùng', N'hungm@gstore.com', N'order', N'Đặt PG Unleashed RX-78-2, shop tư vấn tận tình từ A-Z. Hộp được đóng gói cực kỳ chắc chắn, giao nhanh hơn dự kiến. Xứng đáng 5 sao!', 5),
+    (N'Thu Lan', N'lant@gstore.com', N'consult', N'Mình là newbie Gunpla, được anh nhân viên tư vấn bắt đầu với HG rất chi tiết. Giờ đã lên đến MG rồi! Shop uy tín, giá cả hợp lý.', 5),
+    (N'Quốc Đạt', N'datq@gstore.com', N'other', N'Mua sỉ cho cửa hàng mình, giá đại lý rất tốt. Hàng về đúng hạn, không thiếu phụ kiện, chất lượng đồng đều. Sẽ tiếp tục hợp tác lâu dài.', 5);
 END
 GO
 

@@ -73,6 +73,11 @@
         .info-card, .why-card, .testi-card, .social-card, .hours-card, .form-panel {
             position: relative;
             transform-style: preserve-3d;
+            will-change: transform;
+        }
+        /* Make inner content float slightly in 3D space inside cards */
+        .info-card > *, .why-card > *, .testi-card > *, .social-card > *, .hours-card > *, .form-panel > * {
+            transform: translateZ(15px);
         }
 
         /* =========================================
@@ -334,6 +339,7 @@
         .contact-main-grid {
             display: grid;
             grid-template-columns: 3fr 2fr;
+            grid-template-columns: 1fr 1fr;
             gap: 30px;
             align-items: start;
         }
@@ -589,6 +595,7 @@
         .contact-page #contact-form {
             transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
         }
+        .form-success.show { display: block; }
         .success-icon {
             width: 70px;
             height: 70px;
@@ -614,6 +621,10 @@
             flex-direction: column;
             gap: 24px;
             align-items: stretch;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 24px;
+            align-items: start;
         }
 
         /* Social links card */
@@ -889,6 +900,16 @@
         .faq-details summary::-webkit-details-marker {
             display: none;
         }
+        }
+
+        .faq-item {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            clip-path: var(--clip-card);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+        .faq-item:hover { border-color: var(--primary-color); }
 
         .faq-question {
             display: flex;
@@ -901,6 +922,28 @@
 
         .faq-q-text {
             flex: 1;
+            padding: 22px 25px;
+            cursor: pointer;
+            gap: 15px;
+            user-select: none;
+        }
+
+        .faq-q-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .faq-number {
+            font-family: var(--font-heading);
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: rgba(59,130,246,0.25);
+            min-width: 30px;
+        }
+        .faq-item.open .faq-number { color: var(--primary-color); }
+
+        .faq-q-text {
             font-family: var(--font-subheading);
             font-size: 0.92rem;
             font-weight: 600;
@@ -915,6 +958,12 @@
             border: 1px solid var(--border-color);
             border-radius: 50%;
             background: rgba(5, 7, 10, 0.6);
+        }
+
+        .faq-toggle {
+            width: 28px;
+            height: 28px;
+            border: 1px solid var(--border-color);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -939,6 +988,32 @@
         .faq-answer {
             border-top: 1px solid var(--border-color);
             animation: faq-reveal 0.35s ease;
+            clip-path: var(--clip-btn);
+            transition: var(--transition);
+        }
+        .faq-item:hover .faq-toggle,
+        .faq-item.open .faq-toggle {
+            border-color: var(--primary-color);
+            background: rgba(59,130,246,0.1);
+        }
+        .faq-toggle i {
+            font-size: 1rem;
+            color: var(--primary-color);
+            transition: var(--transition);
+        }
+        .faq-item.open .faq-toggle i { transform: rotate(45deg); }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1), padding 0.3s ease;
+            padding: 0 25px;
+            border-top: 0 solid transparent;
+        }
+        .faq-item.open .faq-answer {
+            max-height: 300px;
+            padding: 0 25px 22px;
+            border-top: 1px solid var(--border-color);
         }
         .faq-answer p {
             font-size: 0.9rem;
@@ -991,6 +1066,7 @@
         }
         .review-rating-label.has-score {
             color: #f59e0b;
+            padding-top: 18px;
         }
 
         /* =========================================

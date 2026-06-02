@@ -529,6 +529,16 @@
     <!-- JS -->
     <script src="js/script.js"></script>
     <script src="js/account-logic.js"></script>
+    <script>
+        // Individual logout for this page
+        const logoutBtn = document.getElementById('logout-btn');
+        if(logoutBtn) {
+            logoutBtn.addEventListener('click', () => {
+                localStorage.removeItem('gst_admin_logged');
+                window.location.href = 'login.html';
+            });
+        }
+    </script>
 </body>
 
 </html>

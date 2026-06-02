@@ -110,6 +110,7 @@ async function requestApi(path, options = {}) {
             const response = await fetch(url, fetchOptions);
             if (!response.ok) {
                 const errorData = await response.clone().json().catch(() => null);
+                const errorData = await response.json().catch(() => null);
                 const errorMessage = errorData?.error || `HTTP ${response.status}`;
                 lastError = new Error(`${url}: ${errorMessage}`);
                 continue;
@@ -1244,4 +1245,35 @@ if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initGuideRatings);
 } else {
     initGuideRatings();
+});
+
+/* =========================================
+   LOGIN HANDLING
+   ========================================= */
+const loginForm = document.querySelector('.login-form');
+if (loginForm) {
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        try {
+            const response = await fetch('http://localhost:5000/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                localStorage.setItem('gst_admin_logged', 'true');
+                window.location.href = result.role === 'Admin' ? 'admin.html' : 'index.html';
+            } else {
+                alert('Thông tin định danh không chính xác. Vui lòng thử lại!');
+            }
+        } catch (err) {
+            alert('Không thể kết nối đến máy chủ xác thực.');
+        }
+    });
 }
