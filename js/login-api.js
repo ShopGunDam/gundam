@@ -3,7 +3,7 @@
  * Kết nối tới /api/login để xác thực người dùng
  */
 
-const API_BASE = 'http://localhost:5000';
+const API_BASE = 'https://gundam-wiln.onrender.com';
 
 // Tải Google Client ID động từ Backend (Bảo mật, tránh lộ Client ID trong file HTML tĩnh)
 (async function initGoogleConfig() {
@@ -23,7 +23,7 @@ const API_BASE = 'http://localhost:5000';
 })();
 
 const loginForm = document.querySelector('.login-form');
-const loginBtn  = document.querySelector('.login-btn');
+const loginBtn = document.querySelector('.login-btn');
 
 if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
@@ -42,7 +42,7 @@ if (loginForm) {
         loginBtn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> ĐANG KIỂM TRA...';
 
         try {
-            const res  = await fetch(`${API_BASE}/api/login`, {
+            const res = await fetch(`${API_BASE}/api/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password })

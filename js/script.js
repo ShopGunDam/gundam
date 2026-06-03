@@ -49,7 +49,7 @@ function scrollActive() {
         const sectionTop = current.offsetTop - 100;
         const sectionId = current.getAttribute('id');
 
-        
+
         const link = document.querySelector(`.nav-menu a[href*=${sectionId}]`);
         if (link) {
             if (scrollY > sectionTop && scrollY <= sectionTop + sectionHeight) {
@@ -137,7 +137,7 @@ if (heroSection && cubes.length > 0) {
             cube.style.transform = `translate(${x * speed}px, ${y * speed}px)`;
         });
     });
-    
+
     // Reset transform when mouse leaves
     heroSection.addEventListener('mouseleave', () => {
         cubes.forEach((cube) => {
@@ -643,7 +643,7 @@ function updateSpotlight(index) {
     // Smooth transition
     spotImg.style.opacity = '0';
     spotImg.style.transform = 'translateX(20px)';
-    
+
     setTimeout(() => {
         // Update text nodes carefully
         spotTitle.innerHTML = `${data.title} <br><span class="highlight" id="spotlight-highlight">${data.highlight}</span>`;
@@ -712,7 +712,7 @@ if (nextBtn && prevBtn) {
 const storeState = {
     products: [],
     cart: JSON.parse(localStorage.getItem('gst_cart')) || [],
-    apiUrl: 'http://localhost:5000/api'
+    apiUrl: 'https://gundam-wiln.onrender.com/api'
 };
 
 async function fetchStoreProducts() {
@@ -834,13 +834,13 @@ const checkoutBtn = document.getElementById('checkout-btn');
 
 function updateCartUI() {
     // Update badge
-    if(cartCountBadge) {
+    if (cartCountBadge) {
         cartCountBadge.innerText = storeState.cart.length;
     }
 
     // Render items
-    if(cartItemsWrapper) {
-        if(storeState.cart.length === 0) {
+    if (cartItemsWrapper) {
+        if (storeState.cart.length === 0) {
             cartItemsWrapper.innerHTML = '<p class="empty-cart-msg">Hệ thống chưa ghi nhận vật phẩm nào...</p>';
             cartTotalPrice.innerText = '0₫';
         } else {
@@ -862,7 +862,7 @@ function updateCartUI() {
             cartTotalPrice.innerText = total.toLocaleString() + '₫';
         }
     }
-    
+
     localStorage.setItem('gst_cart', JSON.stringify(storeState.cart));
 }
 
@@ -875,7 +875,7 @@ function addToCart(productId, event) {
         event.stopPropagation();
     }
     const product = storeState.products.find(p => p.id === productId);
-    if(product) {
+    if (product) {
         storeState.cart.push(product);
         updateCartUI();
         alert(`Đã thêm ${product.name} vào hệ thống giỏ hàng!`);
@@ -888,7 +888,7 @@ function removeFromCart(index) {
 }
 
 // Sidebar Controls
-if(cartIcon) {
+if (cartIcon) {
     cartIcon.addEventListener('click', (e) => {
         e.preventDefault();
         cartSidebar.classList.add('open');
@@ -896,7 +896,7 @@ if(cartIcon) {
     });
 }
 
-if(cartClose) {
+if (cartClose) {
     cartClose.addEventListener('click', () => {
         cartSidebar.classList.remove('open');
         cartOverlay.style.display = 'none';
@@ -915,7 +915,7 @@ function hidePaymentModal() {
     cartOverlay.style.display = 'none';
 }
 
-if(cartOverlay) {
+if (cartOverlay) {
     cartOverlay.addEventListener('click', () => {
         if (paymentModal && paymentModal.classList.contains('open')) {
             hidePaymentModal();
@@ -926,11 +926,11 @@ if(cartOverlay) {
     });
 }
 
-if(paymentModalClose) {
+if (paymentModalClose) {
     paymentModalClose.addEventListener('click', hidePaymentModal);
 }
 
-if(qrPaymentBtn) {
+if (qrPaymentBtn) {
     qrPaymentBtn.addEventListener('click', () => {
         alert('Chọn thanh toán bằng QR. Vui lòng quét mã QR hiển thị trên thiết bị.');
         storeState.cart = [];
@@ -940,7 +940,7 @@ if(qrPaymentBtn) {
     });
 }
 
-if(bankPaymentBtn) {
+if (bankPaymentBtn) {
     bankPaymentBtn.addEventListener('click', () => {
         alert('Chọn thanh toán ngân hàng. Vui lòng chuyển khoản vào tài khoản trong hóa đơn.');
         storeState.cart = [];
@@ -950,9 +950,9 @@ if(bankPaymentBtn) {
     });
 }
 
-if(checkoutBtn) {
+if (checkoutBtn) {
     checkoutBtn.addEventListener('click', () => {
-        if(storeState.cart.length === 0) return alert("Giỏ hàng đang trống!");
+        if (storeState.cart.length === 0) return alert("Giỏ hàng đang trống!");
         showPaymentModal();
     });
 }
@@ -965,7 +965,7 @@ function renderStoreProducts() {
     if (productsFlex) {
         if (storeState.products.length === 0) {
             productsFlex.innerHTML = '<div style="width:100%; text-align:center; padding:50px; color:var(--text-muted);">Sóng tín hiệu yếu... Không tìm thấy sản phẩm nào trong kho.</div>';
-            if(matchesCount) matchesCount.innerText = '0';
+            if (matchesCount) matchesCount.innerText = '0';
             return;
         }
 
@@ -992,8 +992,8 @@ function renderStoreProducts() {
             </div>
         `).join('');
 
-        if(matchesCount) matchesCount.innerText = storeState.products.length;
-        
+        if (matchesCount) matchesCount.innerText = storeState.products.length;
+
         // Trigger filtering and sorting for newly rendered dynamic products
         if (window.filterProducts) {
             window.filterProducts();
