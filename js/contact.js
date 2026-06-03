@@ -1,30 +1,12 @@
 /* =========================================
    CONTACT & REVIEWS DYNAMIC LOGIC
+   =========================================
+   LƯU Ý: navMenu, navToggle, navClose, navLinks, header
+   đã được khai báo trong script.js — KHÔNG khai báo lại
+   để tránh SyntaxError làm hỏng toàn bộ file này.
    ========================================= */
 
 const apiUrl = 'http://localhost:5000/api';
-
-// Mobile menu toggle
-const navMenu = document.getElementById('nav-menu');
-const navToggle = document.getElementById('nav-toggle');
-const navClose = document.getElementById('nav-close');
-const navLinks = document.querySelectorAll('.nav-link');
-
-if (navToggle) {
-    navToggle.addEventListener('click', () => navMenu.classList.add('show-menu'));
-}
-if (navClose) {
-    navClose.addEventListener('click', () => navMenu.classList.remove('show-menu'));
-}
-navLinks.forEach(link => {
-    link.addEventListener('click', () => navMenu.classList.remove('show-menu'));
-});
-
-// Sticky header
-const header = document.getElementById('header');
-window.addEventListener('scroll', () => {
-    if (header) header.classList.toggle('scrolled', window.scrollY >= 50);
-});
 
 // Priority button toggle
 function setPriority(btn) {
@@ -44,88 +26,119 @@ function initFaqAccordion() {
     });
 }
 
-// Sao đánh giá: trái = 1, phải = 5; chọn N thì sao 1..N sáng + hiện "N/5 sao"
-function setStarRating(group, hiddenInput, value) {
-    if (!group || !hiddenInput) return;
-    const score = Math.max(0, Math.min(5, Number(value) || 0));
-    hiddenInput.value = score > 0 ? String(score) : '';
-    group.dataset.rating = String(score);
+// =============================================
+//  HỆ THỐNG CHỌN SAO ĐÁNH GIÁ — viết lại đơn giản & chắc chắn
+//  Click sao N → sao 1..N sáng vàng, lưu vào hidden input
+// =============================================
 
-    const stars = group.querySelectorAll('.review-star-icon');
-    stars.forEach((star) => {
-        const starValue = Number(star.getAttribute('data-value'));
-        const lit = score > 0 && starValue <= score;
-        star.classList.toggle('is-lit', lit);
-        star.className = lit ? 'bx bxs-star review-star-icon is-lit' : 'bx bx-star review-star-icon';
-        star.style.color = lit ? '#f59e0b' : '';
-    });
-
-    const label = document.getElementById('review-rating-label');
-    if (label) {
-        label.textContent = score > 0 ? `${score}/5 sao` : 'Chưa chọn điểm';
-        label.classList.toggle('has-score', score > 0);
-    }
-}
-
-function paintStarHover(group, hoverScore) {
-    const saved = Number(group.dataset.rating) || 0;
-    const display = hoverScore > 0 ? hoverScore : saved;
-
-    group.querySelectorAll('.review-star-icon').forEach(star => {
-        const v = Number(star.getAttribute('data-value'));
-        const lit = display > 0 && v <= display;
-        // Ngôi sao được highlight: dùng bxs-star + màu vàng (cả hover lẫn đã lưu)
-        if (lit) {
+/** Tô sáng / tắt các ngôi sao theo điểm số đã cho */
+function _paintStars(stars, score) {
+    stars.forEach(function(star) {
+        var v = parseInt(star.getAttribute('data-value'), 10);
+        if (v <= score) {
+            // Sao sáng: filled icon + màu vàng
             star.className = 'bx bxs-star review-star-icon is-lit';
             star.style.color = '#f59e0b';
+            star.style.filter = 'drop-shadow(0 0 5px rgba(245,158,11,0.6))';
+            star.style.transform = 'scale(1.15)';
         } else {
+            // Sao tắt: outline icon + xám
             star.className = 'bx bx-star review-star-icon';
-            star.style.color = '';
+            star.style.color = 'rgba(148,163,184,0.55)';
+            star.style.filter = '';
+            star.style.transform = '';
         }
     });
+}
 
-    // Cập nhật nhãn số sao khi hover (ví dụ: "3/5 sao")
-    const label = document.getElementById('review-rating-label');
-    if (label) {
-        label.textContent = display > 0 ? `${display}/5 sao` : 'Chưa chọn điểm';
-        label.classList.toggle('has-score', display > 0);
+/** Cập nhật nhãn điểm số */
+function _updateRatingLabel(score) {
+    var label = document.getElementById('review-rating-label');
+    if (!label) return;
+    if (score > 0) {
+        label.textContent = score + '/5 sao';
+        label.classList.add('has-score');
+        label.style.color = '#f59e0b';
+    } else {
+        label.textContent = 'Chưa chọn điểm';
+        label.classList.remove('has-score');
+        label.style.color = '';
     }
 }
 
+/** Đặt điểm đánh giá (khóa lại) */
+function setStarRating(group, hiddenInput, value) {
+    if (!group || !hiddenInput) return;
+    var score = Math.max(0, Math.min(5, parseInt(value, 10) || 0));
+    hiddenInput.value = score > 0 ? String(score) : '';
+    group.dataset.rating = String(score);
+    var stars = Array.prototype.slice.call(group.querySelectorAll('.review-star-icon'));
+    _paintStars(stars, score);
+    _updateRatingLabel(score);
+}
+
+/** Khởi tạo tương tác chọn sao — gắn event trực tiếp lên từng sao */
 function initReviewStarRating() {
-    const group = document.getElementById('review-rating-group');
-    const input = document.getElementById('review-rating');
+    var group = document.getElementById('review-rating-group');
+    var input = document.getElementById('review-rating');
     if (!group || !input) return;
 
-    setStarRating(group, input, 0);
+    // Khởi tạo ban đầu: chưa có điểm
+    group.dataset.rating = '0';
+    input.value = '';
+    var allStars = Array.prototype.slice.call(group.querySelectorAll('.review-star-icon'));
+    _paintStars(allStars, 0);
+    _updateRatingLabel(0);
 
-    if (group.dataset.ratingBound) return;
+    // Tránh gắn event 2 lần
+    if (group.dataset.ratingBound === '1') return;
     group.dataset.ratingBound = '1';
 
-    group.addEventListener('click', (e) => {
-        const star = e.target.closest('.review-star-icon');
-        if (!star || !group.contains(star)) return;
-        e.preventDefault();
-        setStarRating(group, input, star.getAttribute('data-value'));
-    });
+    // Gắn event trực tiếp lên mỗi ngôi sao
+    allStars.forEach(function(star) {
+        var starVal = parseInt(star.getAttribute('data-value'), 10);
 
-    group.addEventListener('keydown', (e) => {
-        if (e.key !== 'Enter' && e.key !== ' ') return;
-        const star = e.target.closest('.review-star-icon');
-        if (!star) return;
-        e.preventDefault();
-        setStarRating(group, input, star.getAttribute('data-value'));
-    });
+        // Hover vào: tô sáng sao 1..starVal
+        star.addEventListener('mouseenter', function() {
+            _paintStars(allStars, starVal);
+            _updateRatingLabel(starVal);
+        });
 
-    group.querySelectorAll('.review-star-icon').forEach(star => {
-        star.addEventListener('mouseenter', () => {
-            paintStarHover(group, Number(star.getAttribute('data-value')));
+        // Click: khóa điểm
+        star.addEventListener('click', function(e) {
+            e.preventDefault();
+            group.dataset.rating = String(starVal);
+            input.value = String(starVal);
+            _paintStars(allStars, starVal);
+            _updateRatingLabel(starVal);
+        });
+
+        // Keyboard: Enter / Space để chọn
+        star.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                group.dataset.rating = String(starVal);
+                input.value = String(starVal);
+                _paintStars(allStars, starVal);
+                _updateRatingLabel(starVal);
+            }
         });
     });
 
-    group.addEventListener('mouseleave', () => {
-        setStarRating(group, input, group.dataset.rating || 0);
+    // Mouseleave trên cả nhóm: khôi phục điểm đã khóa
+    group.addEventListener('mouseleave', function() {
+        var locked = parseInt(group.dataset.rating, 10) || 0;
+        _paintStars(allStars, locked);
+        _updateRatingLabel(locked);
     });
+}
+
+/** Hàm tương thích ngược (dùng trong submit reset) — wrapper của setStarRating */
+function paintStarHover(group, hoverScore) {
+    if (!group) return;
+    var stars = Array.prototype.slice.call(group.querySelectorAll('.review-star-icon'));
+    _paintStars(stars, hoverScore);
+    _updateRatingLabel(hoverScore);
 }
 
 // Floating Quick Contact

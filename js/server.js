@@ -233,6 +233,11 @@ async function connectDB() {
                 );
             END
 
+            IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[danhgia]') AND name = 'DiemDG')
+            BEGIN
+                ALTER TABLE danhgia ADD DiemDG INT DEFAULT 5 CHECK (DiemDG BETWEEN 1 AND 5);
+            END
+
             IF NOT EXISTS (SELECT * FROM taikhoan WHERE Username = N'admin')
             BEGIN
                 -- Luu mat khau da duoc hash bang bcrypt, khong luu plain-text

@@ -971,15 +971,18 @@
             font-size: 1.85rem;
             color: rgba(148, 163, 184, 0.55);
             cursor: pointer;
-            transition: color 0.2s ease, transform 0.2s ease, filter 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.18s ease, transform 0.18s ease, filter 0.18s ease;
             line-height: 1;
-        }
-        .review-star-icon:hover {
-            transform: scale(1.12);
+            user-select: none;
+            -webkit-user-select: none;
         }
         .review-star-icon.is-lit {
             color: #f59e0b !important;
-            filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.55));
+            filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.6));
+            transform: scale(1.15);
         }
         .review-rating-label {
             font-family: var(--font-subheading);
@@ -1281,10 +1284,10 @@
             gap: 32px;
         }
         .testimonials-layout--wide .testimonials-display,
-        .testimonials-layout--wide .review-form-panel--wide {
+        .testimonials-layout--wide .review-form-panel {
             width: 100%;
         }
-        .review-form-panel--wide {
+        .review-form-panel.review-form-panel--wide {
             flex: none;
             width: 100%;
             max-width: none;
@@ -1292,10 +1295,10 @@
             overflow: visible;
             padding: 36px 32px 40px;
         }
-        .review-form-panel--wide .textarea-review {
+        .review-form-panel.review-form-panel--wide .textarea-review {
             min-height: 120px;
         }
-        .review-form-panel--wide .btn-submit-spacing {
+        .review-form-panel.review-form-panel--wide .btn-submit-spacing {
             margin-top: 6px;
         }
         .review-form-grid {

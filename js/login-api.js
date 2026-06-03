@@ -3,7 +3,13 @@
  * Kết nối tới /api/login để xác thực người dùng
  */
 
-const API_BASE = 'http://localhost:5000';
+// Tự động phát hiện domain — hoạt động cả localhost lẫn production (Render, GitHub Pages...)
+const API_BASE = (function() {
+    const origin = window.location.origin;
+    // Nếu mở file:// trực tiếp thì fallback về localhost
+    if (window.location.protocol === 'file:') return 'http://localhost:5000';
+    return origin;
+})();
 
 // Tải Google Client ID động từ Backend (Bảo mật, tránh lộ Client ID trong file HTML tĩnh)
 (async function initGoogleConfig() {
@@ -146,15 +152,9 @@ window.onGoogleLibraryLoad = function () {
 };
 
 function startGoogleAuth() {
-    // Kiểm tra giao thức file:// local
+    // Kiểm tra giao thức file:// local (không thể dùng Google OAuth với file://)
     if (window.location.protocol === 'file:') {
         showLoginAlert('⚠️ Google Sign-In yêu cầu chạy qua server. Vui lòng truy cập: <a href="http://localhost:5000/login.html" style="color:var(--neon-green); text-decoration:underline; font-weight:bold;">http://localhost:5000/login.html</a>', 'error');
-        return;
-    }
-
-    // Kiểm tra cổng chạy qua Live Server (cổng 5500) hoặc các cổng khác cổng 5000
-    if (window.location.port && window.location.port !== '5000') {
-        showLoginAlert(`⚠️ Google Sign-In yêu cầu chạy qua cổng của server chính thức (5000). Vui lòng truy cập: <a href="http://localhost:5000/login.html" style="color:var(--neon-green); text-decoration:underline; font-weight:bold;">http://localhost:5000/login.html</a>`, 'error');
         return;
     }
 
