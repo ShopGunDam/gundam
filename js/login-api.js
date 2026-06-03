@@ -3,6 +3,7 @@
  * Kết nối tới /api/login để xác thực người dùng
  */
 
+<<<<<<< HEAD
 // Tự động phát hiện domain — hoạt động cả localhost lẫn production (Render, GitHub Pages...)
 const API_BASE = (function() {
     const origin = window.location.origin;
@@ -10,6 +11,9 @@ const API_BASE = (function() {
     if (window.location.protocol === 'file:') return 'http://localhost:5000';
     return origin;
 })();
+=======
+const API_BASE = 'https://gundam-wiln.onrender.com';
+>>>>>>> d29adf01582fcc0f833efa77f3e7786c12347c08
 
 // Tải Google Client ID động từ Backend (Bảo mật, tránh lộ Client ID trong file HTML tĩnh)
 (async function initGoogleConfig() {
@@ -29,7 +33,7 @@ const API_BASE = (function() {
 })();
 
 const loginForm = document.querySelector('.login-form');
-const loginBtn  = document.querySelector('.login-btn');
+const loginBtn = document.querySelector('.login-btn');
 
 if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
@@ -48,7 +52,7 @@ if (loginForm) {
         loginBtn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> ĐANG KIỂM TRA...';
 
         try {
-            const res  = await fetch(`${API_BASE}/api/login`, {
+            const res = await fetch(`${API_BASE}/api/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password })
