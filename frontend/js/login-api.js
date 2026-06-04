@@ -3,7 +3,7 @@
  * Kết nối tới /api/login để xác thực người dùng
  */
 
-const API_BASE = 'http://localhost:5000';
+const API_BASE = '';
 
 // Tải Google Client ID động từ Backend (Bảo mật, tránh lộ Client ID trong file HTML tĩnh)
 (async function initGoogleConfig() {
@@ -23,7 +23,7 @@ const API_BASE = 'http://localhost:5000';
 })();
 
 const loginForm = document.querySelector('.login-form');
-const loginBtn  = document.querySelector('.login-btn');
+const loginBtn = document.querySelector('.login-btn');
 
 if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
@@ -42,7 +42,7 @@ if (loginForm) {
         loginBtn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> ĐANG KIỂM TRA...';
 
         try {
-            const res  = await fetch(`${API_BASE}/api/login`, {
+            const res = await fetch(`${API_BASE}/api/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password })
@@ -146,15 +146,9 @@ window.onGoogleLibraryLoad = function () {
 };
 
 function startGoogleAuth() {
-    // Kiểm tra giao thức file:// local
+    // Kiểm tra giao thức file:// local (không thể dùng Google OAuth với file://)
     if (window.location.protocol === 'file:') {
         showLoginAlert('⚠️ Google Sign-In yêu cầu chạy qua server. Vui lòng truy cập: <a href="http://localhost:5000/login.html" style="color:var(--neon-green); text-decoration:underline; font-weight:bold;">http://localhost:5000/login.html</a>', 'error');
-        return;
-    }
-
-    // Kiểm tra cổng chạy qua Live Server (cổng 5500) hoặc các cổng khác cổng 5000
-    if (window.location.port && window.location.port !== '5000') {
-        showLoginAlert(`⚠️ Google Sign-In yêu cầu chạy qua cổng của server chính thức (5000). Vui lòng truy cập: <a href="http://localhost:5000/login.html" style="color:var(--neon-green); text-decoration:underline; font-weight:bold;">http://localhost:5000/login.html</a>`, 'error');
         return;
     }
 

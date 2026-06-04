@@ -13,7 +13,11 @@ localStorage.removeItem('gst_users');
 
 // --- APP STATE ---
 const browserHost = window.location.hostname;
-const defaultApiHost = browserHost === 'localhost' ? 'http://localhost:5000' : 'http://127.0.0.1:5000';
+// Định nghĩa link Render của bạn ở đây
+const RENDER_URL = window.location.origin;
+const defaultApiHost = (browserHost === 'localhost' || browserHost === '127.0.0.1')
+    ? 'http://localhost:5000'
+    : RENDER_URL;
 const state = {
     products: [],
     users: [],
@@ -21,9 +25,9 @@ const state = {
     news: [],
     currentView: 'overview',
     apiUrl: `${defaultApiHost}/api`,
-    apiHosts: browserHost === 'localhost'
+    apiHosts: (browserHost === 'localhost' || browserHost === '127.0.0.1')
         ? ['http://localhost:5000', 'http://127.0.0.1:5000']
-        : ['http://127.0.0.1:5000', 'http://localhost:5000']
+        : [RENDER_URL]
 };
 
 function resolveApiUrl(path) {
@@ -102,7 +106,7 @@ async function fetchNews() {
 function checkAuth() {
     const isAdmin = localStorage.getItem('gst_admin_logged');
     const overlay = document.getElementById('auth-overlay');
-    
+
     if (isAdmin === 'true') {
         setTimeout(async () => {
             overlay.style.opacity = '0';
@@ -124,13 +128,13 @@ function checkAuth() {
 function renderView(viewName) {
     state.currentView = viewName;
     const mainContent = document.getElementById('main-content');
-    
+
     // Update active link
     document.querySelectorAll('.menu-link').forEach(link => {
         link.classList.toggle('active', link.dataset.view === viewName);
     });
 
-    switch(viewName) {
+    switch (viewName) {
         case 'overview':
             mainContent.innerHTML = renderOverview();
             break;
@@ -405,7 +409,6 @@ function showAddNewsModal() {
                                 <option value="news">Tin tức</option>
                                 <option value="promo">Ưu đãi</option>
                                 <option value="guide">Sự kiện</option>
-                                <option value="guide">Cộng đồng</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -643,7 +646,7 @@ async function deleteProduct(id) {
 }
 
 async function deleteUser(id) {
-    if(id === 'admin') return alert("Không thể xóa tài khoản Admin hệ thống!");
+    if (id === 'admin') return alert("Không thể xóa tài khoản Admin hệ thống!");
     if (confirm(`Bạn có chắc muốn xóa tài khoản ${id}?`)) {
         try {
             const response = await fetch(`${state.apiUrl}/users/${id}`, {
@@ -691,7 +694,7 @@ function showAddProductModal() {
                     <div class="modal-right">
                         <div class="form-group">
                             <label>MÃ ĐỊNH DANH (ID)</label>
-                            <input type="text" id="p-id" value="GP-${Math.floor(Date.now()/100000)}" readonly>
+                            <input type="text" id="p-id" value="GP-${Math.floor(Date.now() / 100000)}" readonly>
                         </div>
                         <div class="form-group">
                             <label>TÊN SẢN PHẨM</label>
@@ -767,7 +770,7 @@ function showAddProductModal() {
 
     // Keep URL input sync
     imgUrlInput.oninput = () => {
-        if(imgUrlInput.value) {
+        if (imgUrlInput.value) {
             imgPreview.src = imgUrlInput.value;
             imgPreview.style.display = 'block';
             uploadIcon.style.display = 'none';
@@ -787,7 +790,7 @@ function showAddProductModal() {
         if (imgFileInput.files.length > 0) {
             const formData = new FormData();
             formData.append('image', imgFileInput.files[0]);
-            
+
             try {
                 const uploadRes = await fetch(`${state.apiUrl.replace('/products', '')}/upload`, {
                     method: 'POST',
@@ -811,14 +814,14 @@ function showAddProductModal() {
             stock: parseInt(document.getElementById('p-stock').value),
             img: finalImgUrl
         };
-        
+
         try {
             const response = await fetch(`${state.apiUrl}/products`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(newProduct)
             });
-            
+
             if (response.ok) {
                 await fetchProducts();
                 closeModal();
@@ -1008,7 +1011,7 @@ function showEditProductModal(productId) {
     };
 
     imgUrlInput.oninput = () => {
-        if(imgUrlInput.value) {
+        if (imgUrlInput.value) {
             imgPreview.src = imgUrlInput.value;
         }
     };
@@ -1046,14 +1049,14 @@ function showEditProductModal(productId) {
             stock: parseInt(document.getElementById('p-stock').value),
             img: finalImgUrl
         };
-        
+
         try {
             const response = await fetch(`${state.apiUrl}/products/${productId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(updatedProduct)
             });
-            
+
             if (response.ok) {
                 await fetchProducts();
                 closeModal();
@@ -1157,7 +1160,7 @@ function closeModal() {
 document.querySelectorAll('.menu-link').forEach(link => {
     link.addEventListener('click', (e) => {
         const view = e.currentTarget.dataset.view;
-        if(view) renderView(view);
+        if (view) renderView(view);
     });
 });
 

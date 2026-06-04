@@ -6,7 +6,7 @@
  * Bước 4: Thông báo thành công
  */
 
-const API_BASE = 'http://localhost:5000';
+const API_BASE = '';
 
 let verifiedUsername = '';
 let verifiedOtp = '';

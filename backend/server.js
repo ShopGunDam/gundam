@@ -82,12 +82,12 @@ async function sendOTPEmail(email, username, otp) {
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, '..')));
+app.use(express.static(path.join(__dirname, '../frontend')));
 
 // --- MULTER CONFIGURATION FOR IMAGE UPLOADS ---
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'assets/images/');
+        cb(null, 'frontend/assets/images/');
     },
     filename: (req, file, cb) => {
         cb(null, Date.now() + path.extname(file.originalname));
@@ -231,6 +231,11 @@ async function connectDB() {
                     NgayTao DATETIME DEFAULT GETDATE(),
                     DiemDG INT DEFAULT 5 CHECK (DiemDG BETWEEN 1 AND 5)
                 );
+            END
+
+            IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[danhgia]') AND name = 'DiemDG')
+            BEGIN
+                ALTER TABLE danhgia ADD DiemDG INT DEFAULT 5 CHECK (DiemDG BETWEEN 1 AND 5);
             END
 
             IF NOT EXISTS (SELECT * FROM taikhoan WHERE Username = N'admin')
@@ -1134,7 +1139,7 @@ app.post('/api/reviews', async (req, res) => {
     }
 });
 
-const PORT = 5000;
-app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Server running on port ${PORT}`);
 });

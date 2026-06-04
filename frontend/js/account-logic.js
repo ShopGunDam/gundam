@@ -2,7 +2,7 @@
  * account-logic.js - Xử lý dữ liệu thực từ Backend cho trang Account
  */
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = '/api';
 const username = sessionStorage.getItem('gunpla_user');
 
 if (!username) {

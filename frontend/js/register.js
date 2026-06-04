@@ -3,7 +3,7 @@
  * Mật khẩu được hash bằng bcrypt phía server (saltRounds=10)
  */
 
-const API_BASE = 'http://localhost:5000';
+const API_BASE = '';
 
 // ─── DOM References ───────────────────────────────────────────────────────────
 const form         = document.getElementById('register-form');

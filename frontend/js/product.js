@@ -1,9 +1,10 @@
 const currentOrigin = window.location.protocol.startsWith('http') ? window.location.origin : null;
 const apiHosts = [
-    currentOrigin,
+    '', // Relative path for production
+    window.location.origin,
     'http://localhost:5000',
     'http://127.0.0.1:5000'
-].filter(Boolean);
+].filter(h => h !== null);
 
 async function requestApi(path, options = {}) {
     const fetchOptions = {

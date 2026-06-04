@@ -1,30 +1,12 @@
 /* =========================================
    CONTACT & REVIEWS DYNAMIC LOGIC
+   =========================================
+   LƯU Ý: navMenu, navToggle, navClose, navLinks, header
+   đã được khai báo trong script.js — KHÔNG khai báo lại
+   để tránh SyntaxError làm hỏng toàn bộ file này.
    ========================================= */
 
-const apiUrl = 'http://localhost:5000/api';
-
-// Mobile menu toggle
-const navMenu = document.getElementById('nav-menu');
-const navToggle = document.getElementById('nav-toggle');
-const navClose = document.getElementById('nav-close');
-const navLinks = document.querySelectorAll('.nav-link');
-
-if (navToggle) {
-    navToggle.addEventListener('click', () => navMenu.classList.add('show-menu'));
-}
-if (navClose) {
-    navClose.addEventListener('click', () => navMenu.classList.remove('show-menu'));
-}
-navLinks.forEach(link => {
-    link.addEventListener('click', () => navMenu.classList.remove('show-menu'));
-});
-
-// Sticky header
-const header = document.getElementById('header');
-window.addEventListener('scroll', () => {
-    if (header) header.classList.toggle('scrolled', window.scrollY >= 50);
-});
+const apiUrl = '/api';
 
 // Priority button toggle
 function setPriority(btn) {
@@ -44,95 +26,119 @@ function initFaqAccordion() {
     });
 }
 
-// Sao đánh giá: trái = 1, phải = 5; chọn N thì sao 1..N sáng + hiện "N/5 sao"
-function setStarRating(group, hiddenInput, value) {
-    if (!group || !hiddenInput) return;
-    const score = Math.max(0, Math.min(5, Number(value) || 0));
-    hiddenInput.value = score > 0 ? String(score) : '';
-    group.dataset.rating = String(score);
+// =============================================
+//  HỆ THỐNG CHỌN SAO ĐÁNH GIÁ — viết lại đơn giản & chắc chắn
+//  Click sao N → sao 1..N sáng vàng, lưu vào hidden input
+// =============================================
 
-    const stars = group.querySelectorAll('.review-star-icon');
-    stars.forEach((star) => {
-        const starValue = Number(star.getAttribute('data-value'));
-        const lit = score > 0 && starValue <= score;
-        star.classList.toggle('is-lit', lit);
-        star.className = lit ? 'bx bxs-star review-star-icon is-lit' : 'bx bx-star review-star-icon';
-        star.style.color = lit ? '#f59e0b' : '';
-    });
-
-    const label = document.getElementById('review-rating-label');
-    if (label) {
-        label.textContent = score > 0 ? `${score}/5 sao` : 'Chưa chọn điểm';
-        label.classList.toggle('has-score', score > 0);
-    }
-}
-
-function paintStarHover(group, hoverScore) {
-    const saved = Number(group.dataset.rating) || 0;
-    const display = hoverScore > 0 ? hoverScore : saved;
-
-    group.querySelectorAll('.review-star-icon').forEach(star => {
-        const v = Number(star.getAttribute('data-value'));
-        const lit = display > 0 && v <= display;
-        // Ngôi sao được highlight: dùng bxs-star + màu vàng (cả hover lẫn đã lưu)
-        if (lit) {
+/** Tô sáng / tắt các ngôi sao theo điểm số đã cho */
+function _paintStars(stars, score) {
+    stars.forEach(function(star) {
+        var v = parseInt(star.getAttribute('data-value'), 10);
+        if (v <= score) {
+            // Sao sáng: filled icon + màu vàng
             star.className = 'bx bxs-star review-star-icon is-lit';
             star.style.color = '#f59e0b';
+            star.style.filter = 'drop-shadow(0 0 5px rgba(245,158,11,0.6))';
+            star.style.transform = 'scale(1.15)';
         } else {
+            // Sao tắt: outline icon + xám
             star.className = 'bx bx-star review-star-icon';
-            star.style.color = '';
+            star.style.color = 'rgba(148,163,184,0.55)';
+            star.style.filter = '';
+            star.style.transform = '';
         }
     });
+}
 
-    // Cập nhật nhãn số sao khi hover (ví dụ: "3/5 sao")
-    const label = document.getElementById('review-rating-label');
-    if (label) {
-        label.textContent = display > 0 ? `${display}/5 sao` : 'Chưa chọn điểm';
-        label.classList.toggle('has-score', display > 0);
+/** Cập nhật nhãn điểm số */
+function _updateRatingLabel(score) {
+    var label = document.getElementById('review-rating-label');
+    if (!label) return;
+    if (score > 0) {
+        label.textContent = score + '/5 sao';
+        label.classList.add('has-score');
+        label.style.color = '#f59e0b';
+    } else {
+        label.textContent = 'Chưa chọn điểm';
+        label.classList.remove('has-score');
+        label.style.color = '';
     }
 }
 
+/** Đặt điểm đánh giá (khóa lại) */
+function setStarRating(group, hiddenInput, value) {
+    if (!group || !hiddenInput) return;
+    var score = Math.max(0, Math.min(5, parseInt(value, 10) || 0));
+    hiddenInput.value = score > 0 ? String(score) : '';
+    group.dataset.rating = String(score);
+    var stars = Array.prototype.slice.call(group.querySelectorAll('.review-star-icon'));
+    _paintStars(stars, score);
+    _updateRatingLabel(score);
+}
+
+/** Khởi tạo tương tác chọn sao — gắn event trực tiếp lên từng sao */
 function initReviewStarRating() {
-    const group = document.getElementById('review-rating-group');
-    const input = document.getElementById('review-rating');
+    var group = document.getElementById('review-rating-group');
+    var input = document.getElementById('review-rating');
     if (!group || !input) return;
 
-    setStarRating(group, input, 0);
+    // Khởi tạo ban đầu: chưa có điểm
+    group.dataset.rating = '0';
+    input.value = '';
+    var allStars = Array.prototype.slice.call(group.querySelectorAll('.review-star-icon'));
+    _paintStars(allStars, 0);
+    _updateRatingLabel(0);
 
-    if (group.dataset.ratingBound) return;
+    // Tránh gắn event 2 lần
+    if (group.dataset.ratingBound === '1') return;
     group.dataset.ratingBound = '1';
 
-    group.addEventListener('click', (e) => {
-        const star = e.target.closest('.review-star-icon');
-        if (!star || !group.contains(star)) return;
-        e.preventDefault();
-        setStarRating(group, input, star.getAttribute('data-value'));
-    });
+    // Gắn event trực tiếp lên mỗi ngôi sao
+    allStars.forEach(function(star) {
+        var starVal = parseInt(star.getAttribute('data-value'), 10);
 
-    group.addEventListener('keydown', (e) => {
-        if (e.key !== 'Enter' && e.key !== ' ') return;
-        const star = e.target.closest('.review-star-icon');
-        if (!star) return;
-        e.preventDefault();
-        setStarRating(group, input, star.getAttribute('data-value'));
-    });
+        // Hover vào: tô sáng sao 1..starVal
+        star.addEventListener('mouseenter', function() {
+            _paintStars(allStars, starVal);
+            _updateRatingLabel(starVal);
+        });
 
-    group.querySelectorAll('.review-star-icon').forEach(star => {
-        star.addEventListener('mouseenter', () => {
-            paintStarHover(group, Number(star.getAttribute('data-value')));
+        // Click: khóa điểm
+        star.addEventListener('click', function(e) {
+            e.preventDefault();
+            group.dataset.rating = String(starVal);
+            input.value = String(starVal);
+            _paintStars(allStars, starVal);
+            _updateRatingLabel(starVal);
+        });
+
+        // Keyboard: Enter / Space để chọn
+        star.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                group.dataset.rating = String(starVal);
+                input.value = String(starVal);
+                _paintStars(allStars, starVal);
+                _updateRatingLabel(starVal);
+            }
         });
     });
 
-    group.addEventListener('mouseleave', () => {
-        setStarRating(group, input, group.dataset.rating || 0);
+    // Mouseleave trên cả nhóm: khôi phục điểm đã khóa
+    group.addEventListener('mouseleave', function() {
+        var locked = parseInt(group.dataset.rating, 10) || 0;
+        _paintStars(allStars, locked);
+        _updateRatingLabel(locked);
     });
-// FAQ Accordion
-function toggleFaq(id) {
-    const item = document.getElementById(id);
-    if (!item) return;
-    const isOpen = item.classList.contains('open');
-    document.querySelectorAll('.faq-item').forEach(el => el.classList.remove('open'));
-    if (!isOpen) item.classList.add('open');
+}
+
+/** Hàm tương thích ngược (dùng trong submit reset) — wrapper của setStarRating */
+function paintStarHover(group, hoverScore) {
+    if (!group) return;
+    var stars = Array.prototype.slice.call(group.querySelectorAll('.review-star-icon'));
+    _paintStars(stars, hoverScore);
+    _updateRatingLabel(hoverScore);
 }
 
 // Floating Quick Contact
@@ -413,99 +419,6 @@ function showReviewsEmptyState(container, message, isError) {
 // Fetch and render reviews from database only
 async function fetchAndRenderReviews() {
     const testimonialsGrid = document.getElementById('reviews-grid') || document.querySelector('.testimonials-grid');
-// 3D Tilt effect
-function apply3DTiltEffect() {
-    const cards3D = document.querySelectorAll('.info-card, .why-card, .testi-card, .social-card, .hours-card, .form-panel');
-    cards3D.forEach(card => {
-        // Remove existing reflex if any to avoid duplication
-        const existingReflex = card.querySelector('.gundam-3d-reflex');
-        if (existingReflex) existingReflex.remove();
-
-        const reflex = document.createElement('div');
-        reflex.className = 'gundam-3d-reflex';
-        card.appendChild(reflex);
-        
-        card.addEventListener('mousemove', (e) => {
-            const rect = card.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            
-            const xPercent = (x / rect.width) - 0.5;
-            const yPercent = (y / rect.height) - 0.5;
-            
-            const maxRotation = 10;
-            const rotateX = -yPercent * maxRotation;
-            const rotateY = xPercent * maxRotation;
-            
-            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(10px)`;
-            card.style.transition = 'none';
-            
-            const reflexX = (x / rect.width) * 100;
-            const reflexY = (y / rect.height) * 100;
-            reflex.style.background = `radial-gradient(circle at ${reflexX}% ${reflexY}%, rgba(59, 130, 246, 0.25) 0%, transparent 60%)`;
-            reflex.style.opacity = '1';
-        });
-        
-        card.addEventListener('mouseleave', () => {
-            card.style.transition = 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.6s ease';
-            card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0)';
-            reflex.style.transition = 'background 0.5s ease, opacity 0.5s ease';
-            reflex.style.opacity = '0';
-        });
-    });
-}
-
-// Mech corner injectors
-function applyMechCorners() {
-    document.querySelectorAll('.info-card, .why-card, .testi-card, .social-card').forEach(card => {
-        card.style.position = 'relative';
-        
-        // Remove existing chassis and shifters if any to avoid duplication
-        const existingChassis = card.querySelector('.mech-chassis');
-        if (existingChassis) existingChassis.remove();
-        card.querySelectorAll('.armor-shifter').forEach(s => s.remove());
-
-        const chassis = document.createElement('div');
-        chassis.className = 'mech-chassis';
-        chassis.innerHTML = `
-            <div class="mech-warning-label">
-                <span class="blink-dot"></span>
-                HATCH OPEN : SYSTEM ACTV
-            </div>
-        `;
-        card.insertBefore(chassis, card.firstChild);
-        
-        const corners = ['tl', 'tr', 'bl', 'br'];
-        corners.forEach(pos => {
-            const shifter = document.createElement('div');
-            shifter.className = `armor-shifter ${pos}`;
-            card.appendChild(shifter);
-        });
-    });
-}
-
-// Scroll Reveal
-const revealObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.style.opacity = '1';
-            entry.target.style.transform = 'perspective(1000px) translate3d(0, 0, 0) rotateX(0deg)';
-        }
-    });
-}, { threshold: 0.1 });
-
-function applyScrollReveal() {
-    document.querySelectorAll('.info-card, .form-panel, .social-card, .hours-card, .faq-item, .why-card, .testi-card').forEach(el => {
-        el.style.opacity = '0';
-        el.style.transform = 'perspective(1000px) translate3d(0, 50px, -80px) rotateX(15deg)';
-        el.style.transition = 'opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)';
-        revealObserver.observe(el);
-    });
-}
-
-// Fetch and render reviews from database
-async function fetchAndRenderReviews() {
-    const testimonialsGrid = document.querySelector('.testimonials-grid');
     if (!testimonialsGrid) return;
 
     try {
@@ -567,81 +480,6 @@ async function loadReviewerProfile() {
 // Form Submission — góp ý (không có sao)
 const contactForm = document.getElementById('contact-form');
 const formSuccess = document.getElementById('form-success');
-        const reviews = await res.json();
-
-        if (reviews.length === 0) {
-            testimonialsGrid.innerHTML = '<p class="empty-reviews" style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">Chưa có đánh giá nào từ phi công...</p>';
-            return;
-        }
-
-        testimonialsGrid.innerHTML = reviews.map(r => {
-            // Get initials
-            const initials = r.TenKH ? r.TenKH.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : 'U';
-            
-            // Build stars
-            let starsHtml = '';
-            for (let i = 0; i < 5; i++) {
-                if (i < r.DiemDG) {
-                    starsHtml += "<i class='bx bxs-star'></i>";
-                } else {
-                    starsHtml += "<i class='bx bx-star'></i>";
-                }
-            }
-
-            // Grade fallback based on topic
-            let grade = 'Newtype Mới · HG Builder';
-            if (r.ChuDe === 'order') grade = 'Collector · PG Builder';
-            else if (r.ChuDe === 'consult') grade = 'Newtype Mới · HG → MG';
-            else if (r.ChuDe === 'shipping') grade = 'Đại Lý · TP. Đà Nẵng';
-
-            return `
-                <div class="testi-card">
-                    <div class="testi-quote">"</div>
-                    <div class="testi-stars">
-                        ${starsHtml}
-                    </div>
-                    <p class="testi-text">${r.NoiDung}</p>
-                    <div class="testi-author">
-                        <div class="testi-avatar">${initials}</div>
-                        <div>
-                            <div class="testi-name">${r.TenKH}</div>
-                            <div class="testi-grade">${grade}</div>
-                        </div>
-                        <span class="testi-badge">VERIFIED</span>
-                    </div>
-                </div>
-            `;
-        }).join('');
-
-        // Apply effects
-        apply3DTiltEffect();
-        applyMechCorners();
-        applyScrollReveal();
-
-    } catch (err) {
-        console.error("Failed to fetch reviews:", err);
-    }
-}
-
-// Form Submission
-const contactForm = document.getElementById('contact-form');
-const formSuccess = document.getElementById('form-success');
-const ratingGroup = document.getElementById('rating-group');
-const ratingInput = document.getElementById('input-rating');
-
-if (ratingGroup && ratingInput) {
-    ratingGroup.addEventListener('click', (event) => {
-        const star = event.target.closest('.rating-star');
-        if (!star) return;
-        const value = star.dataset.value;
-        if (!value) return;
-
-        ratingInput.value = value;
-        ratingGroup.querySelectorAll('.rating-star').forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.value === value);
-        });
-    });
-}
 
 if (contactForm) {
     contactForm.addEventListener('submit', async function(e) {
@@ -651,7 +489,6 @@ if (contactForm) {
         const email = document.getElementById('input-email').value.trim();
         const topic = document.getElementById('input-topic').value;
         const message = document.getElementById('input-message').value.trim();
-        const rating = Number(ratingInput?.value || 5);
 
         if (!name || !phone || !message) {
             [document.getElementById('input-name'), document.getElementById('input-phone'), document.getElementById('input-message')].forEach(field => {
@@ -697,18 +534,6 @@ if (contactForm) {
             }
         } catch (err) {
             alert('Không thể kết nối đến máy chủ.');
-                body: JSON.stringify({ name, email, topic, message, rating })
-            });
-
-            if (res.ok) {
-                contactForm.style.display = 'none';
-                formSuccess.classList.add('show');
-                await fetchAndRenderReviews(); // Fetch updated list
-            } else {
-                alert("Gửi phản hồi thất bại!");
-            }
-        } catch (err) {
-            alert("Không thể kết nối đến máy chủ.");
         } finally {
             submitBtn.innerHTML = "<i class='bx bx-send'></i> PHÁT TÍN HIỆU";
             submitBtn.disabled = false;
@@ -729,12 +554,6 @@ if (document.readyState === 'loading') {
 } else {
     initContactPage();
 }
-window.addEventListener('DOMContentLoaded', () => {
-    apply3DTiltEffect();
-    applyMechCorners();
-    applyScrollReveal();
-    fetchAndRenderReviews();
-});
 
 // Auto highlight today's operating hours
 const todayDay = new Date().getDay();
