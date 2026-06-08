@@ -715,12 +715,46 @@ const storeState = {
     apiUrl: '/api'
 };
 
+function updateUniverseGradeImages(products) {
+    const grades = ['PG', 'MG', 'RG', 'HG'];
+    const gradeMap = {
+        'PG': 'Perfect Grade (PG)',
+        'MG': 'Master Grade (MG)',
+        'RG': 'Real Grade (RG)',
+        'HG': 'High Grade (HG)'
+    };
+    
+    grades.forEach(grade => {
+        const card = document.querySelector(`.universe-card[data-grade="${grade}"]`);
+        if (!card) return;
+        
+        const targetSeries = gradeMap[grade];
+        // The backend returns products ordered by s.MaSP DESC, 
+        // so the first match found in products is the latest one.
+        const latestProduct = products.find(p => p.series === targetSeries);
+        
+        if (latestProduct) {
+            const img = card.querySelector('.uc-bg img');
+            const nameSpan = card.querySelector('.uc-content span');
+            
+            if (img && latestProduct.img) {
+                img.src = latestProduct.img;
+                img.alt = latestProduct.name;
+            }
+            if (nameSpan) {
+                nameSpan.innerText = latestProduct.name.toUpperCase();
+            }
+        }
+    });
+}
+
 async function fetchStoreProducts() {
     try {
         const response = await fetch(`${storeState.apiUrl}/products`);
         storeState.products = await response.json();
         renderStoreProducts();
         refreshSpotlight(storeState.products);
+        updateUniverseGradeImages(storeState.products);
     } catch (err) {
         console.error("Store unreachable:", err);
     }
