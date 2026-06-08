@@ -228,10 +228,13 @@ async function connectDB() {
                     LoaiTin NVARCHAR(50) NOT NULL,
                     TomTat NVARCHAR(MAX) NOT NULL,
                     NoiDung NVARCHAR(MAX),
-                    HinhAnh NVARCHAR(255),
+                    HinhAnh NVARCHAR(MAX),
                     NgayDang DATETIME DEFAULT GETDATE()
                 );
             END
+
+            -- Đảm bảo HinhAnh của tintuc là NVARCHAR(MAX) để lưu đường dẫn dài
+            ALTER TABLE tintuc ALTER COLUMN HinhAnh NVARCHAR(MAX);
 
             IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[danhgia]') AND type in (N'U'))
             BEGIN
@@ -394,11 +397,11 @@ app.post('/api/news', async (req, res) => {
     try {
         const pool = await sql.connect(config);
         await pool.request()
-            .input('TieuDe', sql.NVarChar, title)
-            .input('LoaiTin', sql.NVarChar, category)
-            .input('TomTat', sql.NVarChar, excerpt)
-            .input('NoiDung', sql.NVarChar, body)
-            .input('HinhAnh', sql.NVarChar, img)
+            .input('TieuDe', sql.NVarChar(sql.MAX), title)
+            .input('LoaiTin', sql.NVarChar(50), category)
+            .input('TomTat', sql.NVarChar(sql.MAX), excerpt)
+            .input('NoiDung', sql.NVarChar(sql.MAX), body)
+            .input('HinhAnh', sql.NVarChar(sql.MAX), img)
             .query(`INSERT INTO tintuc (TieuDe, LoaiTin, TomTat, NoiDung, HinhAnh)
                     VALUES (@TieuDe, @LoaiTin, @TomTat, @NoiDung, @HinhAnh)`);
         res.status(201).json({ message: 'News post created successfully' });
@@ -431,11 +434,11 @@ app.put('/api/news/:id', async (req, res) => {
         const pool = await sql.connect(config);
         await pool.request()
             .input('id', sql.Int, newsId)
-            .input('TieuDe', sql.NVarChar, title)
-            .input('LoaiTin', sql.NVarChar, category)
-            .input('TomTat', sql.NVarChar, excerpt)
-            .input('NoiDung', sql.NVarChar, body)
-            .input('HinhAnh', sql.NVarChar, img)
+            .input('TieuDe', sql.NVarChar(sql.MAX), title)
+            .input('LoaiTin', sql.NVarChar(50), category)
+            .input('TomTat', sql.NVarChar(sql.MAX), excerpt)
+            .input('NoiDung', sql.NVarChar(sql.MAX), body)
+            .input('HinhAnh', sql.NVarChar(sql.MAX), img)
             .query(`UPDATE tintuc 
                     SET TieuDe = @TieuDe, LoaiTin = @LoaiTin, TomTat = @TomTat, NoiDung = @NoiDung, HinhAnh = @HinhAnh 
                     WHERE MaTin = @id`);
@@ -443,6 +446,20 @@ app.put('/api/news/:id', async (req, res) => {
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
+});
+
+/**
+ * @route POST /api/upload
+ * @desc Upload an image file and return its public URL path
+ */
+app.post('/api/upload', upload.single('image'), (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ error: 'No file uploaded' });
+    }
+    // Return the relative URL that the frontend can use directly
+    const relativePath = `assets/images/anhGunDam/${req.file.filename}`;
+    console.log(`[UPLOAD] File saved: ${req.file.filename}`);
+    res.json({ url: relativePath, filename: req.file.filename });
 });
 
 /**

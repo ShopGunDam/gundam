@@ -461,22 +461,12 @@ function showAddNewsModal() {
         btnSave.disabled = true;
         btnSave.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> ĐANG LƯU...';
 
-        let finalImgUrl = imgUrlInput.value || '';
-        if (imgFileInput.files.length > 0) {
-            const formData = new FormData();
-            formData.append('image', imgFileInput.files[0]);
-            try {
-                const uploadRes = await requestApi('/api/upload', {
-                    method: 'POST',
-                    body: formData
-                });
-                const uploadData = await uploadRes.json();
-                if (uploadData.url) {
-                    finalImgUrl = uploadData.url;
-                }
-            } catch (err) {
-                console.error('Upload failed:', err);
-            }
+        // Lấy ảnh giống cách sản phẩm: đọc imgPreview.src (Base64 hoặc URL)
+        let finalImgUrl = null;
+        if (imgPreview.src && (imgPreview.src.startsWith('data:') || imgPreview.src.startsWith('http') || imgPreview.src.includes('assets/'))) {
+            finalImgUrl = imgPreview.src;
+        } else if (imgUrlInput.value.trim()) {
+            finalImgUrl = imgUrlInput.value.trim();
         }
 
         const payload = {
@@ -484,7 +474,7 @@ function showAddNewsModal() {
             category: document.getElementById('news-category').value,
             excerpt: document.getElementById('news-excerpt').value.trim(),
             body: document.getElementById('news-body').value.trim() || null,
-            img: finalImgUrl || null
+            img: finalImgUrl
         };
 
         const result = await createNews(payload);
@@ -611,22 +601,12 @@ function showEditNewsModal(newsId) {
         btnSave.disabled = true;
         btnSave.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> ĐANG LƯU...';
 
-        let finalImgUrl = imgUrlInput.value || post.img || '';
-        if (imgFileInput.files.length > 0) {
-            const formData = new FormData();
-            formData.append('image', imgFileInput.files[0]);
-            try {
-                const uploadRes = await requestApi('/api/upload', {
-                    method: 'POST',
-                    body: formData
-                });
-                const uploadData = await uploadRes.json();
-                if (uploadData.url) {
-                    finalImgUrl = uploadData.url;
-                }
-            } catch (err) {
-                console.error('Upload failed:', err);
-            }
+        // Lấy ảnh giống cách sản phẩm: đọc imgPreview.src (Base64 hoặc URL)
+        let finalImgUrl = post.img || null;
+        if (imgPreview.src && (imgPreview.src.startsWith('data:') || imgPreview.src.startsWith('http') || imgPreview.src.includes('assets/'))) {
+            finalImgUrl = imgPreview.src;
+        } else if (imgUrlInput.value.trim()) {
+            finalImgUrl = imgUrlInput.value.trim();
         }
 
         const payload = {
@@ -634,7 +614,7 @@ function showEditNewsModal(newsId) {
             category: document.getElementById('news-category').value,
             excerpt: document.getElementById('news-excerpt').value.trim(),
             body: document.getElementById('news-body').value.trim() || null,
-            img: finalImgUrl || null
+            img: finalImgUrl
         };
 
         const result = await updateNews(newsId, payload);
