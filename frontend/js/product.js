@@ -63,7 +63,7 @@ function renderProductDetails(product) {
                 </div>
                 <div class="product-detail-actions">
                     <a href="store.html" class="btn btn-secondary"><i class='bx bx-arrow-back'></i> Trở về cửa hàng</a>
-                    <button class="btn btn-primary" onclick="window.location.href='store.html?addToCart=${encodeURIComponent(product.id)}'">
+                    <button class="btn btn-primary" onclick="addToCart('${product.id}', event)">
                         <i class='bx bx-cart-add'></i> MUA NGAY
                     </button>
                 </div>

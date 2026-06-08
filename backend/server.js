@@ -940,8 +940,19 @@ app.get('/api/users', async (req, res) => {
     try {
         const pool = await sql.connect(config);
         const result = await pool.request().query(`
-            SELECT t.Username as id, k.TenKH as name, k.Email as email, t.Role as role, 
-                   CONVERT(VARCHAR(10), t.NgayTao, 120) as joined
+            SELECT t.Username as id, k.TenKH as name, k.Email as email, t.Role as role,
+                   CONVERT(VARCHAR(10), t.NgayTao, 120) as joined,
+                   ISNULL(k.DiemTichLuy, 0) as points,
+                   ISNULL((SELECT SUM(h.TongTien) FROM hoadon h WHERE h.MaKH = k.MaKH), 0) as totalSpent,
+                   ISNULL((SELECT COUNT(*) FROM hoadon h WHERE h.MaKH = k.MaKH), 0) as ordersCount,
+                   COALESCE((
+                       SELECT STRING_AGG(CONVERT(NVARCHAR(255), s.TenSP), ', ')
+                       WITHIN GROUP (ORDER BY s.TenSP)
+                       FROM cthoadon ct
+                       JOIN sanpham s ON ct.MaSP = s.MaSP
+                       JOIN hoadon h2 ON ct.MaHD = h2.MaHD
+                       WHERE h2.MaKH = k.MaKH
+                   ), 'Chưa mua gì') as boughtItems
             FROM taikhoan t
             LEFT JOIN khachhang k ON t.Username = k.Username
             ORDER BY t.NgayTao DESC
@@ -952,7 +963,11 @@ app.get('/api/users', async (req, res) => {
             name: u.name || u.id,
             email: u.email || `${u.id}@gstore.com`,
             role: u.role,
-            joined: u.joined || new Date().toISOString().split('T')[0]
+            joined: u.joined || new Date().toISOString().split('T')[0],
+            points: Number(u.points || 0),
+            totalSpent: Number(u.totalSpent || 0),
+            ordersCount: Number(u.ordersCount || 0),
+            boughtItems: u.boughtItems || 'Chưa mua gì'
         }));
         res.json(users);
     } catch (err) {
@@ -1196,21 +1211,78 @@ app.put('/api/invoices/:id', async (req, res) => {
 });
 
 app.delete('/api/invoices/:id', async (req, res) => {
-    const invoiceId = parseInt(req.params.id);
+    const invoiceId = parseInt(req.params.id, 10);
+    if (!Number.isInteger(invoiceId) || invoiceId <= 0) {
+        return res.status(400).json({ error: 'ID hóa đơn không hợp lệ.' });
+    }
+
     try {
         const pool = await sql.connect(config);
         const transaction = new sql.Transaction(pool);
         await transaction.begin();
+
         try {
+            const invoiceResult = await transaction.request()
+                .input('id', sql.Int, invoiceId)
+                .query(`
+                    SELECT h.MaHD, h.MaKH, h.TongTien,
+                           ct.MaSP, ct.SoLuong
+                    FROM hoadon h
+                    LEFT JOIN cthoadon ct ON ct.MaHD = h.MaHD
+                    WHERE h.MaHD = @id
+                `);
+
+            const invoiceItems = invoiceResult.recordset || [];
+            const invoice = invoiceItems[0] || null;
+
+            if (!invoice) {
+                await transaction.rollback();
+                return res.status(404).json({ error: 'Không tìm thấy hóa đơn.' });
+            }
+
+            const pointsToRevoke = Math.floor(Number(invoice.TongTien || 0) / 100000);
+
+            for (const item of invoiceItems) {
+                if (!item.MaSP) continue;
+                await transaction.request()
+                    .input('maSp', sql.NVarChar, item.MaSP)
+                    .input('qty', sql.Int, Number(item.SoLuong || 0))
+                    .query(`
+                        UPDATE sanpham
+                        SET SoLuong = SoLuong + @qty
+                        WHERE MaSP = @maSp
+                    `);
+            }
+
             await transaction.request().input('id', sql.Int, invoiceId).query('DELETE FROM cthoadon WHERE MaHD = @id');
             await transaction.request().input('id', sql.Int, invoiceId).query('DELETE FROM hoadon WHERE MaHD = @id');
+
+            if (pointsToRevoke > 0 && invoice.MaKH) {
+                await transaction.request()
+                    .input('maKh', sql.Int, invoice.MaKH)
+                    .input('points', sql.Int, pointsToRevoke)
+                    .query(`
+                        UPDATE khachhang
+                        SET DiemTichLuy = CASE
+                            WHEN ISNULL(DiemTichLuy, 0) - @points < 0 THEN 0
+                            ELSE ISNULL(DiemTichLuy, 0) - @points
+                        END
+                        WHERE MaKH = @maKh
+                    `);
+            }
+
             await transaction.commit();
-            res.json({ success: true, message: 'Hóa đơn đã được xóa.' });
+            res.json({
+                success: true,
+                message: 'Hóa đơn đã được xóa và điểm tích lũy đã được cập nhật.',
+                pointsRecalled: pointsToRevoke
+            });
         } catch (err) {
             await transaction.rollback();
             throw err;
         }
     } catch (err) {
+        console.error('[INVOICE-DELETE] Error:', err.message);
         res.status(500).json({ error: err.message });
     }
 });
@@ -1320,7 +1392,13 @@ app.post('/api/checkout', async (req, res) => {
                     `);
             }
 
+            const currentPointsResult = await transaction.request()
+                .input('maKh', sql.Int, maKh)
+                .query('SELECT ISNULL(DiemTichLuy, 0) AS currentPoints FROM khachhang WHERE MaKH = @maKh');
+
             await transaction.commit();
+
+            const currentPoints = Number(currentPointsResult.recordset[0]?.currentPoints || 0);
 
             res.status(201).json({
                 success: true,
@@ -1328,6 +1406,7 @@ app.post('/api/checkout', async (req, res) => {
                 totalAmount,
                 paymentMethod: paymentMethod || 'QR',
                 pointsEarned,
+                currentPoints,
                 message: 'Hóa đơn đã được tạo thành công.'
             });
         } catch (err) {

@@ -1050,11 +1050,11 @@ if (confirmPaymentBtn) {
             if (!res.ok) throw new Error(data.error || 'Không thể tạo hóa đơn');
 
             const earned = Number(data.pointsEarned || 0);
-            if (earned > 0) {
-                const currentPoints = Number(sessionStorage.getItem('gunpla_points') || 0);
-                sessionStorage.setItem('gunpla_points', currentPoints + earned);
+            const currentPoints = Number(data.currentPoints || 0);
+            if (currentPoints || earned > 0) {
+                sessionStorage.setItem('gunpla_points', String(currentPoints));
             }
-            alert(`✅ Đã tạo hóa đơn #GSTORE-${data.invoiceId}. Thanh toán bằng ${data.paymentMethod}.${earned > 0 ? ` Bạn được +${earned} điểm tích lũy.` : ''}`);
+            alert(`✅ Đã tạo hóa đơn #GSTORE-${data.invoiceId}. Thanh toán bằng ${data.paymentMethod}.${earned > 0 ? ` Bạn được +${earned} điểm tích lũy (tổng: ${currentPoints} điểm).` : ''}`);
             storeState.cart = [];
             updateCartUI();
             hidePaymentModal();

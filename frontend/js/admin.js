@@ -161,6 +161,9 @@ function renderView(viewName) {
         case 'accounts':
             mainContent.innerHTML = renderAccounts();
             break;
+        case 'customers':
+            mainContent.innerHTML = renderCustomers();
+            break;
         case 'invoices':
             mainContent.innerHTML = renderInvoices();
             break;
@@ -356,6 +359,44 @@ function renderInvoices() {
                                         <button class="action-btn delete" onclick="deleteInvoice(${inv.MaHD})" title="Xóa"><i class='bx bx-trash'></i></button>
                                     </div>
                                 </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    `;
+}
+
+function renderCustomers() {
+    return `
+        <div class="page-header">
+            <h2 class="admin-title">GIÁM SÁT <span class="highlight">KHÁCH HÀNG</span></h2>
+        </div>
+        <div class="content-panel">
+            <div class="data-table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Khách hàng</th>
+                            <th>Email</th>
+                            <th>Đã mua</th>
+                            <th>Số đơn</th>
+                            <th>Tổng chi</th>
+                            <th>Điểm tích lũy</th>
+                            <th>Ngày tham gia</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${state.users.map(u => `
+                            <tr>
+                                <td><strong>${u.name || u.id}</strong><br><small>${u.id}</small></td>
+                                <td>${u.email || '-'}</td>
+                                <td>${u.boughtItems || 'Chưa mua gì'}</td>
+                                <td>${u.ordersCount || 0}</td>
+                                <td>${Number(u.totalSpent || 0).toLocaleString()}₫</td>
+                                <td><span class="status-badge status-instock">${Number(u.points || 0)} điểm</span></td>
+                                <td>${u.joined || '-'}</td>
                             </tr>
                         `).join('')}
                     </tbody>
