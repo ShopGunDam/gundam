@@ -510,7 +510,7 @@ async function deleteNews(id) {
             await fetchNews();
             renderView('news');
         } else {
-            const err = await response.json();
+            const err = await response.json().catch(() => ({ error: `HTTP ${response.status}` }));
             alert('Lỗi: ' + err.error);
         }
     } catch (err) {
@@ -656,7 +656,7 @@ async function deleteUser(id) {
                 await fetchUsers();
                 renderView('accounts');
             } else {
-                const err = await response.json();
+                const err = await response.json().catch(() => ({ error: `HTTP ${response.status}` }));
                 alert("Lỗi khi xóa tài khoản: " + err.error);
             }
         } catch (err) {
@@ -813,7 +813,7 @@ function showAddProductModal() {
                 closeModal();
                 renderView('warehouse');
             } else {
-                const err = await response.json();
+                const err = await response.json().catch(() => ({ error: `HTTP ${response.status}` }));
                 alert("Lỗi: " + err.error);
             }
         } catch (err) {
@@ -889,7 +889,7 @@ function showAddUserModal() {
                 closeModal();
                 renderView('accounts');
             } else {
-                const err = await response.json();
+                const err = await response.json().catch(() => ({ error: `HTTP ${response.status}` }));
                 alert("Lỗi: " + err.error);
             }
         } catch (err) {
@@ -1036,7 +1036,7 @@ function showEditProductModal(productId) {
                 closeModal();
                 renderView('warehouse');
             } else {
-                const err = await response.json();
+                const err = await response.json().catch(() => ({ error: `HTTP ${response.status}` }));
                 alert("Lỗi: " + err.error);
             }
         } catch (err) {
@@ -1114,7 +1114,7 @@ function showEditUserModal(userId) {
                 closeModal();
                 renderView('accounts');
             } else {
-                const err = await response.json();
+                const err = await response.json().catch(() => ({ error: `HTTP ${response.status}` }));
                 alert("Lỗi: " + err.error);
             }
         } catch (err) {
