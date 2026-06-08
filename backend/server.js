@@ -85,9 +85,18 @@ app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, '../frontend')));
 
 // --- MULTER CONFIGURATION FOR IMAGE UPLOADS ---
+const UPLOAD_DIR = path.join(__dirname, '../frontend/assets/images/anhGunDam');
+
+// Tạo thư mục nếu chưa tồn tại
+const fs = require('fs');
+if (!fs.existsSync(UPLOAD_DIR)) {
+    fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+    console.log('[UPLOAD] Created upload directory:', UPLOAD_DIR);
+}
+
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'frontend/assets/images/');
+        cb(null, UPLOAD_DIR);
     },
     filename: (req, file, cb) => {
         cb(null, Date.now() + path.extname(file.originalname));
@@ -247,6 +256,22 @@ async function connectDB() {
         `);
 
         console.log('✅ Database schema verified/created successfully!');
+
+        // --- MIGRATE IMAGE PATHS TO anhGunDam ---
+        // Cập nhật đường dẫn ảnh cũ (assets/images/HG/..., assets/images/MG/..., v.v.)
+        // sang định dạng mới assets/images/anhGunDam/<tenfile>
+        const migrateResult = await pool.request().query(`
+            UPDATE sanpham
+            SET HinhAnh = 'assets/images/anhGunDam/' + 
+                          SUBSTRING(HinhAnh, LEN(HinhAnh) - CHARINDEX('/', REVERSE(HinhAnh)) + 2, 999)
+            WHERE HinhAnh IS NOT NULL
+              AND HinhAnh NOT LIKE 'assets/images/anhGunDam/%'
+              AND HinhAnh NOT LIKE 'http%'
+              AND HinhAnh LIKE 'assets/images/%/%'
+        `);
+        if (migrateResult.rowsAffected[0] > 0) {
+            console.log(`✅ [MIGRATE] Đã cập nhật ${migrateResult.rowsAffected[0]} đường dẫn ảnh sang anhGunDam/`);
+        }
     } catch (err) {
         console.error('❌ Database Connection Failed!', err.message);
         console.log('💡 Note: Ensure SA account is enabled and SQL Server allows SQL Authentication.');
@@ -845,7 +870,8 @@ app.post('/api/upload', upload.single('image'), (req, res) => {
     if (!req.file) {
         return res.status(400).json({ error: 'No file uploaded' });
     }
-    const imageUrl = `assets/images/${req.file.filename}`;
+    const imageUrl = `assets/images/anhGunDam/${req.file.filename}`;
+    console.log(`[UPLOAD] Image saved: ${req.file.filename} -> ${imageUrl}`);
     res.json({ url: imageUrl });
 });
 
