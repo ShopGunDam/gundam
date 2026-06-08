@@ -64,11 +64,19 @@ async function loadPilotProfile() {
             document.getElementById('edit-address').value = data.DiaChi || '';
             document.getElementById('edit-username').value = username;
             
-            // Cập nhật điểm tích lũy từ DB, kèm fallback sessionStorage
-            const points = Number(data.DiemTichLuy ?? sessionStorage.getItem('gunpla_points') ?? 0) || 0;
+            // Cập nhật điểm tích lũy từ DB, kèm fallback sessionStorage và các key có thể trả về
+            const pointsFromApi = Number(
+                data.DiemTichLuy ??
+                data.points ??
+                data.currentPoints ??
+                sessionStorage.getItem('gunpla_points') ??
+                0
+            );
+            const points = Number.isFinite(pointsFromApi) && pointsFromApi >= 0 ? pointsFromApi : 0;
+
             sessionStorage.setItem('gunpla_points', String(points));
             if (document.getElementById('stat-points')) {
-                document.getElementById('stat-points').innerText = points;
+                document.getElementById('stat-points').innerText = points.toLocaleString('vi-VN');
             }
         }
     } catch (err) {
