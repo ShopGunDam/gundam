@@ -101,4 +101,8 @@ async function loadProductDetail() {
     }
 }
 
-window.addEventListener('DOMContentLoaded', loadProductDetail);
+if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', loadProductDetail);
+} else {
+    loadProductDetail();
+}
