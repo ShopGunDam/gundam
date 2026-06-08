@@ -829,23 +829,27 @@ const cartHTML = `
     <div class="modal-overlay" id="cart-overlay"></div>
     <div class="payment-modal" id="payment-modal">
         <div class="payment-modal-header">
-            <h3>Chọn hình thức thanh toán</h3>
+            <h3>Thanh toán đơn hàng</h3>
             <span class="payment-modal-close" id="payment-modal-close">&times;</span>
         </div>
         <div class="payment-modal-body">
-            <p>Vui lòng chọn phương thức thanh toán để tiếp tục.</p>
+            <p>Chọn phương thức thanh toán phù hợp rồi xác nhận để tạo hóa đơn.</p>
             <div class="payment-options">
-                <button class="btn payment-option-btn" id="qr-payment-btn">
+                <button class="btn payment-option-btn" id="qr-payment-btn" type="button">
                     <i class='bx bx-scan'></i>
                     <span>Thanh toán QR</span>
                 </button>
-                <button class="btn payment-option-btn" id="bank-payment-btn">
+                <button class="btn payment-option-btn" id="bank-payment-btn" type="button">
                     <i class='bx bx-bank'></i>
                     <span>Thanh toán Ngân hàng</span>
                 </button>
             </div>
+            <div class="payment-detail-panel" id="payment-detail-panel" hidden>
+                <div class="payment-detail-box" id="payment-detail-box"></div>
+                <button class="btn btn-primary payment-confirm-btn" id="confirm-payment-btn" type="button">Xác nhận thanh toán</button>
+            </div>
             <div class="payment-help">
-                <p><strong>Lưu ý:</strong> Thanh toán QR sẽ quét mã từ ví điện tử. Ngân hàng phù hợp cho chuyển khoản nội bộ.</p>
+                <p><strong>Lưu ý:</strong> QR phù hợp với ví điện tử, ngân hàng phù hợp cho chuyển khoản nội bộ và lưu hóa đơn trực tiếp vào hệ thống.</p>
             </div>
         </div>
     </div>
@@ -865,6 +869,10 @@ const cartCountBadge = document.querySelector('.cart-count');
 const cartItemsWrapper = document.getElementById('cart-items');
 const cartTotalPrice = document.getElementById('cart-total-price');
 const checkoutBtn = document.getElementById('checkout-btn');
+const paymentDetailPanel = document.getElementById('payment-detail-panel');
+const paymentDetailBox = document.getElementById('payment-detail-box');
+const confirmPaymentBtn = document.getElementById('confirm-payment-btn');
+let selectedPaymentMethod = '';
 
 function updateCartUI() {
     // Update badge
@@ -908,6 +916,13 @@ function addToCart(productId, event) {
     if (event) {
         event.stopPropagation();
     }
+
+    if (!sessionStorage.getItem('gunpla_user')) {
+        const returnUrl = encodeURIComponent(window.location.href);
+        window.location.href = `login.html?redirect=${returnUrl}`;
+        return;
+    }
+
     const product = storeState.products.find(p => p.id === productId);
     if (product) {
         storeState.cart.push(product);
@@ -947,6 +962,8 @@ function hidePaymentModal() {
     if (!paymentModal || !cartOverlay) return;
     paymentModal.classList.remove('open');
     cartOverlay.style.display = 'none';
+    if (paymentDetailPanel) paymentDetailPanel.hidden = true;
+    selectedPaymentMethod = '';
 }
 
 if (cartOverlay) {
@@ -964,28 +981,93 @@ if (paymentModalClose) {
     paymentModalClose.addEventListener('click', hidePaymentModal);
 }
 
+function renderPaymentDetails(method) {
+    selectedPaymentMethod = method;
+    if (!paymentDetailPanel || !paymentDetailBox) return;
+
+    if (method === 'qr') {
+        paymentDetailBox.innerHTML = `
+            <h4>Thanh toán bằng mã QR</h4>
+            <p>Quét mã QR bên dưới bằng ứng dụng ngân hàng hoặc ví điện tử để hoàn tất thanh toán.</p>
+            <div class="payment-qr-box" aria-label="Mã QR thanh toán">QR</div>
+            <p class="payment-note">Sau khi quét xong, nhấn <strong>Xác nhận thanh toán</strong> để hệ thống tạo hóa đơn và lưu giao dịch.</p>
+        `;
+    } else {
+        paymentDetailBox.innerHTML = `
+            <h4>Thanh toán bằng ngân hàng</h4>
+            <p>Chuyển khoản theo thông tin sau, sau đó nhấn <strong>Xác nhận thanh toán</strong>.</p>
+            <ul class="payment-bank-list">
+                <li><strong>Ngân hàng:</strong> Vietcombank</li>
+                <li><strong>Số tài khoản:</strong> 10201020456789</li>
+                <li><strong>Tên tài khoản:</strong> GUNPLA STORE</li>
+                <li><strong>Nội dung chuyển khoản:</strong> GUNPLA ${sessionStorage.getItem('gunpla_user') || 'KHACHHANG'}</li>
+            </ul>
+        `;
+    }
+
+    paymentDetailPanel.hidden = false;
+}
+
 if (qrPaymentBtn) {
-    qrPaymentBtn.addEventListener('click', () => {
-        alert('Chọn thanh toán bằng QR. Vui lòng quét mã QR hiển thị trên thiết bị.');
-        storeState.cart = [];
-        updateCartUI();
-        hidePaymentModal();
-        cartSidebar.classList.remove('open');
-    });
+    qrPaymentBtn.addEventListener('click', () => renderPaymentDetails('qr'));
 }
 
 if (bankPaymentBtn) {
-    bankPaymentBtn.addEventListener('click', () => {
-        alert('Chọn thanh toán ngân hàng. Vui lòng chuyển khoản vào tài khoản trong hóa đơn.');
-        storeState.cart = [];
-        updateCartUI();
-        hidePaymentModal();
-        cartSidebar.classList.remove('open');
+    bankPaymentBtn.addEventListener('click', () => renderPaymentDetails('bank'));
+}
+
+if (confirmPaymentBtn) {
+    confirmPaymentBtn.addEventListener('click', async () => {
+        if (!selectedPaymentMethod) {
+            alert('Vui lòng chọn phương thức thanh toán trước khi xác nhận.');
+            return;
+        }
+
+        const username = sessionStorage.getItem('gunpla_user');
+        if (!username) {
+            window.location.href = 'login.html';
+            return;
+        }
+
+        const totalAmount = storeState.cart.reduce((sum, item) => sum + (parseInt(String(item.price).replace(/[^\d]/g, '')) || 0), 0);
+        if (!storeState.cart.length) {
+            alert('Giỏ hàng đang trống.');
+            return;
+        }
+
+        try {
+            const res = await requestApi('/api/checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username,
+                    items: storeState.cart,
+                    paymentMethod: selectedPaymentMethod === 'qr' ? 'QR' : 'Ngân hàng'
+                })
+            });
+            const data = await res.json();
+
+            if (!res.ok) throw new Error(data.error || 'Không thể tạo hóa đơn');
+
+            alert(`✅ Đã tạo hóa đơn #GSTORE-${data.invoiceId}. Thanh toán bằng ${data.paymentMethod}.`);
+            storeState.cart = [];
+            updateCartUI();
+            hidePaymentModal();
+            cartSidebar.classList.remove('open');
+        } catch (err) {
+            console.error('Checkout error:', err);
+            alert(err.message || 'Không thể tạo hóa đơn. Vui lòng thử lại.');
+        }
     });
 }
 
 if (checkoutBtn) {
     checkoutBtn.addEventListener('click', () => {
+        if (!sessionStorage.getItem('gunpla_user')) {
+            const returnUrl = encodeURIComponent(window.location.href);
+            window.location.href = `login.html?redirect=${returnUrl}`;
+            return;
+        }
         if (storeState.cart.length === 0) return alert("Giỏ hàng đang trống!");
         showPaymentModal();
     });

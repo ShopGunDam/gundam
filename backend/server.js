@@ -1169,6 +1169,92 @@ app.get('/api/orders/:username', async (req, res) => {
     }
 });
 
+app.post('/api/checkout', async (req, res) => {
+    const { username, items, paymentMethod = 'QR' } = req.body;
+
+    if (!username) {
+        return res.status(401).json({ error: 'Bạn cần đăng nhập trước khi thanh toán.' });
+    }
+
+    if (!Array.isArray(items) || items.length === 0) {
+        return res.status(400).json({ error: 'Giỏ hàng trống.' });
+    }
+
+    try {
+        const pool = await sql.connect(config);
+        const customerResult = await pool.request()
+            .input('username', sql.NVarChar, username)
+            .query('SELECT MaKH FROM khachhang WHERE Username = @username');
+
+        if (customerResult.recordset.length === 0) {
+            return res.status(404).json({ error: 'Không tìm thấy thông tin khách hàng.' });
+        }
+
+        const maKh = customerResult.recordset[0].MaKH;
+        const totalAmount = items.reduce((sum, item) => {
+            const numericPrice = parseInt(String(item.price || '').replace(/[^\d]/g, ''), 10) || 0;
+            return sum + numericPrice;
+        }, 0);
+
+        const transaction = new sql.Transaction(pool);
+        await transaction.begin();
+
+        try {
+            const invoiceResult = await transaction.request()
+                .input('maKh', sql.Int, maKh)
+                .input('tongTien', sql.Decimal(15, 2), totalAmount)
+                .query(`
+                    INSERT INTO hoadon (MaKH, TongTien, TrangThai)
+                    OUTPUT INSERTED.MaHD
+                    VALUES (@maKh, @tongTien, 'Pending')
+                `);
+
+            const invoiceId = invoiceResult.recordset[0].MaHD;
+
+            for (const item of items) {
+                const qty = Number(item.quantity || 1);
+                const price = parseInt(String(item.price || '').replace(/[^\d]/g, ''), 10) || 0;
+                if (!item.id || qty <= 0 || price < 0) continue;
+
+                await transaction.request()
+                    .input('maHd', sql.Int, invoiceId)
+                    .input('maSp', sql.NVarChar, item.id)
+                    .input('qty', sql.Int, qty)
+                    .input('price', sql.Decimal(15, 2), price)
+                    .query(`
+                        INSERT INTO cthoadon (MaHD, MaSP, SoLuong, DonGiaBan)
+                        VALUES (@maHd, @maSp, @qty, @price)
+                    `);
+
+                await transaction.request()
+                    .input('maSp', sql.NVarChar, item.id)
+                    .input('qty', sql.Int, qty)
+                    .query(`
+                        UPDATE sanpham
+                        SET SoLuong = CASE WHEN SoLuong >= @qty THEN SoLuong - @qty ELSE SoLuong END
+                        WHERE MaSP = @maSp
+                    `);
+            }
+
+            await transaction.commit();
+
+            res.status(201).json({
+                success: true,
+                invoiceId,
+                totalAmount,
+                paymentMethod,
+                message: 'Hóa đơn đã được tạo thành công.'
+            });
+        } catch (err) {
+            await transaction.rollback();
+            throw err;
+        }
+    } catch (err) {
+        console.error('[CHECKOUT] Error:', err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 /**
  * @route GET /api/reviews
  * @desc Get all reviews/testimonials from database

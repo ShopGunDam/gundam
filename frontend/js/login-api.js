@@ -24,6 +24,7 @@ const API_BASE = '';
 
 const loginForm = document.querySelector('.login-form');
 const loginBtn = document.querySelector('.login-btn');
+const redirectTarget = new URLSearchParams(window.location.search).get('redirect');
 
 if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
@@ -60,11 +61,8 @@ if (loginForm) {
                 showLoginAlert(`✅ Đăng nhập thành công! Chào mừng <strong>${username}</strong>. Đang chuyển hướng...`, 'success');
 
                 setTimeout(() => {
-                    if (data.role === 'Admin') {
-                        window.location.href = 'admin.html';
-                    } else {
-                        window.location.href = 'index.html';
-                    }
+                    const destination = redirectTarget ? decodeURIComponent(redirectTarget) : (data.role === 'Admin' ? 'admin.html' : 'index.html');
+                    window.location.href = destination;
                 }, 1500);
             } else {
                 showLoginAlert(data.message || 'Tên đăng nhập hoặc mật khẩu không đúng.', 'error');
@@ -195,7 +193,8 @@ async function handleGoogleLogin(accessToken) {
             showLoginAlert(`✅ Xin chào <strong>${data.displayName || data.username}</strong>! Đang chuyển hướng...`, 'success');
 
             setTimeout(() => {
-                window.location.href = data.role === 'Admin' ? 'admin.html' : 'index.html';
+                const destination = redirectTarget ? decodeURIComponent(redirectTarget) : (data.role === 'Admin' ? 'admin.html' : 'index.html');
+                window.location.href = destination;
             }, 1500);
         } else {
             showLoginAlert(data.message || 'Đăng nhập Google thất bại.', 'error');
