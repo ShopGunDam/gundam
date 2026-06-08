@@ -1101,7 +1101,8 @@ app.get('/api/profile/:username', async (req, res) => {
         const result = await pool.request()
             .input('username', sql.NVarChar, username)
             .query(`
-                SELECT k.TenKH, k.Email, k.SDT, k.DiaChi, k.HinhAnh
+                SELECT k.TenKH, k.Email, k.SDT, k.DiaChi, k.HinhAnh,
+                       ISNULL(k.DiemTichLuy, 0) AS DiemTichLuy
                 FROM khachhang k
                 WHERE RTRIM(LTRIM(k.Username)) = @username
             `);
