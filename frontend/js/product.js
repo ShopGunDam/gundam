@@ -93,11 +93,15 @@ async function loadProductDetail() {
 
     try {
         const response = await requestApi(`/api/products/${encodeURIComponent(productId)}`);
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+            throw new Error("Server không trả về dữ liệu JSON hợp lệ (Có thể do lỗi 500 hoặc 404).");
+        }
         const product = await response.json();
         renderProductDetails(product);
     } catch (err) {
         console.error('Product load failed:', err);
-        renderError('Không thể tải chi tiết. Vui lòng thử lại sau.');
+        renderError(`Lỗi: ${err.message}`);
     }
 }
 
