@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 
 <head>
@@ -96,91 +96,7 @@
             </div>
         </section>
 
-        <!-- Ratings Section -->
-        <section class="ratings-display section" id="ratings-display">
-            <div class="container">
-                <div class="section-header">
-                    <div class="section-divider">
-                        <i class='bx bx-star'></i>
-                    </div>
-                    <h2 class="section-title">ĐÁNH GIÁ <span class="highlight">SỰ KIỆN</span></h2>
-                    <p class="section-subtitle">Những đánh giá từ cộng đồng Gunpla về các sự kiện và lắp ráp.</p>
-                </div>
-                
-                <div class="ratings-container" id="ratings-container">
-                    <div class="empty-state-ratings">
-                        <i class='bx bx-info-circle'></i>
-                        <p>Chưa có đánh giá nào. Hãy là người đầu tiên chia sẻ trải nghiệm của bạn!</p>
-                    </div>
-                </div>
-            </div>
-        </section>
 
-        <!-- Rating Form Section -->
-        <section class="rating-form-section section" id="rating-form-section">
-            <div class="container">
-                <div class="form-wrapper">
-                    <div class="form-header">
-                        <h2 class="form-title">GỬI ĐÁNH GIÁ</h2>
-                        <p class="form-subtitle">Chia sẻ trải nghiệm của bạn về các sự kiện Gunpla</p>
-                    </div>
-
-                    <form id="rating-form" class="rating-form" novalidate>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label" for="rating-name">Họ & Tên <span class="required">*</span></label>
-                                <input type="text" id="rating-name" class="form-control" placeholder="Nhập tên của bạn" required>
-                                <span class="form-error"></span>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="rating-email">Email <span class="required">*</span></label>
-                                <input type="email" id="rating-email" class="form-control" placeholder="email@example.com" required>
-                                <span class="form-error"></span>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label" for="rating-topic">Chủ đề <span class="required">*</span></label>
-                            <select id="rating-topic" class="form-control" required>
-                                <option value="">-- Chọn chủ đề --</option>
-                                <option value="event">Sự kiện</option>
-                                <option value="assembly_event">Sự kiện lắp ráp</option>
-                                <option value="community">Hoạt động cộng đồng</option>
-                                <option value="other">Khác</option>
-                            </select>
-                            <span class="form-error"></span>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label" for="rating-message">Nội dung đánh giá <span class="required">*</span></label>
-                            <textarea id="rating-message" class="form-control" rows="5" placeholder="Hãy chia sẻ chi tiết trải nghiệm của bạn..." required></textarea>
-                            <span class="form-error"></span>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">Đánh giá <span class="required">*</span></label>
-                            <div class="rating-stars" id="rating-stars">
-                                <i class='bx bx-star' data-value="1"></i>
-                                <i class='bx bx-star' data-value="2"></i>
-                                <i class='bx bx-star' data-value="3"></i>
-                                <i class='bx bx-star' data-value="4"></i>
-                                <i class='bx bx-star' data-value="5"></i>
-                            </div>
-                            <input type="hidden" id="rating-value" value="5">
-                            <span class="rating-value-text">5/5 sao</span>
-                            <span class="form-error"></span>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary">
-                            <span>GỬI ĐÁNH GIÁ</span>
-                            <i class='bx bx-send'></i>
-                        </button>
-
-                        <div class="form-message" id="form-message"></div>
-                    </form>
-                </div>
-            </div>
-        </section>
     </main>
 
     <!-- Footer -->
