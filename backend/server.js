@@ -156,6 +156,11 @@ async function connectDB() {
                 ALTER TABLE khachhang ADD HinhAnh NVARCHAR(MAX);
             END
 
+            IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[khachhang]') AND name = 'DiemTichLuy')
+            BEGIN
+                ALTER TABLE khachhang ADD DiemTichLuy INT NOT NULL DEFAULT 0;
+            END
+
             IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[nhacungcap]') AND type in (N'U'))
             BEGIN
                 CREATE TABLE nhacungcap (
@@ -203,8 +208,14 @@ async function connectDB() {
                     TongTien DECIMAL(15,2) DEFAULT 0,
                     MaKH INT,
                     TrangThai NVARCHAR(20) DEFAULT 'Pending' CHECK (TrangThai IN ('Pending', 'Paid', 'Shipped', 'Cancelled')),
+                    PhuongThucTT NVARCHAR(30) DEFAULT 'QR',
                     FOREIGN KEY (MaKH) REFERENCES khachhang(MaKH) ON DELETE CASCADE
                 );
+            END
+
+            IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[hoadon]') AND name = 'PhuongThucTT')
+            BEGIN
+                ALTER TABLE hoadon ADD PhuongThucTT NVARCHAR(30) DEFAULT 'QR';
             END
 
             IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[cthoadon]') AND type in (N'U'))
@@ -1144,6 +1155,65 @@ app.put('/api/profile/:username', async (req, res) => {
  * @route GET /api/orders/:username
  * @desc Lấy lịch sử đơn hàng của một phi công cụ thể
  */
+app.get('/api/invoices', async (req, res) => {
+    try {
+        const pool = await sql.connect(config);
+        const result = await pool.request().query(`
+            SELECT h.MaHD, h.NgayLap, h.TongTien, h.TrangThai, h.PhuongThucTT,
+                   k.MaKH, k.TenKH, k.Email,
+                   (SELECT COUNT(*) FROM cthoadon ct WHERE ct.MaHD = h.MaHD) AS SoLuongSP
+            FROM hoadon h
+            JOIN khachhang k ON h.MaKH = k.MaKH
+            ORDER BY h.NgayLap DESC
+        `);
+        res.json(result.recordset);
+    } catch (err) {
+        console.error('[INVOICE-API] Error:', err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.put('/api/invoices/:id', async (req, res) => {
+    const invoiceId = parseInt(req.params.id);
+    const { status, paymentMethod } = req.body;
+    try {
+        const pool = await sql.connect(config);
+        await pool.request()
+            .input('id', sql.Int, invoiceId)
+            .input('status', sql.NVarChar, status || 'Paid')
+            .input('paymentMethod', sql.NVarChar, paymentMethod || 'QR')
+            .query(`
+                UPDATE hoadon
+                SET TrangThai = @status,
+                    PhuongThucTT = @paymentMethod
+                WHERE MaHD = @id
+            `);
+        res.json({ success: true, message: 'Hóa đơn đã được cập nhật.' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.delete('/api/invoices/:id', async (req, res) => {
+    const invoiceId = parseInt(req.params.id);
+    try {
+        const pool = await sql.connect(config);
+        const transaction = new sql.Transaction(pool);
+        await transaction.begin();
+        try {
+            await transaction.request().input('id', sql.Int, invoiceId).query('DELETE FROM cthoadon WHERE MaHD = @id');
+            await transaction.request().input('id', sql.Int, invoiceId).query('DELETE FROM hoadon WHERE MaHD = @id');
+            await transaction.commit();
+            res.json({ success: true, message: 'Hóa đơn đã được xóa.' });
+        } catch (err) {
+            await transaction.rollback();
+            throw err;
+        }
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 app.get('/api/orders/:username', async (req, res) => {
     const username = req.params.username;
     try {
@@ -1195,6 +1265,7 @@ app.post('/api/checkout', async (req, res) => {
             const numericPrice = parseInt(String(item.price || '').replace(/[^\d]/g, ''), 10) || 0;
             return sum + numericPrice;
         }, 0);
+        const pointsEarned = Math.floor(totalAmount / 100000);
 
         const transaction = new sql.Transaction(pool);
         await transaction.begin();
@@ -1203,10 +1274,11 @@ app.post('/api/checkout', async (req, res) => {
             const invoiceResult = await transaction.request()
                 .input('maKh', sql.Int, maKh)
                 .input('tongTien', sql.Decimal(15, 2), totalAmount)
+                .input('phuongThuc', sql.NVarChar, paymentMethod || 'QR')
                 .query(`
-                    INSERT INTO hoadon (MaKH, TongTien, TrangThai)
+                    INSERT INTO hoadon (MaKH, TongTien, TrangThai, PhuongThucTT)
                     OUTPUT INSERTED.MaHD
-                    VALUES (@maKh, @tongTien, 'Pending')
+                    VALUES (@maKh, @tongTien, 'Paid', @phuongThuc)
                 `);
 
             const invoiceId = invoiceResult.recordset[0].MaHD;
@@ -1236,13 +1308,25 @@ app.post('/api/checkout', async (req, res) => {
                     `);
             }
 
+            if (pointsEarned > 0) {
+                await transaction.request()
+                    .input('maKh', sql.Int, maKh)
+                    .input('points', sql.Int, pointsEarned)
+                    .query(`
+                        UPDATE khachhang
+                        SET DiemTichLuy = ISNULL(DiemTichLuy, 0) + @points
+                        WHERE MaKH = @maKh
+                    `);
+            }
+
             await transaction.commit();
 
             res.status(201).json({
                 success: true,
                 invoiceId,
                 totalAmount,
-                paymentMethod,
+                paymentMethod: paymentMethod || 'QR',
+                pointsEarned,
                 message: 'Hóa đơn đã được tạo thành công.'
             });
         } catch (err) {

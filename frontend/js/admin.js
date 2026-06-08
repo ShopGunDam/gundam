@@ -23,6 +23,7 @@ const state = {
     users: [],
     suppliers: [],
     news: [],
+    invoices: [],
     currentView: 'overview',
     apiUrl: `${defaultApiHost}/api`,
     apiHosts: (browserHost === 'localhost' || browserHost === '127.0.0.1')
@@ -102,6 +103,15 @@ async function fetchNews() {
     }
 }
 
+async function fetchInvoices() {
+    try {
+        const response = await requestApi('/api/invoices');
+        state.invoices = await response.json();
+    } catch (err) {
+        console.error("Failed to fetch invoices:", err);
+    }
+}
+
 // --- AUTHENTICATION ---
 function checkAuth() {
     const isAdmin = localStorage.getItem('gst_admin_logged');
@@ -115,6 +125,7 @@ function checkAuth() {
             await fetchUsers(); // Load users from SQL
             await fetchSuppliers(); // Load suppliers for product entry
             await fetchNews(); // Load news posts
+            await fetchInvoices(); // Load invoices for admin panel
             renderView('overview');
         }, 1500);
     } else {
@@ -151,16 +162,7 @@ function renderView(viewName) {
             mainContent.innerHTML = renderAccounts();
             break;
         case 'invoices':
-            mainContent.innerHTML = `
-                <div class="page-header">
-                    <h2 class="admin-title">HÓA ĐƠN <span class="highlight">Hệ Thống</span></h2>
-                </div>
-                <div class="content-panel">
-                    <div style="padding: 100px; text-align: center; color: var(--text-muted);">
-                        <i class='bx bx-file-blank' style="font-size: 5rem; display: block; margin-bottom: 20px;"></i>
-                        DỮ LIỆU HÓA ĐƠN TRỐNG
-                    </div>
-                </div>`;
+            mainContent.innerHTML = renderInvoices();
             break;
         default:
             mainContent.innerHTML = `<h2 class="admin-title">ĐANG PHÁT TRIỂN...</h2>`;
@@ -307,6 +309,51 @@ function renderAccounts() {
                                     <div class="action-btns">
                                         <button class="action-btn" onclick="showEditUserModal('${u.id}')" title="Chỉnh sửa"><i class='bx bx-edit-alt'></i></button>
                                         <button class="action-btn delete" onclick="deleteUser('${u.id}')" title="Xóa"><i class='bx bx-trash'></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    `;
+}
+
+function renderInvoices() {
+    return `
+        <div class="page-header">
+            <h2 class="admin-title">QUẢN LÝ <span class="highlight">HÓA ĐƠN</span></h2>
+        </div>
+        <div class="content-panel">
+            <div class="data-table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Mã HD</th>
+                            <th>Khách hàng</th>
+                            <th>Ngày lập</th>
+                            <th>Tổng tiền</th>
+                            <th>Thanh toán</th>
+                            <th>Trạng thái</th>
+                            <th>Số SP</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${state.invoices.map(inv => `
+                            <tr>
+                                <td class="id-cell">#GSTORE-${inv.MaHD}</td>
+                                <td>${inv.TenKH || inv.MaKH}<br><small>${inv.Email || ''}</small></td>
+                                <td>${new Date(inv.NgayLap).toLocaleString('vi-VN')}</td>
+                                <td>${Number(inv.TongTien || 0).toLocaleString()}₫</td>
+                                <td>${inv.PhuongThucTT || 'QR'}</td>
+                                <td><span class="status-badge ${inv.TrangThai === 'Paid' ? 'status-instock' : 'status-processing'}">${inv.TrangThai || 'Pending'}</span></td>
+                                <td>${inv.SoLuongSP || 0}</td>
+                                <td>
+                                    <div class="action-btns">
+                                        <button class="action-btn" onclick="showEditInvoiceModal(${inv.MaHD})" title="Chỉnh sửa"><i class='bx bx-edit-alt'></i></button>
+                                        <button class="action-btn delete" onclick="deleteInvoice(${inv.MaHD})" title="Xóa"><i class='bx bx-trash'></i></button>
                                     </div>
                                 </td>
                             </tr>
@@ -794,6 +841,92 @@ async function deleteUser(id) {
             alert("Lỗi khi kết nối: " + err.message);
         }
     }
+}
+
+async function deleteInvoice(id) {
+    if (!confirm(`Bạn có chắc muốn xóa hóa đơn #GSTORE-${id}?`)) return;
+    try {
+        const response = await requestApi(`/api/invoices/${id}`, { method: 'DELETE' });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Không thể xóa hóa đơn');
+        await fetchInvoices();
+        renderView('invoices');
+        alert('Đã xóa hóa đơn thành công.');
+    } catch (err) {
+        alert(err.message || 'Lỗi khi xóa hóa đơn');
+    }
+}
+
+function showEditInvoiceModal(invoiceId) {
+    const invoice = state.invoices.find(inv => inv.MaHD === invoiceId);
+    if (!invoice) return alert('Không tìm thấy hóa đơn.');
+
+    modal.style.display = 'flex';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">CẬP NHẬT <span class="highlight">HÓA ĐƠN</span></h3>
+            </div>
+            <form id="edit-invoice-form" class="admin-form">
+                <div class="form-group">
+                    <label>MÃ HÓA ĐƠN</label>
+                    <input type="text" value="#GSTORE-${invoice.MaHD}" readonly>
+                </div>
+                <div class="form-group">
+                    <label>KHÁCH HÀNG</label>
+                    <input type="text" value="${invoice.TenKH || invoice.MaKH}" readonly>
+                </div>
+                <div class="form-group">
+                    <label>TRẠNG THÁI</label>
+                    <select id="invoice-status">
+                        <option value="Paid" ${invoice.TrangThai === 'Paid' ? 'selected' : ''}>Đã thanh toán</option>
+                        <option value="Pending" ${invoice.TrangThai === 'Pending' ? 'selected' : ''}>Chờ thanh toán</option>
+                        <option value="Shipped" ${invoice.TrangThai === 'Shipped' ? 'selected' : ''}>Đang giao</option>
+                        <option value="Cancelled" ${invoice.TrangThai === 'Cancelled' ? 'selected' : ''}>Đã hủy</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>PHƯƠNG THỨC THANH TOÁN</label>
+                    <select id="invoice-payment-method">
+                        <option value="QR" ${invoice.PhuongThucTT === 'QR' ? 'selected' : ''}>QR</option>
+                        <option value="Ngân hàng" ${invoice.PhuongThucTT === 'Ngân hàng' ? 'selected' : ''}>Ngân hàng</option>
+                    </select>
+                </div>
+                <div class="form-footer">
+                    <button type="button" class="btn" onclick="closeModal()">HỦY</button>
+                    <button type="submit" class="btn btn-primary" id="btn-save-invoice">LƯU THAY ĐỔI</button>
+                </div>
+            </form>
+        </div>
+    `;
+
+    document.getElementById('edit-invoice-form').onsubmit = async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('btn-save-invoice');
+        btn.disabled = true;
+        btn.innerHTML = 'ĐANG LƯU...';
+        try {
+            const response = await requestApi(`/api/invoices/${invoiceId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    status: document.getElementById('invoice-status').value,
+                    paymentMethod: document.getElementById('invoice-payment-method').value
+                })
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Không thể cập nhật hóa đơn');
+            await fetchInvoices();
+            closeModal();
+            renderView('invoices');
+            alert('Cập nhật hóa đơn thành công.');
+        } catch (err) {
+            alert(err.message || 'Lỗi khi cập nhật hóa đơn');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = 'LƯU THAY ĐỔI';
+        }
+    };
 }
 
 // --- MODALS ---
