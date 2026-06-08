@@ -185,6 +185,9 @@ async function connectDB() {
                 ALTER TABLE sanpham ADD MaNCC INT NULL;
             END
 
+            -- Đảm bảo cột HinhAnh của sanpham là NVARCHAR(MAX) để lưu Base64
+            ALTER TABLE sanpham ALTER COLUMN HinhAnh NVARCHAR(MAX);
+
             IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = N'FK_sanpham_nhacungcap' AND parent_object_id = OBJECT_ID(N'[dbo].[sanpham]'))
             BEGIN
                 ALTER TABLE sanpham
@@ -433,7 +436,7 @@ app.post('/api/products', async (req, res) => {
             .input('LoaiSP', sql.NVarChar, series)
             .input('DonGia', sql.Decimal(15, 2), cleanPrice)
             .input('SoLuong', sql.Int, stock)
-            .input('HinhAnh', sql.NVarChar, img)
+            .input('HinhAnh', sql.NVarChar(sql.MAX), img)
             .input('MaNCC', sql.Int, supplierId || null)
             .query(`INSERT INTO sanpham (MaSP, TenSP, LoaiSP, DonGia, SoLuong, HinhAnh, MaNCC) 
                     VALUES (@MaSP, @TenSP, @LoaiSP, @DonGia, @SoLuong, @HinhAnh, @MaNCC)`);
@@ -479,7 +482,7 @@ app.put('/api/products/:id', async (req, res) => {
             .input('LoaiSP', sql.NVarChar, series)
             .input('DonGia', sql.Decimal(15, 2), cleanPrice)
             .input('SoLuong', sql.Int, stock)
-            .input('HinhAnh', sql.NVarChar, img)
+            .input('HinhAnh', sql.NVarChar(sql.MAX), img)
             .input('MaNCC', sql.Int, supplierId || null)
             .query(`UPDATE sanpham 
                     SET TenSP = @TenSP, LoaiSP = @LoaiSP, DonGia = @DonGia, SoLuong = @SoLuong, HinhAnh = @HinhAnh, MaNCC = @MaNCC 

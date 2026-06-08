@@ -784,25 +784,11 @@ function showAddProductModal() {
         btnSave.disabled = true;
         btnSave.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> ĐANG TẢI...';
 
-        let finalImgUrl = imgUrlInput.value || 'assets/images/default.png';
-
-        // 1. If file is selected, upload it first
-        if (imgFileInput.files.length > 0) {
-            const formData = new FormData();
-            formData.append('image', imgFileInput.files[0]);
-
-            try {
-                const uploadRes = await fetch(`${state.apiUrl.replace('/products', '')}/upload`, {
-                    method: 'POST',
-                    body: formData
-                });
-                const uploadData = await uploadRes.json();
-                if (uploadData.url) {
-                    finalImgUrl = uploadData.url;
-                }
-            } catch (err) {
-                console.error("Upload failed, using default image");
-            }
+        let finalImgUrl = 'assets/images/default.png';
+        if (imgPreview.src && (imgPreview.src.startsWith('data:') || imgPreview.src.startsWith('http') || imgPreview.src.includes('assets/'))) {
+            finalImgUrl = imgPreview.src;
+        } else if (imgUrlInput.value) {
+            finalImgUrl = imgUrlInput.value;
         }
 
         const newProduct = {
@@ -1022,23 +1008,11 @@ function showEditProductModal(productId) {
         btnSave.disabled = true;
         btnSave.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> ĐANG LƯU...';
 
-        let finalImgUrl = imgUrlInput.value || product.img;
-
-        if (imgFileInput.files.length > 0) {
-            const formData = new FormData();
-            formData.append('image', imgFileInput.files[0]);
-            try {
-                const uploadRes = await fetch(`${state.apiUrl.replace('/products', '')}/upload`, {
-                    method: 'POST',
-                    body: formData
-                });
-                const uploadData = await uploadRes.json();
-                if (uploadData.url) {
-                    finalImgUrl = uploadData.url;
-                }
-            } catch (err) {
-                console.error("Upload failed, using original image");
-            }
+        let finalImgUrl = product.img;
+        if (imgPreview.src && (imgPreview.src.startsWith('data:') || imgPreview.src.startsWith('http') || imgPreview.src.includes('assets/'))) {
+            finalImgUrl = imgPreview.src;
+        } else if (imgUrlInput.value) {
+            finalImgUrl = imgUrlInput.value;
         }
 
         const updatedProduct = {
