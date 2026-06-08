@@ -421,6 +421,31 @@ app.delete('/api/news/:id', async (req, res) => {
 });
 
 /**
+ * @route PUT /api/news/:id
+ * @desc Update a news post in SQL Server
+ */
+app.put('/api/news/:id', async (req, res) => {
+    const newsId = parseInt(req.params.id);
+    const { title, category, excerpt, body, img } = req.body;
+    try {
+        const pool = await sql.connect(config);
+        await pool.request()
+            .input('id', sql.Int, newsId)
+            .input('TieuDe', sql.NVarChar, title)
+            .input('LoaiTin', sql.NVarChar, category)
+            .input('TomTat', sql.NVarChar, excerpt)
+            .input('NoiDung', sql.NVarChar, body)
+            .input('HinhAnh', sql.NVarChar, img)
+            .query(`UPDATE tintuc 
+                    SET TieuDe = @TieuDe, LoaiTin = @LoaiTin, TomTat = @TomTat, NoiDung = @NoiDung, HinhAnh = @HinhAnh 
+                    WHERE MaTin = @id`);
+        res.json({ message: 'News post updated successfully' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+/**
  * @route POST /api/products
  * @desc Add a new product to SQL Server
  */

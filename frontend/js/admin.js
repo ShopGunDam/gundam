@@ -347,6 +347,7 @@ function renderNews() {
                                 <td>${n.datePosted || '-'}</td>
                                 <td>
                                     <div class="action-btns">
+                                        <button class="action-btn" onclick="showEditNewsModal('${n.id}')" title="Chỉnh sửa"><i class='bx bx-edit-alt'></i></button>
                                         <button class="action-btn delete" onclick="deleteNews('${n.id}')" title="Xóa"><i class='bx bx-trash'></i></button>
                                     </div>
                                 </td>
@@ -497,6 +498,156 @@ function showAddNewsModal() {
 
         btnSave.disabled = false;
         btnSave.innerHTML = 'ĐĂNG TIN';
+    };
+}
+
+async function updateNews(id, payload) {
+    try {
+        const response = await requestApi(`/api/news/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => null);
+            const message = errorData?.error || `HTTP ${response.status}`;
+            console.error('Failed to update news:', message);
+            return { success: false, error: message };
+        }
+        return { success: true };
+    } catch (err) {
+        console.error('Failed to update news:', err);
+        return { success: false, error: err.message };
+    }
+}
+
+function showEditNewsModal(newsId) {
+    const post = state.news.find(n => n.id.toString() === newsId.toString());
+    if (!post) return alert("Không tìm thấy tin tức!");
+
+    modal.style.display = 'flex';
+    modal.innerHTML = `
+        <div class="modal-content wide">
+            <div class="modal-header">
+                <h3 class="modal-title">CHỈNH SỬA TIN TỨC</h3>
+            </div>
+            <form id="edit-news-form" class="admin-form">
+                <div class="modal-grid">
+                    <div class="modal-left">
+                        <label>ẢNH BÀI VIẾT</label>
+                        <div class="image-upload-wrapper" id="news-img-upload" style="cursor: pointer;">
+                            <i class='bx bx-cloud-upload' style="${post.img ? 'display:none' : ''}"></i>
+                            <span style="${post.img ? 'display:none' : ''}">CHỌN ẢNH TỪ HỆ THỐNG</span>
+                            <img id="news-img-preview" src="${post.img || ''}" style="${post.img ? 'display:block' : 'display:none'}; width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">
+                        </div>
+                        <input type="file" id="news-img-file" style="display:none" accept="image/*">
+                        <input type="text" id="news-img-url" value="${post.img || ''}" placeholder="Hoặc nhập URL ảnh..." style="margin-top: 10px; font-size: 0.75rem;">
+                    </div>
+                    <div class="modal-right">
+                        <div class="form-group">
+                            <label>TIÊU ĐỀ</label>
+                            <input type="text" id="news-title" value="${post.title}" placeholder="Tiêu đề tin tức" required>
+                        </div>
+                        <div class="form-group">
+                            <label>LOẠI TIN</label>
+                            <select id="news-category" required>
+                                <option value="news" ${post.category === 'news' ? 'selected' : ''}>Tin tức</option>
+                                <option value="promo" ${post.category === 'promo' ? 'selected' : ''}>Ưu đãi</option>
+                                <option value="guide" ${post.category === 'guide' ? 'selected' : ''}>Sự kiện</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>TÓM TẮT</label>
+                            <textarea id="news-excerpt" rows="4" placeholder="Tóm tắt nội dung..." required>${post.excerpt}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>NỘI DUNG CHI TIẾT</label>
+                            <textarea id="news-body" rows="6" placeholder="Nội dung chi tiết...">${post.body || ''}</textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-footer">
+                    <button type="button" class="btn" onclick="closeModal()">HỦY</button>
+                    <button type="submit" class="btn btn-primary" id="btn-save-news">LƯU THAY ĐỔI</button>
+                </div>
+            </form>
+        </div>
+    `;
+
+    const imgUploadTrigger = document.getElementById('news-img-upload');
+    const imgFileInput = document.getElementById('news-img-file');
+    const imgUrlInput = document.getElementById('news-img-url');
+    const imgPreview = document.getElementById('news-img-preview');
+    const uploadIcon = imgUploadTrigger.querySelector('i');
+    const uploadText = imgUploadTrigger.querySelector('span');
+
+    imgUploadTrigger.onclick = () => imgFileInput.click();
+    imgFileInput.onchange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imgPreview.src = e.target.result;
+                imgPreview.style.display = 'block';
+                if (uploadIcon) uploadIcon.style.display = 'none';
+                if (uploadText) uploadText.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    imgUrlInput.oninput = () => {
+        if (imgUrlInput.value) {
+            imgPreview.src = imgUrlInput.value;
+            imgPreview.style.display = 'block';
+            if (uploadIcon) uploadIcon.style.display = 'none';
+            if (uploadText) uploadText.style.display = 'none';
+        }
+    };
+
+    document.getElementById('edit-news-form').onsubmit = async (e) => {
+        e.preventDefault();
+        const btnSave = document.getElementById('btn-save-news');
+        btnSave.disabled = true;
+        btnSave.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> ĐANG LƯU...';
+
+        let finalImgUrl = imgUrlInput.value || post.img || '';
+        if (imgFileInput.files.length > 0) {
+            const formData = new FormData();
+            formData.append('image', imgFileInput.files[0]);
+            try {
+                const uploadRes = await requestApi('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                const uploadData = await uploadRes.json();
+                if (uploadData.url) {
+                    finalImgUrl = uploadData.url;
+                }
+            } catch (err) {
+                console.error('Upload failed:', err);
+            }
+        }
+
+        const payload = {
+            title: document.getElementById('news-title').value.trim(),
+            category: document.getElementById('news-category').value,
+            excerpt: document.getElementById('news-excerpt').value.trim(),
+            body: document.getElementById('news-body').value.trim() || null,
+            img: finalImgUrl || null
+        };
+
+        const result = await updateNews(newsId, payload);
+        if (result.success) {
+            await fetchNews();
+            closeModal();
+            renderView('news');
+        } else {
+            alert('Không thể lưu tin tức. ' + (result.error || 'Vui lòng thử lại.'));
+        }
+
+        btnSave.disabled = false;
+        btnSave.innerHTML = 'LƯU THAY ĐỔI';
     };
 }
 
