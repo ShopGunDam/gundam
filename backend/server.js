@@ -21,7 +21,10 @@ const smtpConfig = {
     auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS
-    }
+    },
+    connectionTimeout: 10000, // 10 seconds
+    greetingTimeout: 10000,
+    socketTimeout: 15000
 };
 
 let mailTransporter = null;
@@ -822,8 +825,10 @@ app.post('/api/verify-user', async (req, res) => {
             // Lưu vào otpStore tạm thời, có hiệu lực trong 5 phút (300000 ms)
             otpStore.set(username, { otp, email, expiresAt: Date.now() + 5 * 60 * 1000 });
             
-            // Gửi email thật (hoặc fallback ra console log)
-            await sendOTPEmail(email || 'pilot@gstore.com', username, otp);
+            // Gửi email thật (không await để tránh treo UI nếu mail server chậm)
+            sendOTPEmail(email || 'pilot@gstore.com', username, otp).catch(err => {
+                console.error('[OTP-BACKGROUND-ERROR] Lỗi gửi email ngầm:', err.message);
+            });
             
             // Tạo masked email để hiển thị an toàn trên giao diện
             let maskedEmail = 'chưa liên kết email';
