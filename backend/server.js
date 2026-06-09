@@ -8,6 +8,9 @@ const bcrypt = require('bcryptjs');
 require('dotenv').config();
 const nodemailer = require('nodemailer');
 const https = require('https');
+const dns = require('dns');
+
+dns.setDefaultResultOrder('ipv4first');
 
 const BCRYPT_SALT_ROUNDS = 10; // rounds for bcrypt hashing
 
@@ -18,6 +21,7 @@ const smtpConfig = {
     host: process.env.SMTP_HOST,
     port: parseInt(process.env.SMTP_PORT) || 587,
     secure: process.env.SMTP_PORT === '465', // true for 465, false for other ports
+    family: 4,
     auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS
@@ -30,6 +34,14 @@ const smtpConfig = {
 let mailTransporter = null;
 if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
     mailTransporter = nodemailer.createTransport(smtpConfig);
+    
+    mailTransporter.verify((error) => {
+        if (error) {
+            console.error('[SMTP VERIFY ERROR]', error);
+        } else {
+            console.log('[SMTP] Ready');
+        }
+    });
     console.log('[EMAIL] Nodemailer SMTP Transporter configured.');
 } else {
     console.log('[EMAIL] Warning: SMTP configuration missing in .env. Falling back to console log for OTP.');
