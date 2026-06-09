@@ -19,21 +19,21 @@ const otpStore = new Map(); // Key: username, Value: { otp, email, expiresAt }
 // --- NODEMAILER EMAIL CONFIGURATION ---
 // --- NODEMAILER EMAIL CONFIGURATION ---
 const smtpConfig = {
-    host: process.env.SMTP_HOST,
-    port: parseInt(process.env.SMTP_PORT) || 587,
-    secure: process.env.SMTP_PORT === '465', // true for 465, false for other ports
-    
-    // Thêm 2 dòng cấu hình dưới đây để ép chạy IPv4
-    family: 4, 
-   
-    
+    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+    port: parseInt(process.env.SMTP_PORT) || 465,
+    secure: true, // Ép cứng luôn vì bạn đang chạy trên port 465 bảo mật
     auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS
     },
-    connectionTimeout: 10000, // 10 seconds
-    greetingTimeout: 10000,
-    socketTimeout: 15000
+    // ĐÂY MỚI LÀ CÁCH ÉP IPv4 ĐÚNG KHI DÙNG PORT 465 (MÃ HÓA TLS/SSL)
+    tls: {
+        family: 4,                  // Ép module TLS phải dùng IPv4
+        rejectUnauthorized: false   // Bỏ qua lỗi bắt tay chứng chỉ nếu Render chặn tầng sâu
+    },
+    connectionTimeout: 15000, 
+    greetingTimeout: 15000,
+    socketTimeout: 20000
 };
 
 let mailTransporter = null;
