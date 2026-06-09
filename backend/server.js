@@ -1,3 +1,5 @@
+const dns = require('dns');
+dns.setDefaultResultOrder('ipv4first');
 const express = require('express');
 const sql = require('mssql');
 const cors = require('cors');
@@ -8,9 +10,7 @@ const bcrypt = require('bcryptjs');
 require('dotenv').config();
 const nodemailer = require('nodemailer');
 const https = require('https');
-const dns = require('dns');
 
-dns.setDefaultResultOrder('ipv4first');
 
 const BCRYPT_SALT_ROUNDS = 10; // rounds for bcrypt hashing
 
