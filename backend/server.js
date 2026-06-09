@@ -25,7 +25,7 @@ const smtpConfig = {
     
     // Thêm 2 dòng cấu hình dưới đây để ép chạy IPv4
     family: 4, 
-    localAddress: '0.0.0.0', // Ép buộc gửi từ socket IPv4 cục bộ trên Render
+   
     
     auth: {
         user: process.env.SMTP_USER,
