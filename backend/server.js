@@ -17,11 +17,16 @@ const BCRYPT_SALT_ROUNDS = 10; // rounds for bcrypt hashing
 const otpStore = new Map(); // Key: username, Value: { otp, email, expiresAt }
 
 // --- NODEMAILER EMAIL CONFIGURATION ---
+// --- NODEMAILER EMAIL CONFIGURATION ---
 const smtpConfig = {
     host: process.env.SMTP_HOST,
     port: parseInt(process.env.SMTP_PORT) || 587,
     secure: process.env.SMTP_PORT === '465', // true for 465, false for other ports
-    family: 4,
+    
+    // Thêm 2 dòng cấu hình dưới đây để ép chạy IPv4
+    family: 4, 
+    localAddress: '0.0.0.0', // Ép buộc gửi từ socket IPv4 cục bộ trên Render
+    
     auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS
